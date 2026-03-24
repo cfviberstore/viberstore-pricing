@@ -26,7 +26,10 @@ def build_model_entry(model_name, vs_prices, ref_prices):
     """
     conditions_out = []
 
-    for condition in CONDITIONS:
+    # Pre-compute which conditions have cross-condition pricing violations
+    hierarchy_violations = check_condition_hierarchy(vs_prices)
+
+        for condition in CONDITIONS:
         vs_cond = vs_prices.get(condition, {})
         ref_cond = ref_prices.get(condition, {})
 
@@ -83,8 +86,8 @@ def build_model_entry(model_name, vs_prices, ref_prices):
         if not storage_data:
             continue
 
-        # Hierarchy check: V.Good must be > Good, Excellent must be > V.Good
-        hierarchy_ok = check_hierarchy(vs_cond)
+        # Hierarchy check: Good < V.Good < Excellent for each storage size
+        hierarchy_ok = condition not in hierarchy_violations
 
         conditions_out.append({
             "condition": condition,
@@ -99,18 +102,34 @@ def build_model_entry(model_name, vs_prices, ref_prices):
     }
 
 
-def check_hierarchy(cond_prices):
+def check_condition_hierarchy(vs_prices):
     """
-    Check that prices increase properly across conditions for same storage.
-    Returns True if the hierarchy is clean.
+    Check that VS prices escalate correctly across conditions for the same storage:
+    Good < V. Good < Excellent (for each storage size).
+
+    Returns a set of condition names that are involved in a hierarchy violation.
+    E.g. if Good 128GB costs more than V. Good 128GB, both 'Good' and 'V. Good'
+    are returned so either can be flagged as hierarchy_ok=False.
     """
-    # This is called per-condition so we just validate the storage order is ascending
-    prices = [(s, p) for s, p in cond_prices.items() if p is not None]
-    prices.sort(key=lambda x: STORAGES.index(x[0]) if x[0] in STORAGES else 99)
-    for i in range(1, len(prices)):
-        if prices[i][1] <= prices[i - 1][1]:
-            return False
-    return True
+    condition_order = ["Good", "V. Good", "Excellent"]
+    violations = set()
+
+    for storage in STORAGES:
+        prices = []
+        for cond in condition_order:
+            p = vs_prices.get(cond, {}).get(storage)
+            if p is not None:
+                prices.append((cond, p))
+
+        # Each step must be strictly higher
+        for i in range(1, len(prices)):
+            prev_cond, prev_price = prices[i - 1]
+            curr_cond, curr_price = prices[i]
+            if curr_price <= prev_price:
+                violations.add(prev_cond)
+                violations.add(curr_cond)
+
+    return violations
 
 
 def summarise_action(storage_data):
