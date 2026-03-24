@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ViberStore â Live Pricing Intelligence</title>
+<title>ViberStore &#8212; Live Pricing Intelligence</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -160,18 +160,18 @@
   </div>
   <div class="nav-divider"></div>
   <button class="nav-refresh-btn" id="reloadBtn" onclick="reloadData()" title="Re-fetch the latest prices.json">
-    <span class="btn-icon">â»</span> Reload
+    <span class="btn-icon">&#8635;</span> Reload
   </button>
   <button class="nav-refresh-btn" id="scrapeBtn" onclick="openScrapeModal()" title="Trigger a fresh scrape on GitHub Actions">
-    <span class="btn-icon">â¡</span> Run Scraper
+    <span class="btn-icon">&#9889;</span> Run Scraper
   </button>
 </nav>
 
 <!-- GitHub Actions trigger modal -->
 <div class="modal-backdrop" id="scrapeModal">
   <div class="modal">
-    <h2>â¡ Run Scraper Now</h2>
-    <p class="modal-sub">This triggers a fresh price scrape on GitHub Actions â usually takes 5â10 minutes. You only need to enter your details once; they're saved in your browser.</p>
+    <h2>&#9889; Run Scraper Now</h2>
+    <p class="modal-sub">This triggers a fresh price scrape on GitHub Actions &#8212; usually takes 5&#8211;10 minutes. You only need to enter your details once; they're saved in your browser.</p>
 
     <div class="modal-field">
       <label>GitHub Username</label>
@@ -186,7 +186,7 @@
       <input class="modal-input" id="ghToken" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off">
       <p class="modal-hint">
         Create a free token at <a href="https://github.com/settings/tokens/new?scopes=repo&description=ViberStore+Pricing+Bot" target="_blank">github.com/settings/tokens</a>
-        â only needs the <strong>repo</strong> scope. Stored locally in your browser, never sent anywhere except GitHub.
+        &#8212; only needs the <strong>repo</strong> scope. Stored locally in your browser, never sent anywhere except GitHub.
       </p>
     </div>
 
@@ -194,18 +194,18 @@
 
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
-      <button class="btn-primary" id="triggerBtn" onclick="triggerScrape()">â¡ Start Scrape</button>
+      <button class="btn-primary" id="triggerBtn" onclick="triggerScrape()">&#9889; Start Scrape</button>
     </div>
   </div>
 </div>
 
 <div class="main">
   <div class="stats-row">
-    <div class="stat-card"><div class="stat-label">Models Priced</div><div class="stat-value blue" id="statModels">â</div><div class="stat-sub" id="statModelsSub">loading...</div></div>
-    <div class="stat-card"><div class="stat-label">VS Cheaper</div><div class="stat-value green" id="statVS">â</div><div class="stat-sub">variants where we win</div></div>
-    <div class="stat-card"><div class="stat-label">Refurbed Cheaper</div><div class="stat-value red" id="statRef">â</div><div class="stat-sub">variants to watch</div></div>
-    <div class="stat-card"><div class="stat-label">Avg Price Delta</div><div class="stat-value amber" id="statDelta">â</div><div class="stat-sub">vs Refurbed (â¬)</div></div>
-    <div class="stat-card"><div class="stat-label">Hierarchy Issues</div><div class="stat-value purple" id="statHier">â</div><div class="stat-sub">condition pricing violations</div></div>
+    <div class="stat-card"><div class="stat-label">Models Priced</div><div class="stat-value blue" id="statModels">&#8212;</div><div class="stat-sub" id="statModelsSub">loading...</div></div>
+    <div class="stat-card"><div class="stat-label">VS Cheaper</div><div class="stat-value green" id="statVS">&#8212;</div><div class="stat-sub">variants where we win</div></div>
+    <div class="stat-card"><div class="stat-label">Refurbed Cheaper</div><div class="stat-value red" id="statRef">&#8212;</div><div class="stat-sub">variants to watch</div></div>
+    <div class="stat-card"><div class="stat-label">Avg Price Delta</div><div class="stat-value amber" id="statDelta">&#8212;</div><div class="stat-sub">vs Refurbed (&#8364;)</div></div>
+    <div class="stat-card"><div class="stat-label">Hierarchy Issues</div><div class="stat-value purple" id="statHier">&#8212;</div><div class="stat-sub">condition pricing violations</div></div>
   </div>
 
   <div class="filters-bar">
@@ -256,16 +256,16 @@
       <span class="legend-item"><span class="legend-dot" style="background:#d97706"></span>Hierarchy issue</span>
       <span class="legend-item"><span class="legend-dot" style="background:#94a3b8"></span>No Refurbed data</span>
       <span style="margin-left:12px; font-size:11px; color:var(--slate-500);">
-        Recommended: <span style="color:#16a34a;font-weight:700;">â² Raise</span> &nbsp;
-        <span style="color:#dc2626;font-weight:700;">â¼ Lower</span> &nbsp;
-        <span style="color:#2563eb;font-weight:700;">â Hold</span>
+        Recommended: <span style="color:#16a34a;font-weight:700;">&#9650; Raise</span> &nbsp;
+        <span style="color:#dc2626;font-weight:700;">&#9660; Lower</span> &nbsp;
+        <span style="color:#2563eb;font-weight:700;">&#9679; Hold</span>
       </span>
     </div>
   </div>
 
-  <!-- Staleness warning â shown when data is >5 hours old -->
+  <!-- Staleness warning &#8212; shown when data is >5 hours old -->
   <div class="staleness-bar" id="stalenessBar">
-    â  Prices are over 5 hours old. Hit <strong style="margin:0 4px">â¡ Run Scraper</strong> to refresh, or wait for the next automatic update.
+    &#9888; Prices are over 5 hours old. Hit <strong style="margin:0 4px">&#9889; Run Scraper</strong> to refresh, or wait for the next automatic update.
   </div>
 
   <div id="modelList">
@@ -283,7 +283,7 @@ let actionFilter = 'all';
 
 const STORAGES = ['64GB','128GB','256GB','512GB','1TB'];
 
-// ââ Load prices.json âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// &#9472;&#9472; Load prices.json &#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;
 async function loadData(showSpinner = true) {
   if (showSpinner) {
     document.getElementById('modelList').innerHTML = `
@@ -310,18 +310,18 @@ async function loadData(showSpinner = true) {
   }
 }
 
-// ââ Reload button âââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// &#9472;&#9472; Reload button &#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;
 async function reloadData() {
   const btn = document.getElementById('reloadBtn');
   btn.disabled = true;
   btn.classList.add('spinning');
-  btn.querySelector('.btn-icon').textContent = 'â»';
+  btn.querySelector('.btn-icon').textContent = '&#8635;';
   await loadData(false);
   btn.disabled = false;
   btn.classList.remove('spinning');
 }
 
-// ââ Staleness check âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// &#9472;&#9472; Staleness check &#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;
 function checkStaleness(lastUpdated) {
   if (!lastUpdated) return;
   const ageMs = Date.now() - new Date(lastUpdated).getTime();
@@ -334,7 +334,7 @@ function checkStaleness(lastUpdated) {
   }
 }
 
-// ââ GitHub Actions trigger ââââââââââââââââââââââââââââââââââââââââââââââââ
+// &#9472;&#9472; GitHub Actions trigger &#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;
 const LS_KEY = 'vs_gh_config';
 
 function openScrapeModal() {
@@ -370,7 +370,7 @@ async function triggerScrape() {
     return;
   }
 
-  // Save config (token included â stored only in this browser)
+  // Save config (token included &#8212; stored only in this browser)
   localStorage.setItem(LS_KEY, JSON.stringify({ user, repo, token }));
 
   btn.disabled = true;
@@ -395,17 +395,17 @@ async function triggerScrape() {
 
     if (resp.status === 204) {
       status.className = 'modal-status success';
-      status.textContent = 'â Scraper started! Prices will update in ~5â10 minutes. Hit "Reload" when ready.';
-      btn.textContent = 'â Started';
+      status.textContent = '&#9989; Scraper started! Prices will update in ~5&#8211;10 minutes. Hit "Reload" when ready.';
+      btn.textContent = '&#9989; Started';
     } else {
       const body = await resp.json().catch(() => ({}));
       throw new Error(body.message || `GitHub returned ${resp.status}`);
     }
   } catch (err) {
     status.className = 'modal-status error';
-    status.textContent = `â Failed: ${err.message}`;
+    status.textContent = `&#10060; Failed: ${err.message}`;
     btn.disabled = false;
-    btn.textContent = 'â¡ Start Scrape';
+    btn.textContent = '&#9889; Start Scrape';
   }
 }
 
@@ -415,7 +415,7 @@ function onDataLoaded() {
   document.getElementById('statModelsSub').textContent = `across ${DATA.apple?.length || 0} Apple + ${DATA.samsung?.length || 0} Samsung`;
   document.getElementById('statVS').textContent = dash.vs_cheaper;
   document.getElementById('statRef').textContent = dash.ref_cheaper;
-  document.getElementById('statDelta').textContent = (dash.avg_delta >= 0 ? '+' : '') + 'â¬' + Math.abs(dash.avg_delta).toFixed(2);
+  document.getElementById('statDelta').textContent = (dash.avg_delta >= 0 ? '+' : '') + '&#8364;' + Math.abs(dash.avg_delta).toFixed(2);
   document.getElementById('statHier').textContent = dash.hierarchy_issues;
 
   // Format last updated + staleness check
@@ -426,14 +426,14 @@ function onDataLoaded() {
     document.getElementById('lastUpdated').textContent = `Updated ${dateStr} at ${timeStr}`;
     checkStaleness(DATA.last_updated);
   } else {
-    document.getElementById('lastUpdated').textContent = 'No data yet â run the scraper';
+    document.getElementById('lastUpdated').textContent = 'No data yet &#8212; run the scraper';
     document.getElementById('stalenessBar').classList.add('show');
   }
 
   applyFilters();
 }
 
-// ââ Filters & Rendering âââââââââââââââââââââââââââââââââââââââââââââââââââ
+// &#9472;&#9472; Filters & Rendering &#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;
 function switchBrand(brand, el) {
   currentBrand = brand;
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
@@ -500,9 +500,9 @@ function buildCard(model, idx, condFilter, storFilter) {
   const adjCount = modelAdjustCount(model);
 
   let badges = '';
-  if (hasHier) badges += '<span class="badge badge-warn">â  Hierarchy</span>';
-  if (needsAdj && !hasHier) badges += `<span class="badge badge-adjust">ð ${adjCount} to adjust</span>`;
-  if (!hasHier && !needsAdj) badges += '<span class="badge badge-ok">â All Good</span>';
+  if (hasHier) badges += '<span class="badge badge-warn">&#9888; Hierarchy</span>';
+  if (needsAdj && !hasHier) badges += `<span class="badge badge-adjust">&#128201; ${adjCount} to adjust</span>`;
+  if (!hasHier && !needsAdj) badges += '<span class="badge badge-ok">&#9989; All Good</span>';
 
   let tableRows = '';
   const conditions = model.conditions || [];
@@ -518,8 +518,8 @@ function buildCard(model, idx, condFilter, storFilter) {
 
     const condColour = cond.condition === 'Good' ? '#64748b' : cond.condition === 'V. Good' ? '#2563eb' : '#16a34a';
     const hierTag = cond.hierarchy_ok
-      ? '<span class="hier-ok">â OK</span>'
-      : '<span class="hier-warn">â  Hierarchy</span>';
+      ? '<span class="hier-ok">&#9989; OK</span>'
+      : '<span class="hier-warn">&#9888; Hierarchy</span>';
     const actionTag = renderAction(cond.action);
 
     tableRows += `<tr class="cond-header"><td colspan="5" style="padding:8px 16px;">
@@ -529,21 +529,21 @@ function buildCard(model, idx, condFilter, storFilter) {
     </td></tr>`;
 
     storages.forEach(s => {
-      const vsStr = s.vs_price != null ? 'â¬' + s.vs_price.toFixed(2) : 'â';
-      const refStr = s.ref_price != null ? 'â¬' + s.ref_price.toFixed(2) : 'â';
+      const vsStr = s.vs_price != null ? '&#8364;' + s.vs_price.toFixed(2) : '&#8212;';
+      const refStr = s.ref_price != null ? '&#8364;' + s.ref_price.toFixed(2) : '&#8212;';
 
-      let deltaHtml = '<span style="color:var(--slate-300)">â</span>';
+      let deltaHtml = '<span style="color:var(--slate-300)">&#8212;</span>';
       if (s.delta != null) {
         const cls = s.delta > 0 ? 'delta-neg' : s.delta < 0 ? 'delta-pos' : 'delta-zero';
         const sign = s.delta > 0 ? '+' : '';
-        deltaHtml = `<span class="delta-cell ${cls}">${sign}â¬${Math.abs(s.delta).toFixed(2)}</span>`;
+        deltaHtml = `<span class="delta-cell ${cls}">${sign}&#8364;${Math.abs(s.delta).toFixed(2)}</span>`;
       }
 
-      let recHtml = '<span style="color:var(--slate-300)">â</span>';
+      let recHtml = '<span style="color:var(--slate-300)">&#8212;</span>';
       if (s.recommended) {
-        const arrow = s.recommended.direction === 'up' ? 'â²' : s.recommended.direction === 'down' ? 'â¼' : 'â';
+        const arrow = s.recommended.direction === 'up' ? '&#9650;' : s.recommended.direction === 'down' ? '&#9660;' : '&#9679;';
         const cls = s.recommended.direction === 'up' ? 'rec-up' : s.recommended.direction === 'down' ? 'rec-down' : 'rec-same';
-        recHtml = `<span class="rec-cell ${cls}">${arrow} â¬${s.recommended.price.toFixed(2)}</span>`;
+        recHtml = `<span class="rec-cell ${cls}">${arrow} &#8364;${s.recommended.price.toFixed(2)}</span>`;
       }
 
       const vsCls = s.vs_price != null ? 'price-cell price-vs' : 'price-none';
@@ -563,7 +563,7 @@ function buildCard(model, idx, condFilter, storFilter) {
 
   return `<div class="model-card" id="card-${idx}">
     <div class="model-header" onclick="toggleCard(${idx})">
-      <span class="model-chevron">â¶</span>
+      <span class="model-chevron">&#9654;</span>
       <span class="model-name">${model.model}</span>
       <div class="model-badges">${badges}</div>
     </div>
@@ -573,7 +573,7 @@ function buildCard(model, idx, condFilter, storFilter) {
           <th style="width:70px">Storage</th>
           <th style="width:110px">VS Price</th>
           <th style="width:110px">Refurbed</th>
-          <th style="width:90px">Delta (â¬)</th>
+          <th style="width:90px">Delta (&#8364;)</th>
           <th>Recommended</th>
         </tr></thead>
         <tbody>${tableRows}</tbody>
@@ -586,11 +586,11 @@ function renderAction(action) {
   if (!action) return '';
   if (action.startsWith('adjust')) {
     const n = action.match(/\d+/)?.[0] || '';
-    return `<span style="color:#c2410c; font-weight:500;">ð Adjust ${n} variant${n>1?'s':''}</span>`;
+    return `<span style="color:#c2410c; font-weight:500;">&#128201; Adjust ${n} variant${n>1?'s':''}</span>`;
   }
-  if (action === 'fix_hierarchy') return `<span style="color:var(--amber); font-weight:600;">â  Fix Hierarchy</span>`;
-  if (action === 'ok') return `<span style="color:var(--green)">â Competitive</span>`;
-  return `<span style="color:var(--slate-400)">â No comparison</span>`;
+  if (action === 'fix_hierarchy') return `<span style="color:var(--amber); font-weight:600;">&#9888; Fix Hierarchy</span>`;
+  if (action === 'ok') return `<span style="color:var(--green)">&#10003; Competitive</span>`;
+  return `<span style="color:var(--slate-400)">&#8212; No comparison</span>`;
 }
 
 function toggleCard(idx) {
@@ -602,7 +602,7 @@ function toggleAll(open) {
   });
 }
 
-// ââ Init ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// &#9472;&#9472; Init &#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;
 loadData();
 </script>
 </body>
