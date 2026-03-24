@@ -204,7 +204,7 @@
     <div class="stat-card"><div class="stat-label">Models Priced</div><div class="stat-value blue" id="statModels">&#8212;</div><div class="stat-sub" id="statModelsSub">loading...</div></div>
     <div class="stat-card"><div class="stat-label">VS Cheaper</div><div class="stat-value green" id="statVS">&#8212;</div><div class="stat-sub">variants where we win</div></div>
     <div class="stat-card"><div class="stat-label">Refurbed Cheaper</div><div class="stat-value red" id="statRef">&#8212;</div><div class="stat-sub">variants to watch</div></div>
-    <div class="stat-card"><div class="stat-label">Avg Price Delta</div><div class="stat-value amber" id="statDelta">&#8212;</div><div class="stat-sub">vs Refurbed (&#8364;)</div></div>
+    <div class="stat-card"><div class="stat-label">Avg Price Delta</div><div class="stat-value amber" id="statDelta">&#8212;</div><div class="stat-sub" id="statDeltaSub">vs Refurbed</div></div>
     <div class="stat-card"><div class="stat-label">Hierarchy Issues</div><div class="stat-value purple" id="statHier">&#8212;</div><div class="stat-sub">condition pricing violations</div></div>
   </div>
 
@@ -415,7 +415,20 @@ function onDataLoaded() {
   document.getElementById('statModelsSub').textContent = `across ${DATA.apple?.length || 0} Apple + ${DATA.samsung?.length || 0} Samsung`;
   document.getElementById('statVS').textContent = dash.vs_cheaper;
   document.getElementById('statRef').textContent = dash.ref_cheaper;
-  document.getElementById('statDelta').textContent = (dash.avg_delta >= 0 ? '+' : '') + '\u20AC' + Math.abs(dash.avg_delta).toFixed(2);
+  const d = dash.avg_delta;
+  document.getElementById('statDelta').textContent = '\u20AC' + Math.abs(d).toFixed(2);
+  const deltaEl = document.getElementById('statDelta');
+  const deltaSub = document.getElementById('statDeltaSub');
+  if (d < -0.005) {
+    deltaEl.className = 'stat-value green';
+    if (deltaSub) deltaSub.textContent = 'avg we undercut Refurbed';
+  } else if (d > 0.005) {
+    deltaEl.className = 'stat-value red';
+    if (deltaSub) deltaSub.textContent = 'avg Refurbed undercuts us';
+  } else {
+    deltaEl.className = 'stat-value amber';
+    if (deltaSub) deltaSub.textContent = 'on par with Refurbed';
+  }
   document.getElementById('statHier').textContent = dash.hierarchy_issues;
 
   // Format last updated + staleness check
@@ -516,7 +529,7 @@ function buildCard(model, idx, condFilter, storFilter) {
   });
 
   // Canonical storage order
-  const allStorages = Object.keys(storMap).sort((a, b) => STORAGES.indexOf(a) - STORAGES.indexOf(b));
+  const allStorages = Object.keys(storMap).sort((a, b) => (STORAGES.indexOf(a) === -1 ? 999 : STORAGES.indexOf(a)) - (STORAGES.indexOf(b) === -1 ? 999 : STORAGES.indexOf(b)));
   const allConditions = conditions.map(c => c.condition);
 
   let tableRows = '';
