@@ -11,7 +11,7 @@ STORE_URL = "https://viberstore.ie"
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; ViberStorePricingBot/1.0)"}
 
 # Conditions we care about â must match Shopify option2 values exactly
-TARGET_CONDITIONS = {"Good", "V. Good", "Excellent"}
+TARGET_CONDITIONS = {"Good", "V. Good", "Very Good", "Excellent"}
 
 # Storage sizes we track
 TARGET_STORAGES = {"64GB", "128GB", "256GB", "512GB", "1TB"}
@@ -79,6 +79,9 @@ def extract_phone_prices(products, keywords):
         for variant in product.get("variants", []):
             storage = variant.get(mem_key, "")
             condition = variant.get(cond_key, "")
+        # Normalize condition names to a single canonical form
+        if condition == "Very Good":
+            condition = "V. Good"
             price = float(variant.get("price", 0))
             available = variant.get("available", False)
 
