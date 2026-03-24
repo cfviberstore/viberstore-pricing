@@ -79,9 +79,9 @@ def extract_phone_prices(products, keywords):
         for variant in product.get("variants", []):
             storage = variant.get(mem_key, "")
             condition = variant.get(cond_key, "")
-        # Normalize condition names to a single canonical form
-        if condition == "Very Good":
-            condition = "V. Good"
+            # Normalize condition names to a single canonical form
+            if condition == "Very Good":
+                condition = "V. Good"
             price = float(variant.get("price", 0))
             available = variant.get("available", False)
 
