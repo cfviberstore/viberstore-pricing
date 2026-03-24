@@ -113,31 +113,30 @@ def fetch_page(path, retries=3):
 def extract_price(soup):
     """
     Extract the best offer price from the page.
-    Refurbed embeds price in window.listItem.price2 in an inline script.
+
+    Refurbed's server-rendered HTML consistently embeds two price fields:
+      - "price"  : the retail/reference price (~10-15% higher, NOT the market price)
+      - "price2" : the actual best offer price from sellers right now  <-- we want this
+
+    IMPORTANT: Do NOT use "price" — it is inflated and will make all Refurbed prices
+    appear higher than they really are, causing VS to look artificially cheaper.
     """
     if not soup:
         return None
 
-    for script in soup.find_all("script"):
-        text = script.string or ""
-        # Look for listItem variable with price2
-        match = re.search(r'var\s+listItem\s*=\s*(\{[^;]{20,500}\})', text)
-        if match:
-            try:
-                data = json.loads(match.group(1))
-                price2 = data.get("price2")
-                if price2:
-                    return float(price2)
-            except (json.JSONDecodeError, ValueError):
-                pass
-
-        # Fallback: look for gtmData.offer price
-        match = re.search(r'"price"\s*:\s*"?([\d.]+)"?\s*[,}]', text)
-        if match and "gtmData" in text:
-            try:
-                return float(match.group(1))
-            except ValueError:
-                pass
+    # Search the full page HTML for "price2".
+    # This field is consistently present in the server-rendered HTML for every
+    # variant page (any condition, storage, colour) and always holds the best
+    # current offer price across all sellers on Refurbed.
+    full_text = str(soup)
+    match = re.search(r'"price2"\s*:\s*"([0-9]+(?:\.[0-9]+)?)"', full_text)
+    if match:
+        try:
+            price = float(match.group(1))
+            if price > 0:
+                return price
+        except ValueError:
+            pass
 
     return None
 
