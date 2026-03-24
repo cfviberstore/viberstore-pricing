@@ -1,0 +1,70 @@
+name: Update Prices
+
+on:
+  # Runs every 4 hours â so prices are never more than 4 hours stale
+  schedule:
+    - cron: '0 */4 * * *'   # 00:00, 04:00, 08:00, 12:00, 16:00, 20:00 UTC
+
+  # Allows triggering instantly from the app via GitHub API (the "Run Scraper Now" button)
+  # or manually from the GitHub Actions tab
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for manual run (optional)'
+        required: false
+        default: 'Manual price refresh'
+
+jobs:
+  update-prices:
+    name: Scrape & Update Prices
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Check out the repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Set up Python
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: scraper/requirements.txt
+
+      # 3. Install dependencies
+      - name: Install dependencies
+        run: pip install -r scraper/requirements.txt
+
+      # 4. Run the price update script
+      - name: Run price scraper
+        run: |
+          cd scraper
+          python update_prices.py
+        timeout-minutes: 20  # Kill if it runs over 20 minutes (safety net)
+
+      # 5. Commit the updated prices.json back to the repo
+      - name: Commit updated prices
+        run: |
+          git config user.name  "ViberStore Price Bot"
+          git config user.email "pricing-bot@viberstore.ie"
+          git add data/prices.json
+          # Only commit if there are actual changes
+          if git diff --staged --quiet; then
+            echo "No price changes detected â skipping commit"
+          else
+            TIMESTAMP=$(date -u '+%Y-%m-%d %H:%M UTC')
+            git commit -m "chore: update prices ${TIMESTAMP}"
+            git push
+            echo "â Prices committed and pushed"
+          fi
+
+      # 6. Notify on failure (optional â uses GitHub's built-in notification)
+      - name: Report status
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "â Price update completed successfully"
+          else
+            echo "â Price update failed â check the logs above"
+          fi
