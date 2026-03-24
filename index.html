@@ -504,31 +504,43 @@ function buildCard(model, idx, condFilter, storFilter) {
   if (needsAdj && !hasHier) badges += `<span class="badge badge-adjust">&#128201; ${adjCount} to adjust</span>`;
   if (!hasHier && !needsAdj) badges += '<span class="badge badge-ok">&#9989; All Good</span>';
 
-  let tableRows = '';
   const conditions = model.conditions || [];
 
+  // Build storage → condition → data lookup
+  const storMap = {};
   conditions.forEach(cond => {
-    if (condFilter !== 'all' && cond.condition !== condFilter) return;
+    (cond.storages || []).forEach(s => {
+      if (!storMap[s.storage]) storMap[s.storage] = {};
+      storMap[s.storage][cond.condition] = { ...s, hierarchy_ok: cond.hierarchy_ok };
+    });
+  });
 
-    const storages = cond.storages?.filter(s =>
-      storFilter === 'all' || s.storage === storFilter
-    ) || [];
+  // Canonical storage order
+  const allStorages = Object.keys(storMap).sort((a, b) => STORAGES.indexOf(a) - STORAGES.indexOf(b));
+  const allConditions = conditions.map(c => c.condition);
 
-    if (!storages.length) return;
+  let tableRows = '';
 
-    const condColour = cond.condition === 'Good' ? '#64748b' : cond.condition === 'V. Good' ? '#2563eb' : '#16a34a';
-    const hierTag = cond.hierarchy_ok
-      ? '<span class="hier-ok">&#9989; OK</span>'
-      : '<span class="hier-warn">&#9888; Hierarchy</span>';
-    const actionTag = renderAction(cond.action);
+  allStorages.forEach(stor => {
+    if (storFilter !== 'all' && stor !== storFilter) return;
+
+    const relevantConds = allConditions.filter(c => condFilter === 'all' || c === condFilter);
+    if (!relevantConds.some(c => storMap[stor][c])) return;
+
+    // Hierarchy flag for this storage group
+    const storHasHier = relevantConds.some(c => storMap[stor][c] && storMap[stor][c].hierarchy_ok === false);
+    const hierIndicator = storHasHier ? ' <span style="color:var(--amber); font-size:11px; font-weight:600;">&#9888; Hierarchy</span>' : '';
 
     tableRows += `<tr class="cond-header"><td colspan="5" style="padding:8px 16px;">
-      <span style="color:${condColour}; font-weight:600;">${cond.condition}</span>
-      <span style="margin-left:12px;">${hierTag}</span>
-      <span style="margin-left:12px; font-size:11px;">${actionTag}</span>
+      <span style="font-weight:700; color:var(--navy); font-size:13px;">${stor}</span>${hierIndicator}
     </td></tr>`;
 
-    storages.forEach(s => {
+    allConditions.forEach(condName => {
+      if (condFilter !== 'all' && condName !== condFilter) return;
+      const s = storMap[stor][condName];
+      if (!s) return;
+
+      const condColour = condName === 'Good' ? '#64748b' : condName === 'V. Good' ? '#2563eb' : '#16a34a';
       const vsStr = s.vs_price != null ? '\u20AC' + s.vs_price.toFixed(2) : '&#8212;';
       const refStr = s.ref_price != null ? '\u20AC' + s.ref_price.toFixed(2) : '&#8212;';
 
@@ -550,7 +562,7 @@ function buildCard(model, idx, condFilter, storFilter) {
       const refCls = s.ref_price != null ? 'price-cell price-ref' : 'price-none';
 
       tableRows += `<tr class="data-row">
-        <td class="storage-label" style="padding-left:24px;">${s.storage}</td>
+        <td class="storage-label" style="padding-left:24px; color:${condColour}; font-weight:500;">${condName}</td>
         <td class="${vsCls}">${vsStr}</td>
         <td class="${refCls}">${refStr}</td>
         <td>${deltaHtml}</td>
@@ -570,7 +582,7 @@ function buildCard(model, idx, condFilter, storFilter) {
     <div class="model-body">
       <table class="price-table">
         <thead><tr>
-          <th style="width:70px">Storage</th>
+          <th style="width:90px">Condition</th>
           <th style="width:110px">VS Price</th>
           <th style="width:110px">Refurbed</th>
           <th style="width:90px">Delta (\u20AC)</th>
@@ -581,6 +593,7 @@ function buildCard(model, idx, condFilter, storFilter) {
     </div>
   </div>`;
 }
+
 
 function renderAction(action) {
   if (!action) return '';
