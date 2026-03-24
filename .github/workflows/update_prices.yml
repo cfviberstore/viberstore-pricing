@@ -1,7 +1,7 @@
 name: Update Prices
 
 on:
-  # Runs every 4 hours â so prices are never more than 4 hours stale
+  # Runs every 4 hours - so prices are never more than 4 hours stale
   schedule:
     - cron: '0 */4 * * *'   # 00:00, 04:00, 08:00, 12:00, 16:00, 20:00 UTC
 
@@ -41,7 +41,7 @@ jobs:
         run: |
           cd scraper
           python update_prices.py
-        timeout-minutes: 20  # Kill if it runs over 20 minutes (safety net)
+        timeout-minutes: 20
 
       # 5. Commit the updated prices.json back to the repo
       - name: Commit updated prices
@@ -51,20 +51,20 @@ jobs:
           git add data/prices.json
           # Only commit if there are actual changes
           if git diff --staged --quiet; then
-            echo "No price changes detected â skipping commit"
+            echo "No price changes detected - skipping commit"
           else
             TIMESTAMP=$(date -u '+%Y-%m-%d %H:%M UTC')
             git commit -m "chore: update prices ${TIMESTAMP}"
             git push
-            echo "â Prices committed and pushed"
+            echo "Prices committed and pushed"
           fi
 
-      # 6. Notify on failure (optional â uses GitHub's built-in notification)
+      # 6. Report status
       - name: Report status
         if: always()
         run: |
           if [ "${{ job.status }}" == "success" ]; then
-            echo "â Price update completed successfully"
+            echo "Price update completed successfully"
           else
-            echo "â Price update failed â check the logs above"
+            echo "Price update failed - check the logs above"
           fi
