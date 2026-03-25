@@ -14,9 +14,69 @@ from refurbed_scraper import get_refurbed_prices, APPLE_MODEL_SLUGS, SAMSUNG_MOD
 STORAGES = ["64GB", "128GB", "256GB", "512GB", "1TB"]
 CONDITIONS = ["Good", "V. Good", "Excellent"]
 
+# Hierarchy enforcement for recommended prices
+COND_ORDER    = {c: i for i, c in enumerate(CONDITIONS)}
+STORAGE_ORDER = {s: i for i, s in enumerate(STORAGES)}
+MIN_COND_GAP  = 10   # min euro gap between condition grades (Good -> V.Good -> Excellent)
+MIN_STOR_GAP  = 20   # min euro gap between storage tiers (128GB -> 256GB etc.)
+
+
 # Path to output file (relative to repo root)
 OUTPUT_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "prices.json")
 HISTORY_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "history.json")
+
+
+def snap_to_x999(price):
+    """Snap a price to nearest X9.99 (e.g. 667.50 -> 669.99, 450.99 -> 449.99)."""
+    return round(round((price + 0.01) / 10) * 10 - 0.01, 2)
+
+
+def enforce_rec_hierarchy(conditions_out):
+    """
+    Post-process recommended prices to ensure ViberStore's pricing hierarchy:
+      - Good < V.Good < Excellent for same storage (min gap: MIN_COND_GAP)
+      - Smaller storage < Larger storage for same condition (min gap: MIN_STOR_GAP)
+    Violating prices are bumped up to the minimum required, snapped to X9.99.
+    """
+    lookup = {}
+    for c_entry in conditions_out:
+        cond = c_entry["condition"]
+        for s_entry in c_entry.get("storages", []):
+            lookup[(cond, s_entry["storage"])] = s_entry
+
+    storages = sorted({s for (_, s) in lookup}, key=lambda x: STORAGE_ORDER.get(x, 99))
+    conds    = sorted({c for (c, _) in lookup}, key=lambda x: COND_ORDER.get(x, 99))
+
+    for si, stor in enumerate(storages):
+        for ci, cond in enumerate(conds):
+            entry = lookup.get((cond, stor))
+            if not entry:
+                continue
+            rec = entry.get("recommended")
+            if not rec or rec.get("price") is None:
+                continue
+
+            floor_p = rec["price"]
+
+            if ci > 0:
+                prev = lookup.get((conds[ci - 1], stor))
+                if prev and prev.get("recommended") and prev["recommended"].get("price") is not None:
+                    floor_p = max(floor_p, prev["recommended"]["price"] + MIN_COND_GAP)
+
+            if si > 0:
+                prev = lookup.get((cond, storages[si - 1]))
+                if prev and prev.get("recommended") and prev["recommended"].get("price") is not None:
+                    floor_p = max(floor_p, prev["recommended"]["price"] + MIN_STOR_GAP)
+
+            if floor_p > rec["price"]:
+                new_price = snap_to_x999(floor_p)
+                rec["price"] = new_price
+                vs_p = entry.get("vs_price")
+                if vs_p is not None:
+                    diff = new_price - vs_p
+                    rec["direction"] = "up" if diff > 5 else ("down" if diff < -5 else "same")
+
+    return conditions_out
 
 
 def build_model_entry(model_name, vs_prices, ref_prices):
@@ -55,12 +115,12 @@ def build_model_entry(model_name, vs_prices, ref_prices):
 
                 if delta > 10:
                     # We're significantly more expensive â suggest bringing price down to match
-                    recommended = round(ref_price + 1, 2)  # â¬1 above Refurbed
+                    recommended = snap_to_x999(ref_price)  # â¬1 above Refurbed
                     direction = "down"
                     status = "refurbed_cheaper"
                 elif delta < -10:
                     # We're well below Refurbed â potential to raise
-                    recommended = round(ref_price - 1, 2)  # â¬1 below Refurbed
+                    recommended = snap_to_x999(ref_price)  # â¬1 below Refurbed
                     direction = "up"
                     status = "vs_cheaper"
                 else:
@@ -96,6 +156,8 @@ def build_model_entry(model_name, vs_prices, ref_prices):
             "hierarchy_ok": hierarchy_ok,
             "action": summarise_action(storage_data),
         })
+
+    enforce_rec_hierarchy(conditions_out)
 
     return {
         "model": model_name,
