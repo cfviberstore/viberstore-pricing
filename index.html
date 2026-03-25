@@ -106,7 +106,25 @@
     .chart-card h3{font-size:11px;font-weight:700;color:var(--slate-500);text-transform:uppercase;letter-spacing:.07em;margin-bottom:16px}
     .chart-wrap{position:relative;height:200px}
     .chart-wrap-tall{position:relative;height:300px}
-  </style>
+  
+    .hist-btn{background:none;border:1px solid #CBD5E1;color:#64748B;cursor:pointer;font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;margin-left:6px;transition:all .15s;white-space:nowrap}
+    .hist-btn:hover{background:#4338CA;border-color:#4338CA;color:#fff}
+    .hist-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:100;display:none;opacity:0;transition:opacity .2s}
+    .hist-overlay.open{display:block;opacity:1}
+    .hist-drawer{position:fixed;top:0;right:0;height:100%;width:500px;max-width:92vw;background:#fff;z-index:101;box-shadow:-6px 0 32px rgba(0,0,0,.15);transform:translateX(100%);transition:transform .25s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column}
+    .hist-drawer.open{transform:translateX(0)}
+    .hist-head{padding:20px 20px 16px;border-bottom:1px solid #E2E8F0;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+    .hist-model{font-size:17px;font-weight:700;color:#0F172A;margin-bottom:2px}
+    .hist-sub{font-size:12px;color:#94A3B8}
+    .hist-close{background:none;border:none;font-size:20px;cursor:pointer;color:#94A3B8;line-height:1;padding:4px;border-radius:4px;flex-shrink:0}
+    .hist-close:hover{background:#F1F5F9;color:#0F172A}
+    .hist-sel{margin:12px 20px 0;padding:7px 10px;border:1px solid #E2E8F0;border-radius:6px;font-size:13px;color:#0F172A;width:calc(100% - 40px);background:#fff;outline:none}
+    .hist-sel:focus{border-color:#4338CA}
+    .hist-body{flex:1;padding:16px 20px 20px;min-height:0;display:flex;flex-direction:column}
+    .hist-empty{text-align:center;padding:60px 20px;color:#94A3B8}
+    .hist-empty strong{display:block;font-size:15px;font-weight:700;color:#64748B;margin-bottom:8px}
+    .hist-chart-wrap{flex:1;min-height:280px;position:relative}
+</style>
 </head>
 <body>
   <nav>
@@ -252,7 +270,56 @@
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js">
+  let HIST_DATA=null,histChart=null;
+  async function loadHistData(){
+    if(HIST_DATA)return;
+    try{const r=await fetch('data/history.json?_='+Date.now());HIST_DATA=r.ok?await r.json():{entries:[]};}
+    catch(e){HIST_DATA={entries:[]};}
+  }
+  function openHistory(btn){
+    const key=btn.dataset.key;
+    const [brand,model,condition,storage]=key.split('|');
+    const rows=flattenBrand(brand).filter(r=>r.model===model);
+    const sel=document.getElementById('histVariant');
+    sel.innerHTML=rows.map(r=>{
+      const k=r.brand+'|'+r.model+'|'+r.condition+'|'+r.storage;
+      return '<option value="'+k+'"'+(r.condition===condition&&r.storage===storage?' selected':'')+'>'+r.storage+' — '+r.condition+'</option>';
+    }).join('');
+    document.getElementById('histModel').textContent=model;
+    document.getElementById('histSub').textContent=brand.charAt(0).toUpperCase()+brand.slice(1);
+    document.getElementById('histOverlay').classList.add('open');
+    document.getElementById('histDrawer').classList.add('open');
+    loadHistData().then(()=>renderHistChart());
+  }
+  function closeHistory(){
+    document.getElementById('histOverlay').classList.remove('open');
+    document.getElementById('histDrawer').classList.remove('open');
+    if(histChart){histChart.destroy();histChart=null;}
+  }
+  function renderHistChart(){
+    const key=document.getElementById('histVariant').value;
+    const [brand,model,condition,storage]=key.split('|');
+    document.getElementById('histSub').textContent=storage+' · '+condition;
+    const entries=(HIST_DATA&&HIST_DATA.entries)||[];
+    const labels=[],vsArr=[],refArr=[];
+    for(const e of entries){const p=(e.prices||{})[key];if(p){labels.push(e.date);vsArr.push(p.vs??null);refArr.push(p.ref??null);}}
+    const emEl=document.getElementById('histEmpty'),wEl=document.getElementById('histChartWrap');
+    if(labels.length<2){emEl.style.display='block';wEl.style.display='none';return;}
+    emEl.style.display='none';wEl.style.display='block';
+    if(histChart)histChart.destroy();
+    histChart=new Chart(document.getElementById('histCanvas').getContext('2d'),{
+      type:'line',
+      data:{labels,datasets:[
+        {label:'ViberStore',data:vsArr,borderColor:'#4338CA',backgroundColor:'rgba(67,56,202,0.08)',tension:0.3,pointRadius:4,pointHoverRadius:6},
+        {label:'Refurbed',data:refArr,borderColor:'#E11D48',backgroundColor:'rgba(225,29,72,0.08)',tension:0.3,pointRadius:4,pointHoverRadius:6}
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{position:'top'},tooltip:{callbacks:{label:c=>c.dataset.label+': €'+(c.raw??'—')}}},
+        scales:{y:{ticks:{callback:v=>'€'+v}}}}
+    });
+  }
+</script>
   <script>
   let DATA={}, currentBrand='apple', currentShowFilter='all';
   let sortCol='delta', sortDir='desc';
@@ -349,7 +416,7 @@
         for(const s of (c.storages||[])){
           rows.push({model:m.model,condition:c.condition,storage:s.storage,
             vs_price:s.vs_price,ref_price:s.ref_price,delta:s.delta,
-            recommended:s.recommended,status:s.status});
+            recommended:s.recommended,status:s.status,brand:brand});
         }
       }
     }
@@ -452,7 +519,7 @@
       '<td><span class="tag '+condCls+'">'+r.condition+'</span></td>'+
       '<td>'+vsH+'</td><td>'+refH+'</td><td>'+dH+'</td>'+
       '<td><div class="status-cell">'+stH+'</div></td>'+
-      '<td>'+acH+'</td></tr>';
+      '<td>'+acH+'<button class="hist-btn" data-key="'+r.brand+'|'+r.model+'|'+r.condition+'|'+r.storage+'" onclick="openHistory(this)" title="View price history">History</button></td></tr>';
   }
 
   function destroyChart(id){if(chartInst[id]){chartInst[id].destroy();delete chartInst[id];}}
@@ -557,5 +624,24 @@
 
   loadData();
   </script>
+
+  <div class="hist-overlay" id="histOverlay" onclick="closeHistory()"></div>
+  <div class="hist-drawer" id="histDrawer">
+    <div class="hist-head">
+      <div>
+        <div class="hist-model" id="histModel">Price History</div>
+        <div class="hist-sub" id="histSub"></div>
+      </div>
+      <button class="hist-close" onclick="closeHistory()">&#x2715;</button>
+    </div>
+    <select class="hist-sel" id="histVariant" onchange="renderHistChart()"></select>
+    <div class="hist-body">
+      <div class="hist-empty" id="histEmpty" style="display:none">
+        <strong>No history yet</strong>
+        History starts building from today. Check back tomorrow to see price movement over time.
+      </div>
+      <div class="hist-chart-wrap" id="histChartWrap"><canvas id="histCanvas"></canvas></div>
+    </div>
+  </div>
 </body>
 </html>
