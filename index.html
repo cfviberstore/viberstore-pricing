@@ -433,38 +433,39 @@ if (resp.status === 204) {
     btn.disabled = false;
     btn.textContent = 'Try Again';
   }
-  document.getElementById('statRef').textContent = dash.ref_cheaper;
-  const d = dash.avg_delta;
-  document.getElementById('statDelta').textContent = '\u20AC' + Math.abs(d).toFixed(2);
-  const deltaEl = document.getElementById('statDelta');
-  const deltaSub = document.getElementById('statDeltaSub');
-  if (d < -0.005) {
-    deltaEl.className = 'stat-value green';
-    if (deltaSub) deltaSub.textContent = 'avg we undercut Refurbed';
-  } else if (d > 0.005) {
-    deltaEl.className = 'stat-value red';
-    if (deltaSub) deltaSub.textContent = 'avg Refurbed undercuts us';
-  } else {
-    deltaEl.className = 'stat-value amber';
-    if (deltaSub) deltaSub.textContent = 'on par with Refurbed';
-  }
-  document.getElementById('statHier').textContent = dash.hierarchy_issues;
-
-  // Format last updated + staleness check
-  if (DATA.last_updated) {
-    const d = new Date(DATA.last_updated);
-    const timeStr = d.toLocaleTimeString('en-IE', {hour:'2-digit', minute:'2-digit'});
-    const dateStr = d.toLocaleDateString('en-IE', {day:'numeric', month:'short'});
-    document.getElementById('lastUpdated').textContent = `Updated ${dateStr} at ${timeStr}`;
-    checkStaleness(DATA.last_updated);
-  } else {
-    document.getElementById('lastUpdated').textContent = 'No data yet &#8212; run the scraper';
-    document.getElementById('stalenessBar').classList.add('show');
-  }
-
-  applyFilters();
 }
 
+// ── onDataLoaded ────────────────────────────────────────────────────────
+function onDataLoaded() {
+  const dash = DATA.dashboard || {};
+  document.getElementById('statModels').textContent = dash.models_priced ?? '—';
+  const appleCount = (DATA.apple || []).length;
+  const samsungCount = (DATA.samsung || []).length;
+  document.getElementById('statModelsSub').textContent = appleCount + ' Apple · ' + samsungCount + ' Samsung';
+  document.getElementById('statVS').textContent = dash.vs_cheaper ?? '—';
+  document.getElementById('statRef').textContent = dash.ref_cheaper ?? '—';
+  const d = dash.avg_delta;
+  const deltaEl = document.getElementById('statDelta');
+  const deltaSub = document.getElementById('statDeltaSub');
+  if (d != null) {
+    deltaEl.textContent = '€' + Math.abs(d).toFixed(2);
+    if (d < -0.005) { deltaEl.className = 'stat-value green'; if (deltaSub) deltaSub.textContent = 'avg we undercut Refurbed'; }
+    else if (d > 0.005) { deltaEl.className = 'stat-value red'; if (deltaSub) deltaSub.textContent = 'avg Refurbed undercuts us'; }
+    else { deltaEl.className = 'stat-value amber'; if (deltaSub) deltaSub.textContent = 'on par with Refurbed'; }
+  }
+  document.getElementById('statHier').textContent = dash.hierarchy_issues ?? '—';
+  if (DATA.last_updated) {
+    const dt = new Date(DATA.last_updated);
+    const timeStr = dt.toLocaleTimeString('en-IE', {hour:'2-digit', minute:'2-digit'});
+    const dateStr = dt.toLocaleDateString('en-IE', {day:'numeric', month:'short'});
+    document.getElementById('lastUpdated').textContent = 'Updated ' + dateStr + ' at ' + timeStr;
+    checkStaleness(DATA.last_updated);
+  } else {
+    document.getElementById('lastUpdated').textContent = 'No data yet — run the scraper';
+    document.getElementById('stalenessBar').classList.add('show');
+  }
+  applyFilters();
+}
 // &#9472;&#9472; Filters & Rendering &#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;
 function switchBrand(brand, el) {
   currentBrand = brand;
