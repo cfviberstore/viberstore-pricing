@@ -29,7 +29,7 @@ def build_model_entry(model_name, vs_prices, ref_prices):
     # Pre-compute which conditions have cross-condition pricing violations
     hierarchy_violations = check_condition_hierarchy(vs_prices)
 
-        for condition in CONDITIONS:
+    for condition in CONDITIONS:
         vs_cond = vs_prices.get(condition, {})
         ref_cond = ref_prices.get(condition, {})
 
