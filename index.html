@@ -362,13 +362,27 @@
     applyFilters();
   }
 
+  function storageSize(s){
+    if(!s)return 0;
+    const n=parseFloat(s);
+    return s.includes('TB')?n*1024:n;
+  }
+  const COND_ORDER={'Good':1,'V. Good':2,'Excellent':3};
   function doSort(rows){
     return[...rows].sort((a,b)=>{
       let av=a[sortCol],bv=b[sortCol];
       const nil=sortDir==='asc'?Infinity:-Infinity;
       if(av==null)av=nil; if(bv==null)bv=nil;
-      if(typeof av==='string')return sortDir==='asc'?av.localeCompare(bv):bv.localeCompare(av);
-      return sortDir==='asc'?av-bv:bv-av;
+      let cmp;
+      if(typeof av==='string')cmp=sortDir==='asc'?av.localeCompare(bv):bv.localeCompare(av);
+      else cmp=sortDir==='asc'?av-bv:bv-av;
+      if(cmp!==0)return cmp;
+      // Tie-break: model → storage size → condition
+      const mc=a.model.localeCompare(b.model);
+      if(mc!==0)return mc;
+      const sc=storageSize(a.storage)-storageSize(b.storage);
+      if(sc!==0)return sc;
+      return(COND_ORDER[a.condition]||0)-(COND_ORDER[b.condition]||0);
     });
   }
 
