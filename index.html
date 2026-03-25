@@ -1,233 +1,190 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ViberStore &#8212; Live Pricing Intelligence</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --navy: #0f172a; --navy-light: #1e293b; --slate-700: #334155;
-    --slate-500: #64748b; --slate-400: #94a3b8; --slate-200: #e2e8f0;
-    --slate-100: #f1f5f9; --slate-50: #f8fafc; --white: #ffffff;
-    --blue: #3b82f6; --blue-dark: #2563eb; --blue-bg: #eff6ff;
-    --green: #16a34a; --green-bg: #f0fdf4; --red: #dc2626; --red-bg: #fef2f2;
-    --amber: #d97706; --amber-bg: #fffbeb; --purple: #7c3aed; --purple-bg: #f5f3ff;
-    --radius: 10px; --shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
-    --shadow-md: 0 4px 12px rgba(0,0,0,.08), 0 2px 4px rgba(0,0,0,.04);
-  }
-  body { font-family: 'Inter', sans-serif; background: var(--slate-50); color: var(--navy); font-size: 14px; }
-
-  .nav { background: var(--navy); color: white; padding: 0 24px; display: flex; align-items: center; height: 56px; gap: 24px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,.3); }
-  .nav-logo { font-size: 15px; font-weight: 700; color: white; letter-spacing: -0.3px; display: flex; align-items: center; gap: 8px; }
-  .nav-logo-dot { width: 8px; height: 8px; background: var(--blue); border-radius: 50%; }
-  .nav-divider { width: 1px; height: 24px; background: rgba(255,255,255,.15); }
-  .nav-label { font-size: 12px; color: rgba(255,255,255,.45); font-weight: 500; text-transform: uppercase; letter-spacing: .8px; }
-  .nav-brand-tabs { display: flex; gap: 2px; margin-left: 4px; }
-  .nav-tab { padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; color: rgba(255,255,255,.55); transition: all .15s; border: none; background: transparent; }
-  .nav-tab:hover { color: white; background: rgba(255,255,255,.08); }
-  .nav-tab.active { color: white; background: rgba(255,255,255,.13); }
-  .nav-spacer { flex: 1; }
-  .live-badge { display: flex; align-items: center; gap: 6px; font-size: 11px; color: rgba(255,255,255,.5); }
-  .live-dot { width: 7px; height: 7px; background: #22c55e; border-radius: 50%; animation: pulse 2s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
-  .nav-refresh-btn { padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid rgba(255,255,255,.2); background: transparent; color: rgba(255,255,255,.7); font-family: inherit; transition: all .15s; display: flex; align-items: center; gap: 6px; }
-  .nav-refresh-btn:hover { background: rgba(255,255,255,.1); color: white; border-color: rgba(255,255,255,.35); }
-  .nav-refresh-btn:disabled { opacity: .4; cursor: not-allowed; }
-  .nav-refresh-btn.spinning .btn-icon { display: inline-block; animation: spin .7s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  /* GitHub setup modal */
-  .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 1000; align-items: center; justify-content: center; }
-  .modal-backdrop.open { display: flex; }
-  .modal { background: white; border-radius: 14px; padding: 32px; width: 480px; max-width: 95vw; box-shadow: 0 20px 60px rgba(0,0,0,.2); }
-  .modal h2 { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
-  .modal .modal-sub { font-size: 13px; color: var(--slate-500); margin-bottom: 24px; line-height: 1.5; }
-  .modal-field { margin-bottom: 16px; }
-  .modal-field label { display: block; font-size: 12px; font-weight: 600; color: var(--slate-700); margin-bottom: 6px; }
-  .modal-input { width: 100%; border: 1px solid var(--slate-200); border-radius: 7px; padding: 9px 12px; font-size: 13px; font-family: inherit; outline: none; color: var(--navy); }
-  .modal-input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(59,130,246,.1); }
-  .modal-input::placeholder { color: var(--slate-400); }
-  .modal-hint { font-size: 11px; color: var(--slate-400); margin-top: 5px; line-height: 1.5; }
-  .modal-hint a { color: var(--blue); text-decoration: none; }
-  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
-  .btn-primary { padding: 9px 20px; background: var(--blue); color: white; border: none; border-radius: 7px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; transition: background .15s; }
-  .btn-primary:hover { background: var(--blue-dark); }
-  .btn-secondary { padding: 9px 16px; background: var(--slate-100); color: var(--slate-700); border: 1px solid var(--slate-200); border-radius: 7px; font-size: 13px; font-weight: 500; cursor: pointer; font-family: inherit; }
-  .modal-status { font-size: 13px; margin-top: 14px; padding: 10px 14px; border-radius: 7px; display: none; }
-  .modal-status.success { background: var(--green-bg); color: var(--green); display: block; }
-  .modal-status.error { background: var(--red-bg); color: var(--red); display: block; }
-  .modal-status.info { background: var(--blue-bg); color: var(--blue-dark); display: block; }
-  .staleness-bar { background: var(--amber-bg); border: 1px solid #fcd34d; border-radius: 8px; padding: 10px 16px; margin-bottom: 16px; display: none; font-size: 12px; color: var(--amber); align-items: center; gap: 8px; }
-  .staleness-bar.show { display: flex; }
-
-  .main { max-width: 1400px; margin: 0 auto; padding: 24px; }
-
-  .stats-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 24px; }
-  .stat-card { background: var(--white); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow); border: 1px solid var(--slate-200); }
-  .stat-label { font-size: 11px; font-weight: 600; color: var(--slate-500); text-transform: uppercase; letter-spacing: .7px; margin-bottom: 8px; }
-  .stat-value { font-size: 28px; font-weight: 700; letter-spacing: -1px; }
-  .stat-value.blue { color: var(--blue-dark); }
-  .stat-value.green { color: var(--green); }
-  .stat-value.red { color: var(--red); }
-  .stat-value.amber { color: var(--amber); }
-  .stat-value.purple { color: var(--purple); }
-  .stat-sub { font-size: 11px; color: var(--slate-400); margin-top: 4px; }
-
-  .filters-bar { background: var(--white); border-radius: var(--radius); padding: 14px 18px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; box-shadow: var(--shadow); border: 1px solid var(--slate-200); }
-  .filter-group { display: flex; align-items: center; gap: 8px; }
-  .filter-label { font-size: 12px; font-weight: 600; color: var(--slate-500); white-space: nowrap; }
-  .filter-select { border: 1px solid var(--slate-200); border-radius: 6px; padding: 5px 10px; font-size: 12px; font-family: inherit; color: var(--navy); background: var(--slate-50); cursor: pointer; outline: none; }
-  .filter-select:focus { border-color: var(--blue); }
-  .search-input { border: 1px solid var(--slate-200); border-radius: 6px; padding: 5px 10px; font-size: 12px; font-family: inherit; color: var(--navy); background: var(--slate-50); outline: none; width: 200px; }
-  .search-input:focus { border-color: var(--blue); }
-  .filter-btn { padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid var(--slate-200); background: var(--slate-50); color: var(--slate-700); font-family: inherit; transition: all .15s; }
-  .filter-btn:hover { border-color: var(--blue); color: var(--blue); }
-  .filter-btn.active { background: var(--blue); color: white; border-color: var(--blue); }
-  .filter-divider { width: 1px; height: 20px; background: var(--slate-200); }
-  .results-count { margin-left: auto; font-size: 12px; color: var(--slate-400); }
-
-  .model-card { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--slate-200); margin-bottom: 10px; overflow: hidden; transition: box-shadow .15s; }
-  .model-card:hover { box-shadow: var(--shadow-md); }
-  .model-header { display: flex; align-items: center; gap: 12px; padding: 14px 18px; cursor: pointer; user-select: none; }
-  .model-header:hover { background: var(--slate-50); }
-  .model-chevron { font-size: 12px; color: var(--slate-400); transition: transform .2s; width: 16px; flex-shrink: 0; }
-  .model-card.open .model-chevron { transform: rotate(90deg); }
-  .model-name { font-size: 14px; font-weight: 600; flex: 1; }
-  .model-badges { display: flex; align-items: center; gap: 8px; }
-  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; }
-  .badge-ok { background: var(--green-bg); color: var(--green); }
-  .badge-warn { background: var(--amber-bg); color: var(--amber); }
-  .badge-info { background: var(--blue-bg); color: var(--blue-dark); }
-  .badge-nodata { background: var(--slate-100); color: var(--slate-500); }
-  .badge-adjust { background: #fff7ed; color: #c2410c; }
-
-  .model-body { display: none; border-top: 1px solid var(--slate-200); }
-  .model-card.open .model-body { display: block; }
-
-  .price-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  .price-table thead th { background: var(--slate-50); padding: 8px 12px; font-size: 11px; font-weight: 600; color: var(--slate-500); text-transform: uppercase; letter-spacing: .5px; text-align: left; border-bottom: 1px solid var(--slate-200); white-space: nowrap; }
-  .price-table .cond-header td { background: var(--slate-50); padding: 8px 16px; font-weight: 600; font-size: 12px; color: var(--slate-700); border-bottom: 1px solid var(--slate-200); border-top: 1px solid var(--slate-200); }
-  .price-table tbody tr.data-row { border-bottom: 1px solid var(--slate-100); }
-  .price-table tbody tr.data-row:hover { background: #fafbff; }
-  .price-table tbody td { padding: 7px 12px; }
-  .storage-label { font-size: 12px; font-weight: 500; color: var(--slate-600); min-width: 60px; }
-  .price-cell { font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums; }
-  .price-vs { color: var(--navy); }
-  .price-ref { color: var(--slate-500); }
-  .price-none { color: var(--slate-300); }
-  .delta-cell { font-size: 12px; font-weight: 500; font-variant-numeric: tabular-nums; }
-  .delta-pos { color: var(--green); }
-  .delta-neg { color: var(--red); }
-  .delta-zero { color: var(--slate-400); }
-  .rec-cell { font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
-  .rec-up { color: var(--green); }
-  .rec-down { color: var(--red); }
-  .rec-same { color: var(--blue-dark); }
-  .hier-ok { color: var(--green); font-size: 12px; }
-  .hier-warn { color: var(--amber); font-weight: 600; font-size: 12px; }
-
-  .loading-state { text-align: center; padding: 80px 20px; }
-  .loading-spinner { width: 36px; height: 36px; border: 3px solid var(--slate-200); border-top-color: var(--blue); border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 16px; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .loading-state p { color: var(--slate-500); font-size: 14px; }
-
-  .error-state { text-align: center; padding: 60px 20px; background: var(--red-bg); border-radius: var(--radius); border: 1px solid #fecaca; }
-  .error-state h3 { color: var(--red); font-size: 16px; margin-bottom: 8px; }
-  .error-state p { color: var(--slate-600); font-size: 13px; line-height: 1.6; }
-
-  .empty-state { text-align: center; padding: 60px 20px; color: var(--slate-400); }
-  .legend { display: flex; align-items: center; gap: 20px; font-size: 11px; color: var(--slate-500); flex-wrap: wrap; }
-  .legend-item { display: flex; align-items: center; gap: 5px; }
-  .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ViberStore — Live Pricing Intelligence</title>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --navy:#0f172a;--navy-light:#1e293b;--slate-700:#334155;
+      --slate-500:#64748b;--slate-400:#94a3b8;--slate-200:#e2e8f0;
+      --slate-100:#f1f5f9;--slate-50:#f8fafc;--white:#ffffff;
+      --blue:#3b82f6;--blue-dark:#2563eb;--blue-bg:#eff6ff;
+      --green:#16a34a;--green-bg:#f0fdf4;--red:#dc2626;--red-bg:#fef2f2;
+      --amber:#d97706;--amber-bg:#fffbeb;--purple:#7c3aed;--purple-bg:#f5f3ff;
+      --radius:10px;
+      --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+      --shadow-md:0 4px 12px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.04)
+    }
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--slate-50);color:var(--navy);min-height:100vh}
+    nav{background:var(--navy);padding:0 20px;display:flex;align-items:center;gap:6px;height:52px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+    .nav-logo{font-size:15px;font-weight:700;color:var(--white);letter-spacing:-.01em;margin-right:8px}
+    .nav-divider{width:1px;height:20px;background:rgba(255,255,255,.12);margin:0 6px}
+    .nav-label{font-size:11px;font-weight:600;color:var(--slate-400);text-transform:uppercase;letter-spacing:.08em;margin-right:2px}
+    .brand-btn{padding:5px 14px;border-radius:6px;border:1.5px solid transparent;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;color:var(--slate-400);background:transparent}
+    .brand-btn:hover{color:var(--white);border-color:rgba(255,255,255,.2)}
+    .brand-btn.active{background:var(--white);color:var(--navy);border-color:var(--white)}
+    .nav-spacer{flex:1}
+    #lastUpdated{font-size:12px;color:var(--slate-400)}
+    #lastUpdated.has-data::before{content:"●";margin-right:5px;color:var(--green)}
+    .nav-btn{padding:6px 14px;border-radius:6px;border:1.5px solid rgba(255,255,255,.2);font-size:12px;font-weight:600;cursor:pointer;background:transparent;color:var(--slate-400);transition:all .15s;margin-left:6px}
+    .nav-btn:hover{background:rgba(255,255,255,.08);color:var(--white)}
+    .nav-btn.primary{background:var(--blue);border-color:var(--blue);color:var(--white)}
+    .nav-btn.primary:hover{background:var(--blue-dark)}
+    .staleness-bar{background:var(--amber);color:var(--white);font-size:12px;font-weight:600;padding:7px 20px;display:none;align-items:center;gap:8px}
+    .staleness-bar.show{display:flex}
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:center;justify-content:center}
+    .modal-overlay.show{display:flex}
+    .modal{background:var(--white);border-radius:var(--radius);padding:28px;width:400px;max-width:90vw;box-shadow:var(--shadow-md)}
+    .modal h2{font-size:16px;font-weight:700;color:var(--navy);margin-bottom:6px}
+    .modal p{font-size:13px;color:var(--slate-500);margin-bottom:18px;line-height:1.5}
+    .form-group{margin-bottom:14px}
+    .form-group label{display:block;font-size:12px;font-weight:600;color:var(--slate-700);margin-bottom:5px}
+    .form-group input{width:100%;padding:8px 10px;border:1.5px solid var(--slate-200);border-radius:7px;font-size:13px;outline:none}
+    .form-group input:focus{border-color:var(--blue)}
+    .modal-actions{display:flex;gap:10px;margin-top:18px}
+    .modal-actions button{flex:1;padding:9px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none}
+    .btn-cancel{background:var(--slate-100);color:var(--slate-700)}
+    .btn-trigger{background:var(--blue);color:var(--white)}
+    .btn-trigger:hover{background:var(--blue-dark)}
+    #modalStatus{font-size:12px;color:var(--slate-500);margin-top:10px;text-align:center;min-height:16px}
+    .stats-row{display:flex;gap:12px;padding:16px 20px 12px;overflow-x:auto}
+    .stat-card{background:var(--white);border-radius:var(--radius);padding:16px 18px;min-width:140px;flex:1;box-shadow:var(--shadow)}
+    .stat-label{font-size:10px;font-weight:700;color:var(--slate-500);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px}
+    .stat-value{font-size:28px;font-weight:800;color:var(--navy);line-height:1}
+    .stat-value.green{color:var(--green)}
+    .stat-value.red{color:var(--red)}
+    .stat-value.amber{color:var(--amber)}
+    .stat-value.purple{color:var(--purple)}
+    .stat-sub{font-size:11px;color:var(--slate-500);margin-top:4px}
+    #filterBar{background:var(--white);border-bottom:1px solid var(--slate-200);padding:10px 20px;display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+    .filter-group{display:flex;align-items:center;gap:6px}
+    .filter-label{font-size:11px;font-weight:700;color:var(--slate-500);text-transform:uppercase;letter-spacing:.06em}
+    .filter-input{padding:5px 10px;border:1.5px solid var(--slate-200);border-radius:6px;font-size:13px;outline:none}
+    .filter-input:focus{border-color:var(--blue)}
+    .filter-select{padding:5px 10px;border:1.5px solid var(--slate-200);border-radius:6px;font-size:13px;outline:none;background:var(--white);cursor:pointer}
+    .show-btn{padding:5px 12px;border-radius:6px;border:1.5px solid var(--slate-200);font-size:12px;font-weight:600;cursor:pointer;background:transparent;color:var(--slate-700);transition:all .15s}
+    .show-btn:hover{background:var(--slate-100)}
+    .show-btn.active{background:var(--navy);color:var(--white);border-color:var(--navy)}
+    .filter-spacer{flex:1}
+    #resultsCount{font-size:12px;color:var(--slate-400);white-space:nowrap}
+    #tableView{padding:0 20px 24px;overflow-x:auto}
+    .price-table{width:100%;border-collapse:collapse;background:var(--white);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);margin-top:14px}
+    .price-table thead th{background:var(--navy);color:var(--slate-400);padding:10px 14px;text-align:left;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;white-space:nowrap;user-select:none;transition:background .15s}
+    .price-table thead th:hover{background:var(--navy-light);color:var(--white)}
+    .price-table thead th.sorted{color:var(--white)}
+    .price-table tbody td{padding:10px 14px;border-bottom:1px solid var(--slate-200);font-size:13px;vertical-align:middle}
+    .price-table tbody tr:last-child td{border-bottom:none}
+    .price-table tbody tr:hover td{background:var(--slate-50)}
+    .model-cell{font-weight:600;color:var(--navy);white-space:nowrap}
+    .tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;white-space:nowrap}
+    .tag-storage{background:var(--slate-100);color:var(--slate-700)}
+    .tag-excellent{background:var(--green-bg);color:var(--green)}
+    .tag-vgood{background:var(--blue-bg);color:var(--blue-dark)}
+    .tag-good{background:var(--amber-bg);color:var(--amber)}
+    .price-cell{font-weight:600;color:var(--navy);font-variant-numeric:tabular-nums}
+    .no-price{color:var(--slate-400);font-size:12px;font-style:italic}
+    .delta-win{color:var(--green);font-weight:700;font-variant-numeric:tabular-nums}
+    .delta-loss{color:var(--red);font-weight:700;font-variant-numeric:tabular-nums}
+    .delta-neutral{color:var(--slate-500);font-variant-numeric:tabular-nums}
+    .status-cell{display:flex;align-items:center;gap:6px;white-space:nowrap;font-size:12px;color:var(--slate-700)}
+    .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+    .dot-green{background:var(--green)}
+    .dot-red{background:var(--red)}
+    .dot-amber{background:var(--amber)}
+    .dot-slate{background:var(--slate-400)}
+    .action-badge{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:5px;font-size:11px;font-weight:700;white-space:nowrap}
+    .action-raise{background:var(--green-bg);color:var(--green)}
+    .action-lower{background:var(--red-bg);color:var(--red)}
+    .action-hold{background:var(--slate-100);color:var(--slate-500)}
+    .action-none{color:var(--slate-400);font-size:12px}
+    .empty-row td{text-align:center;padding:48px;color:var(--slate-400);font-size:14px}
+    #analyticsView{padding:0 20px 24px;display:none}
+    .analytics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px;margin-top:16px}
+    .chart-card{background:var(--white);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow)}
+    .chart-card h3{font-size:11px;font-weight:700;color:var(--slate-500);text-transform:uppercase;letter-spacing:.07em;margin-bottom:16px}
+    .chart-wrap{position:relative;height:200px}
+    .chart-wrap-tall{position:relative;height:300px}
+  </style>
 </head>
 <body>
+  <nav>
+    <span class="nav-logo">● ViberStore</span>
+    <span class="nav-divider"></span>
+    <span class="nav-label">Live Pricing</span>
+    <button class="brand-btn active" id="appleBtn" onclick="switchBrand('apple')">Apple</button>
+    <button class="brand-btn" id="samsungBtn" onclick="switchBrand('samsung')">Samsung</button>
+    <button class="brand-btn" id="analyticsBtn" onclick="switchBrand('analytics')">Analytics</button>
+    <span class="nav-spacer"></span>
+    <span id="lastUpdated"></span>
+    <button class="nav-btn" id="reloadBtn" onclick="loadData()">↺ Reload</button>
+    <button class="nav-btn primary" id="scrapeBtn" onclick="document.getElementById('scrapeModal').classList.add('show')">⚡ Run Scraper</button>
+  </nav>
 
-<nav class="nav">
-  <div class="nav-logo"><div class="nav-logo-dot"></div>ViberStore</div>
-  <div class="nav-divider"></div>
-  <span class="nav-label">Live Pricing</span>
-  <div class="nav-brand-tabs">
-    <button class="nav-tab active" onclick="switchBrand('apple', this)">Apple</button>
-    <button class="nav-tab" onclick="switchBrand('samsung', this)">Samsung</button>
-  </div>
-  <div class="nav-spacer"></div>
-  <div class="live-badge">
-    <div class="live-dot"></div>
-    <span id="lastUpdated">Loading...</span>
-  </div>
-  <div class="nav-divider"></div>
-  <button class="nav-refresh-btn" id="reloadBtn" onclick="reloadData()" title="Re-fetch the latest prices.json">
-    <span class="btn-icon">&#8635;</span> Reload
-  </button>
-  <button class="nav-refresh-btn" id="scrapeBtn" onclick="openScrapeModal()" title="Trigger a fresh scrape on GitHub Actions">
-    <span class="btn-icon">&#9889;</span> Run Scraper
-  </button>
-</nav>
+  <div id="stalenessBar" class="staleness-bar">⚠ Data may be stale — last update was over 4 hours ago</div>
 
-<!-- GitHub Actions trigger modal -->
-<div class="modal-backdrop" id="scrapeModal">
-  <div class="modal">
-    <h2>&#9889; Run Scraper Now</h2>
-    <p class="modal-sub">This triggers a fresh price scrape on GitHub Actions &#8212; usually takes 5&#8211;10 minutes. You only need to enter your details once; they're saved in your browser.</p>
-
-    <div class="modal-field">
-      <label>GitHub Username</label>
-      <input class="modal-input" id="ghUser" type="text" placeholder="e.g. viberstore-ie" autocomplete="off">
-    </div>
-    <div class="modal-field">
-      <label>Repository Name</label>
-      <input class="modal-input" id="ghRepo" type="text" placeholder="e.g. viberstore-pricing" autocomplete="off">
-    </div>
-    <div class="modal-field">
-      <label>GitHub Personal Access Token</label>
-      <input class="modal-input" id="ghToken" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off">
-      <p class="modal-hint">
-        Create a free token at <a href="https://github.com/settings/tokens/new?scopes=repo&description=ViberStore+Pricing+Bot" target="_blank">github.com/settings/tokens</a>
-        &#8212; only needs the <strong>repo</strong> scope. Stored locally in your browser, never sent anywhere except GitHub.
-      </p>
-    </div>
-
-    <div class="modal-status" id="modalStatus"></div>
-
-    <div class="modal-actions">
-      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
-      <button class="btn-primary" id="triggerBtn" onclick="triggerScrape()">&#9889; Start Scrape</button>
+  <div id="scrapeModal" class="modal-overlay" onclick="if(event.target===this)this.classList.remove('show')">
+    <div class="modal">
+      <h2>Run Price Scraper</h2>
+      <p>Enter your GitHub credentials to trigger the scraper workflow. These are saved locally in your browser.</p>
+      <div class="form-group"><label>GitHub Username</label><input id="ghUser" type="text" placeholder="cfviberstore"></div>
+      <div class="form-group"><label>Repository</label><input id="ghRepo" type="text" placeholder="viberstore-pricing"></div>
+      <div class="form-group"><label>Personal Access Token</label><input id="ghToken" type="password" placeholder="ghp_..."></div>
+      <div id="modalStatus"></div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="document.getElementById('scrapeModal').classList.remove('show')">Cancel</button>
+        <button class="btn-trigger" id="triggerBtn" onclick="triggerScrape()">Trigger Scraper</button>
+      </div>
     </div>
   </div>
-</div>
 
-<div class="main">
   <div class="stats-row">
-    <div class="stat-card"><div class="stat-label">Models Priced</div><div class="stat-value blue" id="statModels">&#8212;</div><div class="stat-sub" id="statModelsSub">loading...</div></div>
-    <div class="stat-card"><div class="stat-label">VS Cheaper</div><div class="stat-value green" id="statVS">&#8212;</div><div class="stat-sub">variants where we win</div></div>
-    <div class="stat-card"><div class="stat-label">Refurbed Cheaper</div><div class="stat-value red" id="statRef">&#8212;</div><div class="stat-sub">variants to watch</div></div>
-    <div class="stat-card"><div class="stat-label">Avg Price Delta</div><div class="stat-value amber" id="statDelta">&#8212;</div><div class="stat-sub" id="statDeltaSub">vs Refurbed</div></div>
-    <div class="stat-card"><div class="stat-label">Hierarchy Issues</div><div class="stat-value purple" id="statHier">&#8212;</div><div class="stat-sub">condition pricing violations</div></div>
+    <div class="stat-card">
+      <div class="stat-label">Models Priced</div>
+      <div class="stat-value" id="statModels">—</div>
+      <div class="stat-sub" id="statModelsSub"></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">VS Cheaper</div>
+      <div class="stat-value green" id="statVS">—</div>
+      <div class="stat-sub">variants where we win</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Refurbed Cheaper</div>
+      <div class="stat-value red" id="statRef">—</div>
+      <div class="stat-sub">variants to watch</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Avg Price Delta</div>
+      <div class="stat-value" id="statDelta">—</div>
+      <div class="stat-sub" id="statDeltaSub"></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Hierarchy Issues</div>
+      <div class="stat-value purple" id="statHier">—</div>
+      <div class="stat-sub">condition pricing violations</div>
+    </div>
   </div>
 
-  <div class="filters-bar">
+  <div id="filterBar">
     <div class="filter-group">
       <span class="filter-label">Model</span>
-      <input class="search-input" id="searchInput" type="text" placeholder="Search model..." oninput="applyFilters()">
+      <input class="filter-input" id="searchInput" type="text" placeholder="Search model..." oninput="applyFilters()">
     </div>
-    <div class="filter-divider"></div>
     <div class="filter-group">
       <span class="filter-label">Condition</span>
       <select class="filter-select" id="condFilter" onchange="applyFilters()">
-        <option value="all">All conditions</option>
-        <option value="Good">Good</option>
-        <option value="V. Good">V. Good</option>
+        <option value="">All conditions</option>
         <option value="Excellent">Excellent</option>
+        <option value="V. Good">V. Good</option>
+        <option value="Good">Good</option>
       </select>
     </div>
-    <div class="filter-divider"></div>
     <div class="filter-group">
       <span class="filter-label">Storage</span>
       <select class="filter-select" id="storageFilter" onchange="applyFilters()">
-        <option value="all">All storage</option>
+        <option value="">All storage</option>
         <option value="64GB">64GB</option>
         <option value="128GB">128GB</option>
         <option value="256GB">256GB</option>
@@ -235,421 +192,354 @@
         <option value="1TB">1TB</option>
       </select>
     </div>
-    <div class="filter-divider"></div>
     <div class="filter-group">
       <span class="filter-label">Show</span>
-      <button class="filter-btn active" id="btnAll" onclick="setActionFilter('all', this)">All</button>
-      <button class="filter-btn" id="btnAdjust" onclick="setActionFilter('adjust', this)">Needs Adjustment</button>
-      <button class="filter-btn" id="btnHier" onclick="setActionFilter('hierarchy', this)">Hierarchy Issues</button>
-      <button class="filter-btn" id="btnOK" onclick="setActionFilter('ok', this)">All OK</button>
+      <button class="show-btn active" id="btnAll" onclick="setShowFilter('all')">All</button>
+      <button class="show-btn" id="btnAdjust" onclick="setShowFilter('adjust')">Needs Adjustment</button>
+      <button class="show-btn" id="btnHier" onclick="setShowFilter('hierarchy')">Hierarchy Issues</button>
+      <button class="show-btn" id="btnOK" onclick="setShowFilter('ok')">All OK</button>
     </div>
-    <div class="filter-divider"></div>
-    <button class="filter-btn" onclick="toggleAll(true)">Expand All</button>
-    <button class="filter-btn" onclick="toggleAll(false)">Collapse All</button>
-    <span class="results-count" id="resultsCount"></span>
+    <span class="filter-spacer"></span>
+    <span id="resultsCount"></span>
   </div>
 
-  <div style="margin-bottom:16px; padding:0 2px;">
-    <div class="legend">
-      <span class="legend-item"><span class="legend-dot" style="background:#16a34a"></span>VS is cheaper</span>
-      <span class="legend-item"><span class="legend-dot" style="background:#dc2626"></span>Refurbed is cheaper</span>
-      <span class="legend-item"><span class="legend-dot" style="background:#d97706"></span>Hierarchy issue</span>
-      <span class="legend-item"><span class="legend-dot" style="background:#94a3b8"></span>No Refurbed data</span>
-      <span style="margin-left:12px; font-size:11px; color:var(--slate-500);">
-        Recommended: <span style="color:#16a34a;font-weight:700;">&#9650; Raise</span> &nbsp;
-        <span style="color:#dc2626;font-weight:700;">&#9660; Lower</span> &nbsp;
-        <span style="color:#2563eb;font-weight:700;">&#9679; Hold</span>
-      </span>
+  <div id="tableView">
+    <table class="price-table">
+      <thead>
+        <tr>
+          <th id="th-model" onclick="sortTable('model')">Model</th>
+          <th id="th-storage" onclick="sortTable('storage')">Storage</th>
+          <th id="th-condition" onclick="sortTable('condition')">Condition</th>
+          <th id="th-vs_price" onclick="sortTable('vs_price')">VS Price</th>
+          <th id="th-ref_price" onclick="sortTable('ref_price')">Ref Price</th>
+          <th id="th-delta" onclick="sortTable('delta')" class="sorted">Δ Delta ↓</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <tr class="empty-row"><td colspan="8">Loading…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div id="analyticsView">
+    <div class="analytics-grid">
+      <div class="chart-card">
+        <h3>Overall Win Rate</h3>
+        <div class="chart-wrap"><canvas id="chartWinRate"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3>Win Rate by Condition</h3>
+        <div class="chart-wrap"><canvas id="chartByCondition"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3>Win Rate by Brand</h3>
+        <div class="chart-wrap"><canvas id="chartByBrand"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3>Price Delta Distribution</h3>
+        <div class="chart-wrap"><canvas id="chartDeltaDist"></canvas></div>
+      </div>
+      <div class="chart-card" style="grid-column:1/-1">
+        <h3>Avg Delta by Model — all brands (green = VS wins)</h3>
+        <div class="chart-wrap-tall"><canvas id="chartTopModels"></canvas></div>
+      </div>
+      <div class="chart-card" style="grid-column:1/-1">
+        <h3>Variants Needing Action by Model</h3>
+        <div class="chart-wrap-tall"><canvas id="chartActions"></canvas></div>
+      </div>
     </div>
   </div>
 
-  <!-- Staleness warning &#8212; shown when data is >5 hours old -->
-  <div class="staleness-bar" id="stalenessBar">
-    &#9888; Prices are over 5 hours old. Hit <strong style="margin:0 4px">&#9889; Run Scraper</strong> to refresh, or wait for the next automatic update.
-  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script>
+  let DATA={}, currentBrand='apple', currentShowFilter='all';
+  let sortCol='delta', sortDir='desc';
+  const chartInst={};
 
-  <div id="modelList">
-    <div class="loading-state">
-      <div class="loading-spinner"></div>
-      <p>Loading live prices...</p>
-    </div>
-  </div>
-</div>
-
-<script>
-let DATA = null;
-let currentBrand = 'apple';
-let actionFilter = 'all';
-
-const STORAGES = ['64GB','128GB','256GB','512GB','1TB'];
-
-// &#9472;&#9472; Load prices.json &#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;
-async function loadData(showSpinner = true) {
-  if (showSpinner) {
-    document.getElementById('modelList').innerHTML = `
-      <div class="loading-state">
-        <div class="loading-spinner"></div>
-        <p>Loading live prices...</p>
-      </div>`;
-  }
-  try {
-    const resp = await fetch('./data/prices.json?_=' + Date.now());
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-    DATA = await resp.json();
-    onDataLoaded();
-  } catch (err) {
-    document.getElementById('modelList').innerHTML = `
-      <div class="error-state">
-        <h3>Could not load pricing data</h3>
-        <p>prices.json not found or unreadable.<br>
-        If running locally, open via a web server (e.g. <code>python -m http.server</code>).<br>
-        On GitHub Pages this will load automatically after the first scheduled run.</p>
-        <p style="margin-top:10px; font-size:11px; color:#94a3b8;">${err}</p>
-      </div>`;
-    document.getElementById('lastUpdated').textContent = 'Data unavailable';
-  }
-}
-
-// &#9472;&#9472; Reload button &#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;
-async function reloadData() {
-  const btn = document.getElementById('reloadBtn');
-  btn.disabled = true;
-  btn.classList.add('spinning');
-  btn.querySelector('.btn-icon').textContent = '\u21BB';
-  await loadData(false);
-  btn.disabled = false;
-  btn.classList.remove('spinning');
-}
-
-// &#9472;&#9472; Staleness check &#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;
-function checkStaleness(lastUpdated) {
-  if (!lastUpdated) return;
-  const ageMs = Date.now() - new Date(lastUpdated).getTime();
-  const ageHours = ageMs / (1000 * 60 * 60);
-  const bar = document.getElementById('stalenessBar');
-  if (ageHours > 5) {
-    bar.classList.add('show');
-  } else {
-    bar.classList.remove('show');
-  }
-}
-
-// &#9472;&#9472; GitHub Actions trigger &#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;
-const LS_KEY = 'vs_gh_config';
-
-function openScrapeModal() {
-  // Pre-fill from saved config (with sensible defaults)
-  const saved = JSON.parse(localStorage.getItem(LS_KEY) || '{}');
-  document.getElementById('ghUser').value = saved.user || 'cfviberstore';
-  document.getElementById('ghRepo').value = saved.repo || 'viberstore-pricing';
-  if (saved.token) document.getElementById('ghToken').value = saved.token;
-  document.getElementById('modalStatus').className = 'modal-status';
-  document.getElementById('modalStatus').textContent = '';
-  document.getElementById('scrapeModal').classList.add('open');
-  // If all credentials already saved, auto-trigger — no click needed
-  if (saved.user && saved.repo && saved.token) {
-    triggerScrape();
-  }
-}
-
-function closeModal() {
-  document.getElementById('scrapeModal').classList.remove('open');
-}
-
-// Close modal on backdrop click
-document.getElementById('scrapeModal').addEventListener('click', function(e) {
-  if (e.target === this) closeModal();
-});
-
-async function triggerScrape() {
-  const user  = document.getElementById('ghUser').value.trim();
-  const repo  = document.getElementById('ghRepo').value.trim();
-  const token = document.getElementById('ghToken').value.trim();
-  const status = document.getElementById('modalStatus');
-  const btn = document.getElementById('triggerBtn');
-
-  if (!user || !repo || !token) {
-    status.className = 'modal-status error';
-    status.textContent = 'Please fill in all three fields.';
-    return;
-  }
-
-  // Save config (token included &#8212; stored only in this browser)
-  localStorage.setItem(LS_KEY, JSON.stringify({ user, repo, token }));
-
-  btn.disabled = true;
-  btn.textContent = 'Triggering...';
-  status.className = 'modal-status info';
-  status.textContent = 'Sending request to GitHub Actions...';
-
-  try {
-    const resp = await fetch(
-      `https://api.github.com/repos/${user}/${repo}/actions/workflows/update_prices.yml/dispatches`,
-      {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/vnd.github+json',
-          'X-GitHub-Api-Version': '2022-11-28',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ ref: 'main', inputs: { reason: 'Triggered from pricing app' } }),
-      }
-    );
-
-if (resp.status === 204) {
-  status.className = 'modal-status success';
-  
-  // Start countdown from 5 minutes (300 seconds)
-  let secondsLeft = 300;
-  
-  const updateCountdown = () => {
-    const mins = Math.floor(secondsLeft / 60);
-    const secs = secondsLeft % 60;
-    const secPad = secs.toString().padStart(2, '0');
-    
-    if (secondsLeft > 0) {
-      status.innerHTML = `✅ Scraper started! Prices will update in ~${mins}:${secPad} minutes. Hit "Reload" when ready.`;
-      secondsLeft--;
-    } else {
-      status.innerHTML = `✅ Prices updated! Ready to reload.`;
-      btn.textContent = '⟲ Reload';
-      btn.disabled = false;
-      clearInterval(countdownTimer);
+  async function loadData(){
+    try{
+      const r=await fetch('data/prices.json?t='+Date.now());
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      DATA=await r.json();
+      onDataLoaded();
+    }catch(e){
+      document.getElementById('tableBody').innerHTML='<tr class="empty-row"><td colspan="8">Cannot load pricing data — run the scraper first</td></tr>';
+      document.getElementById('lastUpdated').textContent='No data';
     }
-  };
-  
-  updateCountdown(); // Show immediately
-  const countdownTimer = setInterval(updateCountdown, 1000);
-  btn.disabled = true;
-  btn.textContent = 'Triggering...';
-} else {
-  const body = await resp.json().catch(() => ({}));
-  throw new Error(body.message || `GitHub returned ${resp.status}`);
-}
-  } catch (err) {
-    status.className = 'modal-status error';
-    status.innerHTML = `❌ Error: ${err.message}`;
-    btn.disabled = false;
-    btn.textContent = 'Try Again';
   }
-}
 
-// ── onDataLoaded ────────────────────────────────────────────────────────
-function onDataLoaded() {
-  const dash = DATA.dashboard || {};
-  document.getElementById('statModels').textContent = dash.models_priced ?? '—';
-  const appleCount = (DATA.apple || []).length;
-  const samsungCount = (DATA.samsung || []).length;
-  document.getElementById('statModelsSub').textContent = appleCount + ' Apple · ' + samsungCount + ' Samsung';
-  document.getElementById('statVS').textContent = dash.vs_cheaper ?? '—';
-  document.getElementById('statRef').textContent = dash.ref_cheaper ?? '—';
-  const d = dash.avg_delta;
-  const deltaEl = document.getElementById('statDelta');
-  const deltaSub = document.getElementById('statDeltaSub');
-  if (d != null) {
-    deltaEl.textContent = '€' + Math.abs(d).toFixed(2);
-    if (d < -0.005) { deltaEl.className = 'stat-value green'; if (deltaSub) deltaSub.textContent = 'avg we undercut Refurbed'; }
-    else if (d > 0.005) { deltaEl.className = 'stat-value red'; if (deltaSub) deltaSub.textContent = 'avg Refurbed undercuts us'; }
-    else { deltaEl.className = 'stat-value amber'; if (deltaSub) deltaSub.textContent = 'on par with Refurbed'; }
+  function checkStaleness(ts){
+    if((Date.now()-new Date(ts).getTime())/36e5>4)
+      document.getElementById('stalenessBar').classList.add('show');
   }
-  document.getElementById('statHier').textContent = dash.hierarchy_issues ?? '—';
-  if (DATA.last_updated) {
-    const dt = new Date(DATA.last_updated);
-    const timeStr = dt.toLocaleTimeString('en-IE', {hour:'2-digit', minute:'2-digit'});
-    const dateStr = dt.toLocaleDateString('en-IE', {day:'numeric', month:'short'});
-    document.getElementById('lastUpdated').textContent = 'Updated ' + dateStr + ' at ' + timeStr;
-    checkStaleness(DATA.last_updated);
-  } else {
-    document.getElementById('lastUpdated').textContent = 'No data yet — run the scraper';
-    document.getElementById('stalenessBar').classList.add('show');
+
+  function onDataLoaded(){
+    const dash=DATA.dashboard||{};
+    document.getElementById('statModels').textContent=dash.models_priced??'—';
+    const ac=(DATA.apple||[]).length, sc=(DATA.samsung||[]).length;
+    document.getElementById('statModelsSub').textContent=ac+' Apple · '+sc+' Samsung';
+    document.getElementById('statVS').textContent=dash.vs_cheaper??'—';
+    document.getElementById('statRef').textContent=dash.ref_cheaper??'—';
+    const d=dash.avg_delta, de=document.getElementById('statDelta'), ds=document.getElementById('statDeltaSub');
+    if(d!=null){
+      de.textContent='€'+Math.abs(d).toFixed(2);
+      if(d<-0.005){de.className='stat-value green';ds.textContent='avg we undercut Refurbed';}
+      else if(d>0.005){de.className='stat-value red';ds.textContent='avg Refurbed undercuts us';}
+      else{de.className='stat-value amber';ds.textContent='on par with Refurbed';}
+    }
+    document.getElementById('statHier').textContent=dash.hierarchy_issues??'—';
+    if(DATA.last_updated){
+      const dt=new Date(DATA.last_updated);
+      const lu=document.getElementById('lastUpdated');
+      lu.className='has-data';
+      lu.textContent='Updated '+dt.toLocaleDateString('en-IE',{day:'numeric',month:'short'})+' at '+dt.toLocaleTimeString('en-IE',{hour:'2-digit',minute:'2-digit'});
+      checkStaleness(DATA.last_updated);
+    }else{
+      document.getElementById('lastUpdated').textContent='No data — run the scraper';
+      document.getElementById('stalenessBar').classList.add('show');
+    }
+    applyFilters();
   }
-  applyFilters();
-}
-// &#9472;&#9472; Filters & Rendering &#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;
-function switchBrand(brand, el) {
-  currentBrand = brand;
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  applyFilters();
-}
 
-function setActionFilter(f, el) {
-  actionFilter = f;
-  document.querySelectorAll('.filter-btn').forEach(b => {
-    if (['btnAll','btnAdjust','btnHier','btnOK'].includes(b.id)) b.classList.remove('active');
-  });
-  el.classList.add('active');
-  applyFilters();
-}
-
-function applyFilters() {
-  if (!DATA) return;
-  const models = DATA[currentBrand] || [];
-  const search = document.getElementById('searchInput').value.toLowerCase();
-  const condFilter = document.getElementById('condFilter').value;
-  const storFilter = document.getElementById('storageFilter').value;
-  const list = document.getElementById('modelList');
-
-  let shown = 0;
-  let html = '';
-
-  models.forEach((model, idx) => {
-    if (search && !model.model.toLowerCase().includes(search)) return;
-    if (actionFilter === 'adjust' && !modelNeedsAdjust(model)) return;
-    if (actionFilter === 'hierarchy' && !modelHasHierarchyIssue(model)) return;
-    if (actionFilter === 'ok' && !modelIsOK(model)) return;
-
-    const cardHtml = buildCard(model, idx, condFilter, storFilter);
-    if (cardHtml) { html += cardHtml; shown++; }
-  });
-
-  if (shown === 0) {
-    html = `<div class="empty-state"><h3>No models match your filters</h3><p>Try adjusting the search or filters above.</p></div>`;
+  async function triggerScrape(){
+    const user=document.getElementById('ghUser').value.trim();
+    const repo=document.getElementById('ghRepo').value.trim();
+    const token=document.getElementById('ghToken').value.trim();
+    if(!user||!repo||!token){document.getElementById('modalStatus').textContent='Please fill in all fields.';return;}
+    localStorage.setItem('vs_gh_config',JSON.stringify({user,repo,token}));
+    const btn=document.getElementById('triggerBtn');
+    btn.textContent='Triggering…';btn.disabled=true;
+    document.getElementById('modalStatus').textContent='';
+    try{
+      const r=await fetch('https://api.github.com/repos/'+user+'/'+repo+'/actions/workflows/update_prices.yml/dispatches',{
+        method:'POST',
+        headers:{Authorization:'token '+token,Accept:'application/vnd.github.v3+json','Content-Type':'application/json'},
+        body:JSON.stringify({ref:'main'})
+      });
+      if(r.status===204){document.getElementById('modalStatus').textContent='✓ Scraper triggered — check GitHub Actions';btn.textContent='Triggered!';}
+      else{const e=await r.json().catch(()=>({}));document.getElementById('modalStatus').textContent='Error: '+(e.message||r.status);btn.textContent='Try Again';btn.disabled=false;}
+    }catch(e){document.getElementById('modalStatus').textContent='Network error: '+e.message;btn.textContent='Try Again';btn.disabled=false;}
   }
-  list.innerHTML = html;
-  document.getElementById('resultsCount').textContent = shown + ' model' + (shown !== 1 ? 's' : '') + ' shown';
-}
 
-function modelNeedsAdjust(m) {
-  return m.conditions?.some(c => c.action?.startsWith('adjust'));
-}
-function modelHasHierarchyIssue(m) {
-  return m.conditions?.some(c => !c.hierarchy_ok);
-}
-function modelIsOK(m) {
-  return !modelNeedsAdjust(m) && !modelHasHierarchyIssue(m);
-}
-function modelAdjustCount(m) {
-  return m.conditions?.reduce((sum, c) => {
-    const match = c.action?.match(/adjust_(\d+)/);
-    return sum + (match ? parseInt(match[1]) : 0);
-  }, 0) || 0;
-}
+  (function(){
+    const cfg=JSON.parse(localStorage.getItem('vs_gh_config')||'{}');
+    if(cfg.user)document.getElementById('ghUser').value=cfg.user;
+    if(cfg.repo)document.getElementById('ghRepo').value=cfg.repo;
+    if(cfg.token)document.getElementById('ghToken').value=cfg.token;
+  })();
 
-function buildCard(model, idx, condFilter, storFilter) {
-  const hasHier = modelHasHierarchyIssue(model);
-  const needsAdj = modelNeedsAdjust(model);
-  const adjCount = modelAdjustCount(model);
+  function switchBrand(b){
+    currentBrand=b;
+    document.getElementById('appleBtn').classList.toggle('active',b==='apple');
+    document.getElementById('samsungBtn').classList.toggle('active',b==='samsung');
+    document.getElementById('analyticsBtn').classList.toggle('active',b==='analytics');
+    const isA=b==='analytics';
+    document.getElementById('filterBar').style.display=isA?'none':'';
+    document.getElementById('tableView').style.display=isA?'none':'';
+    document.getElementById('analyticsView').style.display=isA?'block':'none';
+    if(isA)renderAnalytics(); else applyFilters();
+  }
 
-  let badges = '';
-  if (hasHier) badges += '<span class="badge badge-warn">&#9888; Hierarchy</span>';
-  if (needsAdj && !hasHier) badges += `<span class="badge badge-adjust">&#128201; ${adjCount} to adjust</span>`;
-  if (!hasHier && !needsAdj) badges += '<span class="badge badge-ok">&#9989; All Good</span>';
-
-  const conditions = model.conditions || [];
-
-  // Build storage → condition → data lookup
-  const storMap = {};
-  conditions.forEach(cond => {
-    (cond.storages || []).forEach(s => {
-      if (!storMap[s.storage]) storMap[s.storage] = {};
-      storMap[s.storage][cond.condition] = { ...s, hierarchy_ok: cond.hierarchy_ok };
-    });
-  });
-
-  // Canonical storage order
-  const allStorages = Object.keys(storMap).sort((a, b) => (STORAGES.indexOf(a) === -1 ? 999 : STORAGES.indexOf(a)) - (STORAGES.indexOf(b) === -1 ? 999 : STORAGES.indexOf(b)));
-  const allConditions = conditions.map(c => c.condition);
-
-  let tableRows = '';
-
-  allStorages.forEach(stor => {
-    if (storFilter !== 'all' && stor !== storFilter) return;
-
-    const relevantConds = allConditions.filter(c => condFilter === 'all' || c === condFilter);
-    if (!relevantConds.some(c => storMap[stor][c])) return;
-
-    // Hierarchy flag for this storage group
-    const storHasHier = relevantConds.some(c => storMap[stor][c] && storMap[stor][c].hierarchy_ok === false);
-    const hierIndicator = storHasHier ? ' <span style="color:var(--amber); font-size:11px; font-weight:600;">&#9888; Hierarchy</span>' : '';
-
-    tableRows += `<tr class="cond-header"><td colspan="5" style="padding:8px 16px;">
-      <span style="font-weight:700; color:var(--navy); font-size:13px;">${stor}</span>${hierIndicator}
-    </td></tr>`;
-
-    allConditions.forEach(condName => {
-      if (condFilter !== 'all' && condName !== condFilter) return;
-      const s = storMap[stor][condName];
-      if (!s) return;
-
-      const condColour = condName === 'Good' ? '#64748b' : condName === 'V. Good' ? '#2563eb' : '#16a34a';
-      const vsStr = s.vs_price != null ? '\u20AC' + s.vs_price.toFixed(2) : '&#8212;';
-      const refStr = s.ref_price != null ? '\u20AC' + s.ref_price.toFixed(2) : '&#8212;';
-
-      let deltaHtml = '<span style="color:var(--slate-300)">&#8212;</span>';
-      if (s.delta != null) {
-        const cls = s.delta > 0 ? 'delta-neg' : s.delta < 0 ? 'delta-pos' : 'delta-zero';
-        const sign = s.delta > 0 ? '+' : '';
-        deltaHtml = `<span class="delta-cell ${cls}">${sign}\u20AC${Math.abs(s.delta).toFixed(2)}</span>`;
+  function flattenBrand(brand){
+    const rows=[];
+    for(const m of (DATA[brand]||[])){
+      for(const c of (m.conditions||[])){
+        for(const s of (c.storages||[])){
+          rows.push({model:m.model,condition:c.condition,storage:s.storage,
+            vs_price:s.vs_price,ref_price:s.ref_price,delta:s.delta,
+            recommended:s.recommended,status:s.status});
+        }
       }
-
-      let recHtml = '<span style="color:var(--slate-300)">&#8212;</span>';
-      if (s.recommended) {
-        const arrow = s.recommended.direction === 'up' ? '&#9650;' : s.recommended.direction === 'down' ? '&#9660;' : '&#9679;';
-        const cls = s.recommended.direction === 'up' ? 'rec-up' : s.recommended.direction === 'down' ? 'rec-down' : 'rec-same';
-        recHtml = `<span class="rec-cell ${cls}">${arrow} \u20AC${s.recommended.price.toFixed(2)}</span>`;
-      }
-
-      const vsCls = s.vs_price != null ? 'price-cell price-vs' : 'price-none';
-      const refCls = s.ref_price != null ? 'price-cell price-ref' : 'price-none';
-
-      tableRows += `<tr class="data-row">
-        <td class="storage-label" style="padding-left:24px; color:${condColour}; font-weight:500;">${condName}</td>
-        <td class="${vsCls}">${vsStr}</td>
-        <td class="${refCls}">${refStr}</td>
-        <td>${deltaHtml}</td>
-        <td>${recHtml}</td>
-      </tr>`;
-    });
-  });
-
-  if (!tableRows) return '';
-
-  return `<div class="model-card" id="card-${idx}">
-    <div class="model-header" onclick="toggleCard(${idx})">
-      <span class="model-chevron">&#9654;</span>
-      <span class="model-name">${model.model}</span>
-      <div class="model-badges">${badges}</div>
-    </div>
-    <div class="model-body">
-      <table class="price-table">
-        <thead><tr>
-          <th style="width:90px">Condition</th>
-          <th style="width:110px">VS Price</th>
-          <th style="width:110px">Refurbed</th>
-          <th style="width:90px">Delta (\u20AC)</th>
-          <th>Recommended</th>
-        </tr></thead>
-        <tbody>${tableRows}</tbody>
-      </table>
-    </div>
-  </div>`;
-}
-
-
-function renderAction(action) {
-  if (!action) return '';
-  if (action.startsWith('adjust')) {
-    const n = action.match(/\d+/)?.[0] || '';
-    return `<span style="color:#c2410c; font-weight:500;">&#128201; Adjust ${n} variant${n>1?'s':''}</span>`;
+    }
+    return rows;
   }
-  if (action === 'fix_hierarchy') return `<span style="color:var(--amber); font-weight:600;">&#9888; Fix Hierarchy</span>`;
-  if (action === 'ok') return `<span style="color:var(--green)">&#10003; Competitive</span>`;
-  return `<span style="color:var(--slate-400)">&#8212; No comparison</span>`;
-}
 
-function toggleCard(idx) {
-  document.getElementById('card-' + idx)?.classList.toggle('open');
-}
-function toggleAll(open) {
-  document.querySelectorAll('.model-card').forEach(c => {
-    open ? c.classList.add('open') : c.classList.remove('open');
-  });
-}
+  function sortTable(col){
+    if(sortCol===col) sortDir=sortDir==='asc'?'desc':'asc';
+    else{sortCol=col;sortDir='asc';}
+    applyFilters();
+  }
 
-// &#9472;&#9472; Init &#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;
-loadData();
-</script>
+  function doSort(rows){
+    return[...rows].sort((a,b)=>{
+      let av=a[sortCol],bv=b[sortCol];
+      const nil=sortDir==='asc'?Infinity:-Infinity;
+      if(av==null)av=nil; if(bv==null)bv=nil;
+      if(typeof av==='string')return sortDir==='asc'?av.localeCompare(bv):bv.localeCompare(av);
+      return sortDir==='asc'?av-bv:bv-av;
+    });
+  }
+
+  function updateHeaders(){
+    const labels={model:'Model',storage:'Storage',condition:'Condition',vs_price:'VS Price',ref_price:'Ref Price',delta:'Δ Delta'};
+    for(const col of Object.keys(labels)){
+      const th=document.getElementById('th-'+col);
+      if(!th)continue;
+      th.classList.toggle('sorted',sortCol===col);
+      th.textContent=labels[col]+(sortCol===col?(sortDir==='asc'?' ↑':' ↓'):'');
+    }
+  }
+
+  function setShowFilter(f){
+    currentShowFilter=f;
+    document.getElementById('btnAll').classList.toggle('active',f==='all');
+    document.getElementById('btnAdjust').classList.toggle('active',f==='adjust');
+    document.getElementById('btnHier').classList.toggle('active',f==='hierarchy');
+    document.getElementById('btnOK').classList.toggle('active',f==='ok');
+    applyFilters();
+  }
+
+  function applyFilters(){
+    if(currentBrand==='analytics')return;
+    let rows=flattenBrand(currentBrand);
+    const search=(document.getElementById('searchInput')?.value||'').toLowerCase();
+    const cond=document.getElementById('condFilter')?.value||'';
+    const stor=document.getElementById('storageFilter')?.value||'';
+    if(search)rows=rows.filter(r=>r.model.toLowerCase().includes(search));
+    if(cond)rows=rows.filter(r=>r.condition===cond);
+    if(stor)rows=rows.filter(r=>r.storage===stor);
+    if(currentShowFilter==='adjust')rows=rows.filter(r=>r.recommended==='raise'||r.recommended==='lower');
+    if(currentShowFilter==='hierarchy')rows=rows.filter(r=>r.status==='hierarchy_issue');
+    if(currentShowFilter==='ok')rows=rows.filter(r=>r.status!=='ref_cheaper'&&r.status!=='hierarchy_issue');
+    rows=doSort(rows);
+    updateHeaders();
+    const rc=document.getElementById('resultsCount');
+    if(rc)rc.textContent=rows.length+' variant'+(rows.length!==1?'s':'');
+    const tbody=document.getElementById('tableBody');
+    if(!rows.length){tbody.innerHTML='<tr class="empty-row"><td colspan="8">No variants match the current filters</td></tr>';return;}
+    tbody.innerHTML=rows.map(buildRow).join('');
+  }
+
+  function buildRow(r){
+    const condCls=r.condition==='Excellent'?'tag-excellent':r.condition==='V. Good'?'tag-vgood':'tag-good';
+    const vsH=r.vs_price!=null?'<span class="price-cell">€'+r.vs_price.toFixed(2)+'</span>':'<span class="no-price">—</span>';
+    const refH=r.ref_price!=null?'<span class="price-cell">€'+r.ref_price.toFixed(2)+'</span>':'<span class="no-price">—</span>';
+    let dH='<span class="no-price">—</span>';
+    if(r.delta!=null){
+      const sign=r.delta>0?'+':'';
+      const cls=r.delta<-0.005?'delta-win':r.delta>0.005?'delta-loss':'delta-neutral';
+      dH='<span class="'+cls+'">'+sign+'€'+r.delta.toFixed(2)+'</span>';
+    }
+    let stH='';
+    if(r.status==='vs_cheaper')stH='<span class="dot dot-green"></span>VS cheaper';
+    else if(r.status==='ref_cheaper')stH='<span class="dot dot-red"></span>Ref cheaper';
+    else if(r.status==='hierarchy_issue')stH='<span class="dot dot-amber"></span>Hierarchy issue';
+    else stH='<span class="dot dot-slate"></span>No Ref data';
+    let acH='<span class="action-none">—</span>';
+    if(r.recommended==='raise')acH='<span class="action-badge action-raise">▲ Raise</span>';
+    else if(r.recommended==='lower')acH='<span class="action-badge action-lower">▼ Lower</span>';
+    else if(r.recommended==='hold')acH='<span class="action-badge action-hold">● Hold</span>';
+    return'<tr>'+
+      '<td class="model-cell">'+r.model+'</td>'+
+      '<td><span class="tag tag-storage">'+r.storage+'</span></td>'+
+      '<td><span class="tag '+condCls+'">'+r.condition+'</span></td>'+
+      '<td>'+vsH+'</td><td>'+refH+'</td><td>'+dH+'</td>'+
+      '<td><div class="status-cell">'+stH+'</div></td>'+
+      '<td>'+acH+'</td></tr>';
+  }
+
+  function destroyChart(id){if(chartInst[id]){chartInst[id].destroy();delete chartInst[id];}}
+
+  function renderAnalytics(){
+    const all=[...flattenBrand('apple'),...flattenBrand('samsung')];
+    const apple=flattenBrand('apple'), samsung=flattenBrand('samsung');
+
+    destroyChart('chartWinRate');
+    chartInst['chartWinRate']=new Chart(document.getElementById('chartWinRate'),{
+      type:'doughnut',
+      data:{
+        labels:['VS Cheaper','Ref Cheaper','No Ref Data','Hierarchy Issue'],
+        datasets:[{data:[
+          all.filter(r=>r.status==='vs_cheaper').length,
+          all.filter(r=>r.status==='ref_cheaper').length,
+          all.filter(r=>r.status==='no_ref_data').length,
+          all.filter(r=>r.status==='hierarchy_issue').length
+        ],backgroundColor:['#16a34a','#dc2626','#94a3b8','#d97706'],borderWidth:2,borderColor:'#fff'}]
+      },
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{size:11},boxWidth:12}}}}
+    });
+
+    destroyChart('chartByCondition');
+    const conds=['Excellent','V. Good','Good'];
+    chartInst['chartByCondition']=new Chart(document.getElementById('chartByCondition'),{
+      type:'bar',
+      data:{
+        labels:conds,
+        datasets:[
+          {label:'VS Cheaper',data:conds.map(c=>all.filter(r=>r.condition===c&&r.status==='vs_cheaper').length),backgroundColor:'#16a34a'},
+          {label:'Ref Cheaper',data:conds.map(c=>all.filter(r=>r.condition===c&&r.status==='ref_cheaper').length),backgroundColor:'#dc2626'},
+          {label:'No Ref Data',data:conds.map(c=>all.filter(r=>r.condition===c&&r.status==='no_ref_data').length),backgroundColor:'#94a3b8'}
+        ]
+      },
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{size:11},boxWidth:12}}},scales:{x:{stacked:true},y:{stacked:true,ticks:{stepSize:1}}}}
+    });
+
+    destroyChart('chartByBrand');
+    chartInst['chartByBrand']=new Chart(document.getElementById('chartByBrand'),{
+      type:'bar',
+      data:{
+        labels:['Apple','Samsung'],
+        datasets:[
+          {label:'VS Cheaper',data:[apple.filter(r=>r.status==='vs_cheaper').length,samsung.filter(r=>r.status==='vs_cheaper').length],backgroundColor:'#16a34a'},
+          {label:'Ref Cheaper',data:[apple.filter(r=>r.status==='ref_cheaper').length,samsung.filter(r=>r.status==='ref_cheaper').length],backgroundColor:'#dc2626'},
+          {label:'No Ref Data',data:[apple.filter(r=>r.status==='no_ref_data').length,samsung.filter(r=>r.status==='no_ref_data').length],backgroundColor:'#94a3b8'}
+        ]
+      },
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{size:11},boxWidth:12}}},scales:{x:{stacked:true},y:{stacked:true}}}
+    });
+
+    destroyChart('chartDeltaDist');
+    const wd=all.filter(r=>r.delta!=null);
+    const bands=[
+      {l:'< -€20',fn:r=>r.delta<-20},
+      {l:'-€20 to -€10',fn:r=>r.delta>=-20&&r.delta<-10},
+      {l:'-€10 to -€1',fn:r=>r.delta>=-10&&r.delta<-1},
+      {l:'±€1',fn:r=>r.delta>=-1&&r.delta<=1},
+      {l:'+€1 to +€10',fn:r=>r.delta>1&&r.delta<=10},
+      {l:'+€10 to +€20',fn:r=>r.delta>10&&r.delta<=20},
+      {l:'> +€20',fn:r=>r.delta>20}
+    ];
+    const bColors=['#16a34a','#4ade80','#86efac','#94a3b8','#fca5a5','#dc2626','#991b1b'];
+    chartInst['chartDeltaDist']=new Chart(document.getElementById('chartDeltaDist'),{
+      type:'bar',
+      data:{labels:bands.map(b=>b.l),datasets:[{label:'Variants',data:bands.map(b=>wd.filter(b.fn).length),backgroundColor:bColors,borderRadius:4}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{stepSize:1}}}}
+    });
+
+    destroyChart('chartTopModels');
+    const mmap={};
+    for(const r of all){if(r.delta==null)continue;if(!mmap[r.model])mmap[r.model]=[];mmap[r.model].push(r.delta);}
+    const mavgs=Object.entries(mmap).map(([m,d])=>({m,avg:d.reduce((a,b)=>a+b,0)/d.length})).sort((a,b)=>a.avg-b.avg).slice(0,16);
+    chartInst['chartTopModels']=new Chart(document.getElementById('chartTopModels'),{
+      type:'bar',
+      data:{labels:mavgs.map(x=>x.m),datasets:[{label:'Avg Delta (€)',data:mavgs.map(x=>+x.avg.toFixed(2)),backgroundColor:mavgs.map(x=>x.avg<0?'#16a34a':'#dc2626'),borderRadius:3}]},
+      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{title:{display:true,text:'€ (negative = VS cheaper)'}}}}
+    });
+
+    destroyChart('chartActions');
+    const amap={};
+    for(const r of all){
+      if(r.recommended!=='raise'&&r.recommended!=='lower')continue;
+      if(!amap[r.model])amap[r.model]={raise:0,lower:0};
+      amap[r.model][r.recommended]++;
+    }
+    const amodels=Object.entries(amap).map(([m,c])=>({m,...c,t:c.raise+c.lower})).sort((a,b)=>b.t-a.t).slice(0,14);
+    chartInst['chartActions']=new Chart(document.getElementById('chartActions'),{
+      type:'bar',
+      data:{
+        labels:amodels.map(x=>x.m),
+        datasets:[
+          {label:'▲ Raise',data:amodels.map(x=>x.raise),backgroundColor:'#16a34a',borderRadius:3},
+          {label:'▼ Lower',data:amodels.map(x=>x.lower),backgroundColor:'#dc2626',borderRadius:3}
+        ]
+      },
+      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{size:11},boxWidth:12}}},scales:{x:{ticks:{stepSize:1}}}}
+    });
+  }
+
+  loadData();
+  </script>
 </body>
 </html>
