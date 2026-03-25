@@ -397,27 +397,42 @@ async function triggerScrape() {
       }
     );
 
-    if (resp.status === 204) {
-      status.className = 'modal-status success';
-      status.textContent = '&#9989; Scraper started! Prices will update in ~5&#8211;10 minutes. Hit "Reload" when ready.';
-      btn.textContent = '&#9989; Started';
+if (resp.status === 204) {
+  status.className = 'modal-status success';
+  
+  // Start countdown from 5 minutes (300 seconds)
+  let secondsLeft = 300;
+  
+  const updateCountdown = () => {
+    const mins = Math.floor(secondsLeft / 60);
+    const secs = secondsLeft % 60;
+    const secPad = secs.toString().padStart(2, '0');
+    
+    if (secondsLeft > 0) {
+      status.innerHTML = `✅ Scraper started! Prices will update in ~${mins}:${secPad} minutes. Hit "Reload" when ready.`;
+      secondsLeft--;
     } else {
-      const body = await resp.json().catch(() => ({}));
-      throw new Error(body.message || `GitHub returned ${resp.status}`);
+      status.innerHTML = `✅ Prices updated! Ready to reload.`;
+      btn.textContent = '⟲ Reload';
+      btn.disabled = false;
+      clearInterval(countdownTimer);
     }
+  };
+  
+  updateCountdown(); // Show immediately
+  const countdownTimer = setInterval(updateCountdown, 1000);
+  btn.disabled = true;
+  btn.textContent = 'Triggering...';
+} else {
+  const body = await resp.json().catch(() => ({}));
+  throw new Error(body.message || `GitHub returned ${resp.status}`);
+}
   } catch (err) {
     status.className = 'modal-status error';
-    status.textContent = `&#10060; Failed: ${err.message}`;
+    status.innerHTML = `❌ Error: ${err.message}`;
     btn.disabled = false;
-    btn.textContent = '&#9889; Start Scrape';
+    btn.textContent = 'Try Again';
   }
-}
-
-function onDataLoaded() {
-  const dash = DATA.dashboard;
-  document.getElementById('statModels').textContent = dash.models_priced;
-  document.getElementById('statModelsSub').textContent = `across ${DATA.apple?.length || 0} Apple + ${DATA.samsung?.length || 0} Samsung`;
-  document.getElementById('statVS').textContent = dash.vs_cheaper;
   document.getElementById('statRef').textContent = dash.ref_cheaper;
   const d = dash.avg_delta;
   document.getElementById('statDelta').textContent = '\u20AC' + Math.abs(d).toFixed(2);
