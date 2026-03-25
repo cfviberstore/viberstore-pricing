@@ -16,6 +16,7 @@ CONDITIONS = ["Good", "V. Good", "Excellent"]
 
 # Path to output file (relative to repo root)
 OUTPUT_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "prices.json")
+HISTORY_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "history.json")
 
 
 def build_model_entry(model_name, vs_prices, ref_prices):
@@ -208,6 +209,39 @@ def merge_and_build(vs_data, ref_apple, ref_samsung):
         "apple": apple_models,
         "samsung": samsung_models,
     }
+
+
+def update_history(output):
+    """Append today's prices to data/history.json, keeping last 30 days."""
+    if os.path.exists(HISTORY_PATH):
+        with open(HISTORY_PATH, "r") as f:
+            history = json.load(f)
+    else:
+        history = {"entries": []}
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    snapshot = {}
+    for brand in ("apple", "samsung"):
+        for model in output.get(brand, []):
+            for cond in model.get("conditions", []):
+                for stor in cond.get("storages", []):
+                    key = f"{brand}|{model['model']}|{cond['condition']}|{stor['storage']}"
+                    entry = {}
+                    if stor.get("vs_price") is not None:
+                        entry["vs"] = stor["vs_price"]
+                    if stor.get("ref_price") is not None:
+                        entry["ref"] = stor["ref_price"]
+                    if entry:
+                        snapshot[key] = entry
+    existing = next((e for e in history["entries"] if e["date"] == today), None)
+    if existing:
+        existing["prices"] = snapshot
+    else:
+        history["entries"].append({"date": today, "prices": snapshot})
+    history["entries"] = sorted(history["entries"], key=lambda e: e["date"])[-30:]
+    os.makedirs(os.path.dirname(HISTORY_PATH), exist_ok=True)
+    with open(HISTORY_PATH, "w") as f:
+        json.dump(history, f, separators=(",", ":"))
+    print(f"  History: {len(history['entries'])} day(s) logged")
 
 
 def main():
