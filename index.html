@@ -400,9 +400,9 @@
     if(search)rows=rows.filter(r=>r.model.toLowerCase().includes(search));
     if(cond)rows=rows.filter(r=>r.condition===cond);
     if(stor)rows=rows.filter(r=>r.storage===stor);
-    if(currentShowFilter==='adjust')rows=rows.filter(r=>r.recommended==='raise'||r.recommended==='lower');
+    if(currentShowFilter==='adjust')rows=rows.filter(r=>r.recommended?.direction==='up'||r.recommended?.direction==='down');
     if(currentShowFilter==='hierarchy')rows=rows.filter(r=>r.status==='hierarchy_issue');
-    if(currentShowFilter==='ok')rows=rows.filter(r=>r.status!=='ref_cheaper'&&r.status!=='hierarchy_issue');
+    if(currentShowFilter==='ok')rows=rows.filter(r=>r.status!=='refurbed_cheaper'&&r.status!=='hierarchy_issue'&&r.status!=='competitive');
     rows=doSort(rows);
     updateHeaders();
     const rc=document.getElementById('resultsCount');
@@ -424,13 +424,13 @@
     }
     let stH='';
     if(r.status==='vs_cheaper')stH='<span class="dot dot-green"></span>VS cheaper';
-    else if(r.status==='ref_cheaper')stH='<span class="dot dot-red"></span>Ref cheaper';
-    else if(r.status==='hierarchy_issue')stH='<span class="dot dot-amber"></span>Hierarchy issue';
+    else if(r.status==='refurbed_cheaper')stH='<span class="dot dot-red"></span>Ref cheaper';
+    else if(r.status==='competitive')stH='<span class="dot dot-slate"></span>Competitive';else if(r.status==='hierarchy_issue')stH='<span class="dot dot-amber"></span>Hierarchy issue';
     else stH='<span class="dot dot-slate"></span>No Ref data';
     let acH='<span class="action-none">—</span>';
-    if(r.recommended==='raise')acH='<span class="action-badge action-raise">▲ Raise</span>';
-    else if(r.recommended==='lower')acH='<span class="action-badge action-lower">▼ Lower</span>';
-    else if(r.recommended==='hold')acH='<span class="action-badge action-hold">● Hold</span>';
+    if(r.recommended?.direction==='up')acH='<span class="action-badge action-raise">▲ Raise</span>';
+    else if(r.recommended?.direction==='down')acH='<span class="action-badge action-lower">▼ Lower</span>';
+    else if(r.recommended?.direction==='same')acH='<span class="action-badge action-hold">● Hold</span>';
     return'<tr>'+
       '<td class="model-cell">'+r.model+'</td>'+
       '<td><span class="tag tag-storage">'+r.storage+'</span></td>'+
@@ -450,13 +450,14 @@
     chartInst['chartWinRate']=new Chart(document.getElementById('chartWinRate'),{
       type:'doughnut',
       data:{
-        labels:['VS Cheaper','Ref Cheaper','No Ref Data','Hierarchy Issue'],
+        labels:['VS Cheaper','Ref Cheaper','Competitive','No Ref Data','Hierarchy Issue'],
         datasets:[{data:[
           all.filter(r=>r.status==='vs_cheaper').length,
-          all.filter(r=>r.status==='ref_cheaper').length,
-          all.filter(r=>r.status==='no_ref_data').length,
+          all.filter(r=>r.status==='refurbed_cheaper').length,
+          all.filter(r=>r.status==='competitive').length,
+          all.filter(r=>r.status==='no_ref_data'||r.status==='no_data').length,
           all.filter(r=>r.status==='hierarchy_issue').length
-        ],backgroundColor:['#16a34a','#dc2626','#94a3b8','#d97706'],borderWidth:2,borderColor:'#fff'}]
+        ],backgroundColor:['#16a34a','#dc2626','#3b82f6','#94a3b8','#d97706'],borderWidth:2,borderColor:'#fff'}]
       },
       options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{size:11},boxWidth:12}}}}
     });
@@ -469,7 +470,7 @@
         labels:conds,
         datasets:[
           {label:'VS Cheaper',data:conds.map(c=>all.filter(r=>r.condition===c&&r.status==='vs_cheaper').length),backgroundColor:'#16a34a'},
-          {label:'Ref Cheaper',data:conds.map(c=>all.filter(r=>r.condition===c&&r.status==='ref_cheaper').length),backgroundColor:'#dc2626'},
+          {label:'Ref Cheaper',data:conds.map(c=>all.filter(r=>r.condition===c&&r.status==='refurbed_cheaper').length),backgroundColor:'#dc2626'},
           {label:'No Ref Data',data:conds.map(c=>all.filter(r=>r.condition===c&&r.status==='no_ref_data').length),backgroundColor:'#94a3b8'}
         ]
       },
@@ -483,7 +484,7 @@
         labels:['Apple','Samsung'],
         datasets:[
           {label:'VS Cheaper',data:[apple.filter(r=>r.status==='vs_cheaper').length,samsung.filter(r=>r.status==='vs_cheaper').length],backgroundColor:'#16a34a'},
-          {label:'Ref Cheaper',data:[apple.filter(r=>r.status==='ref_cheaper').length,samsung.filter(r=>r.status==='ref_cheaper').length],backgroundColor:'#dc2626'},
+          {label:'Ref Cheaper',data:[apple.filter(r=>r.status==='refurbed_cheaper').length,samsung.filter(r=>r.status==='refurbed_cheaper').length],backgroundColor:'#dc2626'},
           {label:'No Ref Data',data:[apple.filter(r=>r.status==='no_ref_data').length,samsung.filter(r=>r.status==='no_ref_data').length],backgroundColor:'#94a3b8'}
         ]
       },
@@ -521,9 +522,9 @@
     destroyChart('chartActions');
     const amap={};
     for(const r of all){
-      if(r.recommended!=='raise'&&r.recommended!=='lower')continue;
+      if(r.recommended?.direction!=='up'&&r.recommended?.direction!=='down')continue;
       if(!amap[r.model])amap[r.model]={raise:0,lower:0};
-      amap[r.model][r.recommended]++;
+      if(r.recommended.direction==='up')amap[r.model].raise++;else amap[r.model].lower++;
     }
     const amodels=Object.entries(amap).map(([m,c])=>({m,...c,t:c.raise+c.lower})).sort((a,b)=>b.t-a.t).slice(0,14);
     chartInst['chartActions']=new Chart(document.getElementById('chartActions'),{
