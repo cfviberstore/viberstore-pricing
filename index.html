@@ -362,7 +362,8 @@
     applyFilters();
   }
 
-  function storageSize(s){
+  function snapPrice(p){return(Math.round((p+0.01)/10)*10-0.01).toFixed(2);}
+    function storageSize(s){
     if(!s)return 0;
     const n=parseFloat(s);
     return s.includes('TB')?n*1024:n;
@@ -442,9 +443,9 @@
     else if(r.status==='competitive')stH='<span class="dot dot-slate"></span>Competitive';else if(r.status==='hierarchy_issue')stH='<span class="dot dot-amber"></span>Hierarchy issue';
     else stH='<span class="dot dot-slate"></span>No Ref data';
     let acH='<span class="action-none">—</span>';
-    if(r.recommended?.direction==='up')acH=`<span class="action-badge action-raise">▲ Raise${r.recommended?.price!=null?' €'+r.recommended.price:''}</span>`;
-    else if(r.recommended?.direction==='down')acH=`<span class="action-badge action-lower">▼ Lower${r.recommended?.price!=null?' €'+r.recommended.price:''}</span>`;
-    else if(r.recommended?.direction==='same')acH=`<span class="action-badge action-hold">● Hold${r.recommended?.price!=null?' €'+r.recommended.price:''}</span>`;
+    if(r.recommended?.direction==='up')acH=`<span class="action-badge action-raise">▲ Raise${r.recommended?.price!=null?' €'+snapPrice(r.recommended.price):''}</span>`;
+    else if(r.recommended?.direction==='down')acH=`<span class="action-badge action-lower">▼ Lower${r.recommended?.price!=null?' €'+snapPrice(r.recommended.price):''}</span>`;
+    else if(r.recommended?.direction==='same')acH=`<span class="action-badge action-hold">● Hold${r.recommended?.price!=null?' €'+snapPrice(r.recommended.price):''}</span>`;
     return'<tr>'+
       '<td class="model-cell">'+r.model+'</td>'+
       '<td><span class="tag tag-storage">'+r.storage+'</span></td>'+
