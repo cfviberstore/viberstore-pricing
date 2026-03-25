@@ -338,14 +338,18 @@ function checkStaleness(lastUpdated) {
 const LS_KEY = 'vs_gh_config';
 
 function openScrapeModal() {
-  // Pre-fill from saved config
+  // Pre-fill from saved config (with sensible defaults)
   const saved = JSON.parse(localStorage.getItem(LS_KEY) || '{}');
-  if (saved.user) document.getElementById('ghUser').value = saved.user;
-  if (saved.repo) document.getElementById('ghRepo').value = saved.repo;
+  document.getElementById('ghUser').value = saved.user || 'cfviberstore';
+  document.getElementById('ghRepo').value = saved.repo || 'viberstore-pricing';
   if (saved.token) document.getElementById('ghToken').value = saved.token;
   document.getElementById('modalStatus').className = 'modal-status';
   document.getElementById('modalStatus').textContent = '';
   document.getElementById('scrapeModal').classList.add('open');
+  // If all credentials already saved, auto-trigger — no click needed
+  if (saved.user && saved.repo && saved.token) {
+    triggerScrape();
+  }
 }
 
 function closeModal() {
