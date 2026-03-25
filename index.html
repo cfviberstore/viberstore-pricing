@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>ViberStore â Live Pricing Intelligence</title>
+  <title>ViberStore — Live Pricing Intelligence</title>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     :root{
@@ -27,7 +27,7 @@
     .brand-btn.active{background:var(--white);color:var(--navy);border-color:var(--white)}
     .nav-spacer{flex:1}
     #lastUpdated{font-size:12px;color:var(--slate-400)}
-    #lastUpdated.has-data::before{content:"â";margin-right:5px;color:var(--green)}
+    #lastUpdated.has-data::before{content:"●";margin-right:5px;color:var(--green)}
     .nav-btn{padding:6px 14px;border-radius:6px;border:1.5px solid rgba(255,255,255,.2);font-size:12px;font-weight:600;cursor:pointer;background:transparent;color:var(--slate-400);transition:all .15s;margin-left:6px}
     .nav-btn:hover{background:rgba(255,255,255,.08);color:var(--white)}
     .nav-btn.primary{background:var(--blue);border-color:var(--blue);color:var(--white)}
@@ -110,7 +110,7 @@
 </head>
 <body>
   <nav>
-    <span class="nav-logo">â ViberStore</span>
+    <span class="nav-logo">● ViberStore</span>
     <span class="nav-divider"></span>
     <span class="nav-label">Live Pricing</span>
     <button class="brand-btn active" id="appleBtn" onclick="switchBrand('apple')">Apple</button>
@@ -118,11 +118,11 @@
     <button class="brand-btn" id="analyticsBtn" onclick="switchBrand('analytics')">Analytics</button>
     <span class="nav-spacer"></span>
     <span id="lastUpdated"></span>
-    <button class="nav-btn" id="reloadBtn" onclick="loadData()">âº Reload</button>
-    <button class="nav-btn primary" id="scrapeBtn" onclick="document.getElementById('scrapeModal').classList.add('show')">â¡ Run Scraper</button>
+    <button class="nav-btn" id="reloadBtn" onclick="loadData()">↺ Reload</button>
+    <button class="nav-btn primary" id="scrapeBtn" onclick="document.getElementById('scrapeModal').classList.add('show')">⚡ Run Scraper</button>
   </nav>
 
-  <div id="stalenessBar" class="staleness-bar">â  Data may be stale â last update was over 4 hours ago</div>
+  <div id="stalenessBar" class="staleness-bar">⚠ Data may be stale — last update was over 4 hours ago</div>
 
   <div id="scrapeModal" class="modal-overlay" onclick="if(event.target===this)this.classList.remove('show')">
     <div class="modal">
@@ -142,27 +142,27 @@
   <div class="stats-row">
     <div class="stat-card">
       <div class="stat-label">Models Priced</div>
-      <div class="stat-value" id="statModels">â</div>
+      <div class="stat-value" id="statModels">—</div>
       <div class="stat-sub" id="statModelsSub"></div>
     </div>
     <div class="stat-card">
       <div class="stat-label">VS Cheaper</div>
-      <div class="stat-value green" id="statVS">â</div>
+      <div class="stat-value green" id="statVS">—</div>
       <div class="stat-sub">variants where we win</div>
     </div>
     <div class="stat-card">
       <div class="stat-label">Refurbed Cheaper</div>
-      <div class="stat-value red" id="statRef">â</div>
+      <div class="stat-value red" id="statRef">—</div>
       <div class="stat-sub">variants to watch</div>
     </div>
     <div class="stat-card">
       <div class="stat-label">Avg Price Delta</div>
-      <div class="stat-value" id="statDelta">â</div>
+      <div class="stat-value" id="statDelta">—</div>
       <div class="stat-sub" id="statDeltaSub"></div>
     </div>
     <div class="stat-card">
       <div class="stat-label">Hierarchy Issues</div>
-      <div class="stat-value purple" id="statHier">â</div>
+      <div class="stat-value purple" id="statHier">—</div>
       <div class="stat-sub">condition pricing violations</div>
     </div>
   </div>
@@ -212,13 +212,13 @@
           <th id="th-condition" onclick="sortTable('condition')">Condition</th>
           <th id="th-vs_price" onclick="sortTable('vs_price')">VS Price</th>
           <th id="th-ref_price" onclick="sortTable('ref_price')">Ref Price</th>
-          <th id="th-delta" onclick="sortTable('delta')" class="sorted">Î Delta â</th>
+          <th id="th-delta" onclick="sortTable('delta')" class="sorted">Δ Delta ↓</th>
           <th>Status</th>
           <th>Action</th>
         </tr>
       </thead>
       <tbody id="tableBody">
-        <tr class="empty-row"><td colspan="8">Loadingâ¦</td></tr>
+        <tr class="empty-row"><td colspan="8">Loading…</td></tr>
       </tbody>
     </table>
   </div>
@@ -242,7 +242,7 @@
         <div class="chart-wrap"><canvas id="chartDeltaDist"></canvas></div>
       </div>
       <div class="chart-card" style="grid-column:1/-1">
-        <h3>Avg Delta by Model â all brands (green = VS wins)</h3>
+        <h3>Avg Delta by Model — all brands (green = VS wins)</h3>
         <div class="chart-wrap-tall"><canvas id="chartTopModels"></canvas></div>
       </div>
       <div class="chart-card" style="grid-column:1/-1">
@@ -265,7 +265,7 @@
       DATA=await r.json();
       onDataLoaded();
     }catch(e){
-      document.getElementById('tableBody').innerHTML='<tr class="empty-row"><td colspan="8">Cannot load pricing data â run the scraper first</td></tr>';
+      document.getElementById('tableBody').innerHTML='<tr class="empty-row"><td colspan="8">Cannot load pricing data — run the scraper first</td></tr>';
       document.getElementById('lastUpdated').textContent='No data';
     }
   }
@@ -277,19 +277,19 @@
 
   function onDataLoaded(){
     const dash=DATA.dashboard||{};
-    document.getElementById('statModels').textContent=dash.models_priced??'â';
+    document.getElementById('statModels').textContent=dash.models_priced??'—';
     const ac=(DATA.apple||[]).length, sc=(DATA.samsung||[]).length;
-    document.getElementById('statModelsSub').textContent=ac+' Apple Â· '+sc+' Samsung';
-    document.getElementById('statVS').textContent=dash.vs_cheaper??'â';
-    document.getElementById('statRef').textContent=dash.ref_cheaper??'â';
+    document.getElementById('statModelsSub').textContent=ac+' Apple · '+sc+' Samsung';
+    document.getElementById('statVS').textContent=dash.vs_cheaper??'—';
+    document.getElementById('statRef').textContent=dash.ref_cheaper??'—';
     const d=dash.avg_delta, de=document.getElementById('statDelta'), ds=document.getElementById('statDeltaSub');
     if(d!=null){
-      de.textContent='â¬'+Math.abs(d).toFixed(2);
+      de.textContent='€'+Math.abs(d).toFixed(2);
       if(d<-0.005){de.className='stat-value green';ds.textContent='avg we undercut Refurbed';}
       else if(d>0.005){de.className='stat-value red';ds.textContent='avg Refurbed undercuts us';}
       else{de.className='stat-value amber';ds.textContent='on par with Refurbed';}
     }
-    document.getElementById('statHier').textContent=dash.hierarchy_issues??'â';
+    document.getElementById('statHier').textContent=dash.hierarchy_issues??'—';
     if(DATA.last_updated){
       const dt=new Date(DATA.last_updated);
       const lu=document.getElementById('lastUpdated');
@@ -297,7 +297,7 @@
       lu.textContent='Updated '+dt.toLocaleDateString('en-IE',{day:'numeric',month:'short'})+' at '+dt.toLocaleTimeString('en-IE',{hour:'2-digit',minute:'2-digit'});
       checkStaleness(DATA.last_updated);
     }else{
-      document.getElementById('lastUpdated').textContent='No data â run the scraper';
+      document.getElementById('lastUpdated').textContent='No data — run the scraper';
       document.getElementById('stalenessBar').classList.add('show');
     }
     applyFilters();
@@ -310,7 +310,7 @@
     if(!user||!repo||!token){document.getElementById('modalStatus').textContent='Please fill in all fields.';return;}
     localStorage.setItem('vs_gh_config',JSON.stringify({user,repo,token}));
     const btn=document.getElementById('triggerBtn');
-    btn.textContent='Triggeringâ¦';btn.disabled=true;
+    btn.textContent='Triggering…';btn.disabled=true;
     document.getElementById('modalStatus').textContent='';
     try{
       const r=await fetch('https://api.github.com/repos/'+user+'/'+repo+'/actions/workflows/update_prices.yml/dispatches',{
@@ -318,7 +318,7 @@
         headers:{Authorization:'token '+token,Accept:'application/vnd.github.v3+json','Content-Type':'application/json'},
         body:JSON.stringify({ref:'main'})
       });
-      if(r.status===204){document.getElementById('modalStatus').textContent='â Scraper triggered â check GitHub Actions';btn.textContent='Triggered!';}
+      if(r.status===204){document.getElementById('modalStatus').textContent='✓ Scraper triggered — check GitHub Actions';btn.textContent='Triggered!';}
       else{const e=await r.json().catch(()=>({}));document.getElementById('modalStatus').textContent='Error: '+(e.message||r.status);btn.textContent='Try Again';btn.disabled=false;}
     }catch(e){document.getElementById('modalStatus').textContent='Network error: '+e.message;btn.textContent='Try Again';btn.disabled=false;}
   }
@@ -377,7 +377,7 @@
       if(typeof av==='string')cmp=sortDir==='asc'?av.localeCompare(bv):bv.localeCompare(av);
       else cmp=sortDir==='asc'?av-bv:bv-av;
       if(cmp!==0)return cmp;
-      // Tie-break: model â storage size â condition
+      // Tie-break: model → storage size → condition
       const mc=a.model.localeCompare(b.model);
       if(mc!==0)return mc;
       const sc=storageSize(a.storage)-storageSize(b.storage);
@@ -387,12 +387,12 @@
   }
 
   function updateHeaders(){
-    const labels={model:'Model',storage:'Storage',condition:'Condition',vs_price:'VS Price',ref_price:'Ref Price',delta:'Î Delta'};
+    const labels={model:'Model',storage:'Storage',condition:'Condition',vs_price:'VS Price',ref_price:'Ref Price',delta:'Δ Delta'};
     for(const col of Object.keys(labels)){
       const th=document.getElementById('th-'+col);
       if(!th)continue;
       th.classList.toggle('sorted',sortCol===col);
-      th.textContent=labels[col]+(sortCol===col?(sortDir==='asc'?' â':' â'):'');
+      th.textContent=labels[col]+(sortCol===col?(sortDir==='asc'?' ↑':' ↓'):'');
     }
   }
 
@@ -428,23 +428,23 @@
 
   function buildRow(r){
     const condCls=r.condition==='Excellent'?'tag-excellent':r.condition==='V. Good'?'tag-vgood':'tag-good';
-    const vsH=r.vs_price!=null?'<span class="price-cell">â¬'+r.vs_price.toFixed(2)+'</span>':'<span class="no-price">â</span>';
-    const refH=r.ref_price!=null?'<span class="price-cell">â¬'+r.ref_price.toFixed(2)+'</span>':'<span class="no-price">â</span>';
-    let dH='<span class="no-price">â</span>';
+    const vsH=r.vs_price!=null?'<span class="price-cell">€'+r.vs_price.toFixed(2)+'</span>':'<span class="no-price">—</span>';
+    const refH=r.ref_price!=null?'<span class="price-cell">€'+r.ref_price.toFixed(2)+'</span>':'<span class="no-price">—</span>';
+    let dH='<span class="no-price">—</span>';
     if(r.delta!=null){
       const sign=r.delta>0?'+':'';
       const cls=r.delta<-0.005?'delta-win':r.delta>0.005?'delta-loss':'delta-neutral';
-      dH='<span class="'+cls+'">'+sign+'â¬'+r.delta.toFixed(2)+'</span>';
+      dH='<span class="'+cls+'">'+sign+'€'+r.delta.toFixed(2)+'</span>';
     }
     let stH='';
     if(r.status==='vs_cheaper')stH='<span class="dot dot-green"></span>VS cheaper';
     else if(r.status==='refurbed_cheaper')stH='<span class="dot dot-red"></span>Ref cheaper';
     else if(r.status==='competitive')stH='<span class="dot dot-slate"></span>Competitive';else if(r.status==='hierarchy_issue')stH='<span class="dot dot-amber"></span>Hierarchy issue';
     else stH='<span class="dot dot-slate"></span>No Ref data';
-    let acH='<span class="action-none">â</span>';
-    if(r.recommended?.direction==='up')acH=`<span class="action-badge action-raise">â² Raise${r.recommended?.price!=null?' €'+r.recommended.price:''}</span>`;
-    else if(r.recommended?.direction==='down')acH=`<span class="action-badge action-lower">â¼ Lower${r.recommended?.price!=null?' €'+r.recommended.price:''}</span>`;
-    else if(r.recommended?.direction==='same')acH=`<span class="action-badge action-hold">â Hold${r.recommended?.price!=null?' €'+r.recommended.price:''}</span>`;
+    let acH='<span class="action-none">—</span>';
+    if(r.recommended?.direction==='up')acH=`<span class="action-badge action-raise">▲ Raise${r.recommended?.price!=null?' €'+r.recommended.price:''}</span>`;
+    else if(r.recommended?.direction==='down')acH=`<span class="action-badge action-lower">▼ Lower${r.recommended?.price!=null?' €'+r.recommended.price:''}</span>`;
+    else if(r.recommended?.direction==='same')acH=`<span class="action-badge action-hold">● Hold${r.recommended?.price!=null?' €'+r.recommended.price:''}</span>`;
     return'<tr>'+
       '<td class="model-cell">'+r.model+'</td>'+
       '<td><span class="tag tag-storage">'+r.storage+'</span></td>'+
@@ -508,13 +508,13 @@
     destroyChart('chartDeltaDist');
     const wd=all.filter(r=>r.delta!=null);
     const bands=[
-      {l:'< -â¬20',fn:r=>r.delta<-20},
-      {l:'-â¬20 to -â¬10',fn:r=>r.delta>=-20&&r.delta<-10},
-      {l:'-â¬10 to -â¬1',fn:r=>r.delta>=-10&&r.delta<-1},
-      {l:'Â±â¬1',fn:r=>r.delta>=-1&&r.delta<=1},
-      {l:'+â¬1 to +â¬10',fn:r=>r.delta>1&&r.delta<=10},
-      {l:'+â¬10 to +â¬20',fn:r=>r.delta>10&&r.delta<=20},
-      {l:'> +â¬20',fn:r=>r.delta>20}
+      {l:'< -€20',fn:r=>r.delta<-20},
+      {l:'-€20 to -€10',fn:r=>r.delta>=-20&&r.delta<-10},
+      {l:'-€10 to -€1',fn:r=>r.delta>=-10&&r.delta<-1},
+      {l:'±€1',fn:r=>r.delta>=-1&&r.delta<=1},
+      {l:'+€1 to +€10',fn:r=>r.delta>1&&r.delta<=10},
+      {l:'+€10 to +€20',fn:r=>r.delta>10&&r.delta<=20},
+      {l:'> +€20',fn:r=>r.delta>20}
     ];
     const bColors=['#16a34a','#4ade80','#86efac','#94a3b8','#fca5a5','#dc2626','#991b1b'];
     chartInst['chartDeltaDist']=new Chart(document.getElementById('chartDeltaDist'),{
@@ -529,8 +529,8 @@
     const mavgs=Object.entries(mmap).map(([m,d])=>({m,avg:d.reduce((a,b)=>a+b,0)/d.length})).sort((a,b)=>a.avg-b.avg).slice(0,16);
     chartInst['chartTopModels']=new Chart(document.getElementById('chartTopModels'),{
       type:'bar',
-      data:{labels:mavgs.map(x=>x.m),datasets:[{label:'Avg Delta (â¬)',data:mavgs.map(x=>+x.avg.toFixed(2)),backgroundColor:mavgs.map(x=>x.avg<0?'#16a34a':'#dc2626'),borderRadius:3}]},
-      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{title:{display:true,text:'â¬ (negative = VS cheaper)'}}}}
+      data:{labels:mavgs.map(x=>x.m),datasets:[{label:'Avg Delta (€)',data:mavgs.map(x=>+x.avg.toFixed(2)),backgroundColor:mavgs.map(x=>x.avg<0?'#16a34a':'#dc2626'),borderRadius:3}]},
+      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{title:{display:true,text:'€ (negative = VS cheaper)'}}}}
     });
 
     destroyChart('chartActions');
@@ -546,8 +546,8 @@
       data:{
         labels:amodels.map(x=>x.m),
         datasets:[
-          {label:'â² Raise',data:amodels.map(x=>x.raise),backgroundColor:'#16a34a',borderRadius:3},
-          {label:'â¼ Lower',data:amodels.map(x=>x.lower),backgroundColor:'#dc2626',borderRadius:3}
+          {label:'▲ Raise',data:amodels.map(x=>x.raise),backgroundColor:'#16a34a',borderRadius:3},
+          {label:'▼ Lower',data:amodels.map(x=>x.lower),backgroundColor:'#dc2626',borderRadius:3}
         ]
       },
       options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{size:11},boxWidth:12}}},scales:{x:{ticks:{stepSize:1}}}}
