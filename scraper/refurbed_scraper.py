@@ -1,5 +1,5 @@
 """
-Refurbed.ie Price Scraper â Delta Approach
+Refurbed.ie Price Scraper Ã¢ÂÂ Delta Approach
 
 How it works:
   - Fetches ONE base page per model (e.g. /p/iphone-15-pro-max/)
@@ -80,7 +80,7 @@ COND_NORMALISE = {
     "good": "Good",
     "very good": "V. Good",
     "excellent": "Excellent",
-    # "premium" intentionally excluded â not a ViberStore grade
+    # "premium" intentionally excluded Ã¢ÂÂ not a ViberStore grade
 }
 
 
@@ -119,7 +119,7 @@ def extract_base_price(soup):
     # Strategy 1: data-section="price" div (SSR-rendered main price element)
     price_section = soup.find(attrs={"data-section": "price"})
     if price_section:
-        m = re.search(r'[â¬\s]([0-9]+\.[0-9]+)', price_section.get_text())
+        m = re.search(r'[Ã¢ÂÂ¬\s]([0-9]+\.[0-9]+)', price_section.get_text())
         if m:
             try:
                 price = float(m.group(1))
@@ -131,7 +131,7 @@ def extract_base_price(soup):
     # Strategy 2: data-test="bottom-bar-price" element
     bar_price = soup.find(attrs={"data-test": "bottom-bar-price"})
     if bar_price:
-        m = re.search(r'[â¬\s]([0-9]+\.[0-9]+)', bar_price.get_text())
+        m = re.search(r'[Ã¢ÂÂ¬\s]([0-9]+\.[0-9]+)', bar_price.get_text())
         if m:
             try:
                 price = float(m.group(1))
@@ -183,7 +183,8 @@ def extract_storage_deltas(soup):
 def extract_condition_deltas(soup):
     """
     Extract condition options and their price deltas from the condition/appearance select.
-    Returns dict: {"Good": 0.0, "V. Good": 36.0, "Excellent": 90.0}
+    Returns dict: {"Good": -26.0, "V. Good": 0.0, "Excellent": 40.0}
+    The default-selected condition has delta=0; cheaper conditions have negative deltas.
     Skips Premium and battery/color selects.
     """
     deltas = {}
@@ -195,10 +196,96 @@ def extract_condition_deltas(soup):
             continue
         for opt in cond_opts:
             text = opt.get_text(strip=True)
-            delta_match = re.search(r'\+[^\d]*([\d]+(?:[.,][\d]+)?)', text)
-            delta = float(delta_match.group(1).replace(',', '.')) if delta_match else 0.0
-            # Strip delta and extra labels like "Most sold", "Popular"
-            label = re.sub(r'\+.*$', '', text).strip()
+            # Match both positive (+) and negative (-) deltas
+            delta_match = re.search(r'([+-])[^\d]*([\d]+(?:[.,][\d]+)?)', text)
+            if delta_match:
+                sign = 1 if delta_match.group(1) == '+' else -1
+                delta = sign * float(delta_match.group(2).replace(',', '.'))
+            else:
+                delta = 0.0
+            # Strip delta (anything from + or - onwards) and extra labels
+            label = re.sub(r'[+-].*
+            label = re.sub(r'(?i)(most sold|popular|new)', '', label).strip().lower()
+            normalised = COND_NORMALISE.get(label)
+            if normalised:
+                deltas[normalised] = delta
+        if deltas:
+            break  # found the condition select
+    return deltas
+
+
+def scrape_model(model_name, slug):
+    """
+    Scrape all prices for one model using the delta approach.
+    One HTTP request per model instead of one per variant.
+    """
+    print(f"  Scraping: {model_name}")
+    prices = {cond: {} for cond in ["Good", "V. Good", "Excellent"]}
+
+    soup = fetch_page(f"/p/{slug}/")
+    time.sleep(1)
+
+    if not soup:
+        print(f"  x {model_name} not found on Refurbed")
+        return prices
+
+    base_price = extract_base_price(soup)
+    if not base_price:
+        print(f"  x {model_name}: no base price found")
+        # One-time diagnostics to understand what the runner actually receives
+        if not getattr(scrape_model, '_diag_done', False):
+            scrape_model._diag_done = True
+            full = getattr(soup, '_raw_html', str(soup))
+            sc = getattr(soup, '_status_code', '?')
+            print(f"  DIAG status={sc} html_len={len(full)}", flush=True)
+            title = soup.find('title')
+            print(f"  DIAG title={title.get_text()[:100] if title else 'none'}", flush=True)
+            has_ps = bool(soup.find(attrs={"data-section": "price"}))
+            has_bp = bool(soup.find(attrs={"data-test": "bottom-bar-price"}))
+            has_gtm = '"price2"' in full
+            has_total = '"total"' in full
+            print(f"  DIAG has_price_section={has_ps} has_bar_price={has_bp} has_gtm={has_gtm} has_total={has_total}", flush=True)
+            euro_hits = re.findall(r'[\u20ac\$][\s]*\d+[.,]\d+', full[:10000])
+            print(f"  DIAG euro_in_10k={euro_hits[:5]}", flush=True)
+            # Show first 500 chars of body text
+            body_text = soup.get_text()[:500].replace('\n', ' ')
+            print(f"  DIAG body_start={body_text[:300]}", flush=True)
+        return prices
+
+    storage_deltas = extract_storage_deltas(soup)
+    if not storage_deltas:
+        print(f"  x {model_name}: no storage options found")
+        return prices
+
+    cond_deltas = extract_condition_deltas(soup)
+    if not cond_deltas:
+        print(f"  x {model_name}: no condition options found")
+        return prices
+
+    print(f"  Base: EUR{base_price}  Storages: {list(storage_deltas.keys())}  Conditions: {list(cond_deltas.keys())}")
+
+    for cond, c_delta in cond_deltas.items():
+        for storage, s_delta in storage_deltas.items():
+            price = round(base_price + s_delta + c_delta, 2)
+            prices[cond][storage] = price
+            print(f"  + {storage} / {cond}: EUR{price:.2f}")
+
+    return prices
+
+
+def get_refurbed_prices(brand="apple"):
+    slugs = APPLE_MODEL_SLUGS if brand == "apple" else SAMSUNG_MODEL_SLUGS
+    print(f"\nScraping Refurbed ({brand.title()}) prices (delta method)...")
+    all_prices = {}
+    for model_name, slug in slugs.items():
+        all_prices[model_name] = scrape_model(model_name, slug)
+    return all_prices
+
+
+if __name__ == "__main__":
+    prices = get_refurbed_prices("apple")
+    print(json.dumps(prices, indent=2))
+, '', text).strip()
             label = re.sub(r'(?i)(most sold|popular|new)', '', label).strip().lower()
             normalised = COND_NORMALISE.get(label)
             if normalised:
