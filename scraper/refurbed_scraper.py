@@ -152,7 +152,7 @@ def extract_condition_deltas(soup):
     for select in soup.find_all("select"):
         options = select.find_all("option")
         cond_keywords = ["good", "excellent"]
-        cond_opts = [o for o in options if any(k in o.get_text().lower() for k in cond_keywordsi]
+        cond_opts = [o for o in options if any(k in o.get_text().lower() for k in cond_keywords)]
         if not cond_opts:
             continue
         for opt in cond_opts:
