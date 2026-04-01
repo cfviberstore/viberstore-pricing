@@ -152,63 +152,102 @@ def extract_base_price(soup):
     return None
 
 
-def extract_storage_deltas(soup):
+def parse_data_price(attr):
     """
-    Extract storage options and their price deltas from the storage select.
-    Returns dict: {"256GB": 0.0, "512GB": 50.0, "1TB": 83.0}
-    The option with no +delta is the base (delta=0).
+    Parse a Refurbed data-price attribute into a signed float delta.
+    Format examples: 'less,-€2.01'  ->  -2.01
+                     'more,+€15.99' ->  +15.99
+                     ''             ->   0.0
     """
-    deltas = {}
+    if not attr:
+        return 0.0
+    m = re.search(r'([+-])[^\d]*([\d]+(?:[.,][\d]+)?)', attr)
+    if m:
+        sign = 1 if m.group(1) == '+' else -1
+        return sign * float(m.group(2).replace(',', '.'))
+    return 0.0
+
+
+def extract_variant_deltas(soup):
+    """
+    Extract storage and condition price deltas from the variant <select> elements.
+    Reads the `data-price` attribute (e.g. 'more,+€220.99', 'less,-€2.01') which
+    holds the TRUE delta vs. the absolute cheapest base — NOT the option text, which
+    is only populated by JavaScript after page load.
+
+    Also detects 'other' selects (colour, SIM, etc.) and finds the minimum available
+    delta for each, so the returned base_adjustment brings the displayed page price
+    down to the cheapest possible variant (cheapest colour + cheapest SIM, etc.).
+
+    Returns:
+        storage_deltas  dict  e.g. {"256GB": 220.99, "512GB": 262.99, "1TB": 637.99}
+        cond_deltas     dict  e.g. {"Good": -2.01, "V. Good": 15.99, "Excellent": 522.99}
+        base_adjustment float subtract this from extract_base_price() to get the true
+                              base price for the cheapest colour/SIM combination, before
+                              adding back a specific storage and condition delta.
+    """
+    storage_deltas = {}
+    cond_deltas = {}
+    sel_storage_delta = 0.0
+    sel_cond_delta = 0.0
+    other_adjustment = 0.0  # sum of (min_delta - sel_delta) for colour/SIM/etc.
+
+    storage_found = False
+    cond_found = False
+
     for select in soup.find_all("select"):
         options = select.find_all("option")
+        if not options:
+            continue
+
+        # Map every option -> its data-price delta
+        opt_deltas = {o: parse_data_price(o.get("data-price", "")) for o in options}
+
+        # Find which option is currently selected in the static HTML
+        sel_opt = next((o for o in options if o.get("selected") is not None), None)
+        sel_delta = opt_deltas[sel_opt] if sel_opt else 0.0
+
+        # --- Storage select: options that look like "256 GB", "1000 GB", "1 TB" ---
         stor_opts = [o for o in options if re.search(r'\d+\s*(GB|TB)', o.get_text())]
-        if not stor_opts:
+        if stor_opts and not storage_found:
+            sel_storage_delta = sel_delta
+            for opt in stor_opts:
+                label = opt.get_text(strip=True)  # plain text in static HTML, e.g. "256 GB"
+                normalised = STORAGE_NORMALISE.get(label)
+                if normalised:
+                    storage_deltas[normalised] = opt_deltas[opt]
+            if storage_deltas:
+                storage_found = True
             continue
-        for opt in stor_opts:
-            text = opt.get_text(strip=True)
-            delta_match = re.search(r'\+[^\d]*([\d]+(?:[.,][\d]+)?)', text)
-            delta = float(delta_match.group(1).replace(',', '.')) if delta_match else 0.0
-            label = re.sub(r'\+.*$', '', text).strip()
-            normalised = STORAGE_NORMALISE.get(label)
-            if normalised:
-                deltas[normalised] = delta
-        if deltas:
-            break  # found the storage select
-    return deltas
 
-
-def extract_condition_deltas(soup):
-    """
-    Extract condition options and their price deltas from the condition/appearance select.
-    Returns dict: {"Good": -26.0, "V. Good": 0.0, "Excellent": 40.0}
-    The default-selected condition has delta=0; cheaper conditions have negative deltas.
-    Skips Premium and battery/color selects.
-    """
-    deltas = {}
-    for select in soup.find_all("select"):
-        options = select.find_all("option")
+        # --- Condition select: options that contain "good" or "excellent" ---
         cond_keywords = ["good", "excellent"]
-        cond_opts = [o for o in options if any(k in o.get_text().lower() for k in cond_keywords)]
-        if not cond_opts:
+        cond_opts = [o for o in options
+                     if any(k in o.get_text().lower() for k in cond_keywords)]
+        if cond_opts and not cond_found:
+            sel_cond_delta = sel_delta
+            for opt in cond_opts:
+                text = opt.get_text(strip=True)
+                label = re.sub(r'(?i)(most sold|popular|new)', '', text).strip().lower()
+                normalised = COND_NORMALISE.get(label)
+                if normalised:
+                    cond_deltas[normalised] = opt_deltas[opt]
+            if cond_deltas:
+                cond_found = True
             continue
-        for opt in cond_opts:
-            text = opt.get_text(strip=True)
-            # Match both positive (+) and negative (-) deltas
-            delta_match = re.search(r'([+-])[^\d]*([\d]+(?:[.,][\d]+)?)', text)
-            if delta_match:
-                sign = 1 if delta_match.group(1) == '+' else -1
-                delta = sign * float(delta_match.group(2).replace(',', '.'))
-            else:
-                delta = 0.0
-            # Strip delta (anything from + or - onwards) and extra labels
-            label = re.sub(r'[+-].*$', '', text).strip()
-            label = re.sub(r'(?i)(most sold|popular|new)', '', label).strip().lower()
-            normalised = COND_NORMALISE.get(label)
-            if normalised:
-                deltas[normalised] = delta
-        if deltas:
-            break  # found the condition select
-    return deltas
+
+        # --- Other select (colour, SIM, battery, etc.) ---
+        # Pick the cheapest available option to minimise the reference price.
+        if opt_deltas:
+            min_delta = min(opt_deltas.values())
+            other_adjustment += (min_delta - sel_delta)
+
+    # base_adjustment: subtract from displayed price to get the true cheapest base
+    # true_base = displayed - sel_storage - sel_cond - sel_other + min_other
+    #           = displayed - sel_storage - sel_cond + other_adjustment
+    base_adjustment = sel_storage_delta + sel_cond_delta - other_adjustment
+
+    return storage_deltas, cond_deltas, base_adjustment
 
 
 def scrape_model(model_name, slug):
@@ -226,26 +265,28 @@ def scrape_model(model_name, slug):
         print(f"  x {model_name} not found on Refurbed")
         return prices
 
-    base_price = extract_base_price(soup)
-    if not base_price:
+    displayed_price = extract_base_price(soup)
+    if not displayed_price:
         print(f"  x {model_name}: no base price found")
         return prices
 
-    storage_deltas = extract_storage_deltas(soup)
+    storage_deltas, cond_deltas, base_adjustment = extract_variant_deltas(soup)
+
     if not storage_deltas:
         print(f"  x {model_name}: no storage options found")
         return prices
 
-    cond_deltas = extract_condition_deltas(soup)
     if not cond_deltas:
         print(f"  x {model_name}: no condition options found")
         return prices
 
-    print(f"  Base: EUR{base_price}  Storages: {list(storage_deltas.keys())}  Conditions: {list(cond_deltas.keys())}")
+    true_base = displayed_price - base_adjustment
+    print(f"  Displayed: EUR{displayed_price}  TrueBase: EUR{true_base:.2f}  "
+          f"Storages: {list(storage_deltas.keys())}  Conditions: {list(cond_deltas.keys())}")
 
     for cond, c_delta in cond_deltas.items():
         for storage, s_delta in storage_deltas.items():
-            price = round(base_price + s_delta + c_delta, 2)
+            price = round(true_base + s_delta + c_delta, 2)
             prices[cond][storage] = price
             print(f"  + {storage} / {cond}: EUR{price:.2f}")
 
