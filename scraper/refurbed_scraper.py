@@ -90,9 +90,13 @@ def fetch_page(path, retries=3):
         try:
             resp = requests.get(url, headers=HEADERS, timeout=20)
             if resp.status_code == 404:
+                print(f"  DIAG {path}: HTTP 404")
                 return None
             resp.raise_for_status()
-            return BeautifulSoup(resp.text, "html.parser")
+            soup = BeautifulSoup(resp.text, "html.parser")
+            soup._raw_html = resp.text  # stash for diagnostics
+            soup._status_code = resp.status_code
+            return soup
         except requests.RequestException as e:
             if attempt < retries - 1:
                 time.sleep(2 ** attempt)
@@ -222,6 +226,24 @@ def scrape_model(model_name, slug):
     base_price = extract_base_price(soup)
     if not base_price:
         print(f"  x {model_name}: no base price found")
+        # One-time diagnostics to understand what the runner actually receives
+        if not getattr(scrape_model, '_diag_done', False):
+            scrape_model._diag_done = True
+            full = getattr(soup, '_raw_html', str(soup))
+            sc = getattr(soup, '_status_code', '?')
+            print(f"  DIAG status={sc} html_len={len(full)}", flush=True)
+            title = soup.find('title')
+            print(f"  DIAG title={title.get_text()[:100] if title else 'none'}", flush=True)
+            has_ps = bool(soup.find(attrs={"data-section": "price"}))
+            has_bp = bool(soup.find(attrs={"data-test": "bottom-bar-price"}))
+            has_gtm = '"price2"' in full
+            has_total = '"total"' in full
+            print(f"  DIAG has_price_section={has_ps} has_bar_price={has_bp} has_gtm={has_gtm} has_total={has_total}", flush=True)
+            euro_hits = re.findall(r'[\u20ac\$][\s]*\d+[.,]\d+', full[:10000])
+            print(f"  DIAG euro_in_10k={euro_hits[:5]}", flush=True)
+            # Show first 500 chars of body text
+            body_text = soup.get_text()[:500].replace('\n', ' ')
+            print(f"  DIAG body_start={body_text[:300]}", flush=True)
         return prices
 
     storage_deltas = extract_storage_deltas(soup)
