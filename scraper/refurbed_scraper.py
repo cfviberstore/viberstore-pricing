@@ -75,12 +75,12 @@ STORAGE_NORMALISE = {
     "512GB": "512GB", "1TB": "1TB",
 }
 
-# Refurbed condition label -> our internal label
+# Refurbed condition label (lowercase) -> our internal label
 COND_NORMALISE = {
     "good": "Good",
     "very good": "V. Good",
     "excellent": "Excellent",
-    # "premium" is intentionally excluded — not a ViberStore grade
+    # "premium" intentionally excluded — not a ViberStore grade
 }
 
 
@@ -131,7 +131,7 @@ def extract_storage_deltas(soup):
             continue
         for opt in stor_opts:
             text = opt.get_text(strip=True)
-            delta_match = re.search(r'\+[^\d]*(\d+(?:[.,]\d+)?)', text)
+            delta_match = re.search(r'\+[^\d]*([\d]+(?:[.,][\d]+)?)', text)
             delta = float(delta_match.group(1).replace(',', '.')) if delta_match else 0.0
             label = re.sub(r'\+.*$', '', text).strip()
             normalised = STORAGE_NORMALISE.get(label)
@@ -152,12 +152,12 @@ def extract_condition_deltas(soup):
     for select in soup.find_all("select"):
         options = select.find_all("option")
         cond_keywords = ["good", "excellent"]
-        cond_opts = [o for o in options if any(k in o.get_text().lower() for k in cond_keywords)]
+        cond_opts = [o for o in options if any(k in o.get_text().lower() for k in cond_keywordsi]
         if not cond_opts:
             continue
         for opt in cond_opts:
             text = opt.get_text(strip=True)
-            delta_match = re.search(r'\+[^\d]*(\d+(?:[.,]\d+)?)', text)
+            delta_match = re.search(r'\+[^\d]*([\d]+(?:[.,][\d]+)?)', text)
             delta = float(delta_match.group(1).replace(',', '.')) if delta_match else 0.0
             # Strip delta and extra labels like "Most sold", "Popular"
             label = re.sub(r'\+.*$', '', text).strip()
@@ -200,7 +200,7 @@ def scrape_model(model_name, slug):
         print(f"  x {model_name}: no condition options found")
         return prices
 
-    print(f"  Base price: {base_price}  Storages: {list(storage_deltas.keys())}  Conditions: {list(cond_deltas.keys())}")
+    print(f"  Base: EUR{base_price}  Storages: {list(storage_deltas.keys())}  Conditions: {list(cond_deltas.keys())}")
 
     for cond, c_delta in cond_deltas.items():
         for storage, s_delta in storage_deltas.items():
