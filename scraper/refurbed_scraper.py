@@ -1,5 +1,5 @@
 """
-Refurbed.ie Price Scraper — Delta Approach
+Refurbed.ie Price Scraper â Delta Approach
 
 How it works:
   - Fetches ONE base page per model (e.g. /p/iphone-15-pro-max/)
@@ -21,7 +21,7 @@ HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
     "Accept-Language": "en-IE,en;q=0.9",
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-    "Accept-Encoding": "gzip, deflate, br",
+    "Accept-Encoding": "gzip, deflate",
 }
 
 # Refurbed model slugs
@@ -80,7 +80,7 @@ COND_NORMALISE = {
     "good": "Good",
     "very good": "V. Good",
     "excellent": "Excellent",
-    # "premium" intentionally excluded — not a ViberStore grade
+    # "premium" intentionally excluded â not a ViberStore grade
 }
 
 
@@ -119,7 +119,7 @@ def extract_base_price(soup):
     # Strategy 1: data-section="price" div (SSR-rendered main price element)
     price_section = soup.find(attrs={"data-section": "price"})
     if price_section:
-        m = re.search(r'[€\s]([0-9]+\.[0-9]+)', price_section.get_text())
+        m = re.search(r'[â¬\s]([0-9]+\.[0-9]+)', price_section.get_text())
         if m:
             try:
                 price = float(m.group(1))
@@ -131,7 +131,7 @@ def extract_base_price(soup):
     # Strategy 2: data-test="bottom-bar-price" element
     bar_price = soup.find(attrs={"data-test": "bottom-bar-price"})
     if bar_price:
-        m = re.search(r'[€\s]([0-9]+\.[0-9]+)', bar_price.get_text())
+        m = re.search(r'[â¬\s]([0-9]+\.[0-9]+)', bar_price.get_text())
         if m:
             try:
                 price = float(m.group(1))
