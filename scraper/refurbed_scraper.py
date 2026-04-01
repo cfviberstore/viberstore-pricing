@@ -102,18 +102,52 @@ def fetch_page(path, retries=3):
 
 
 def extract_base_price(soup):
-    """Extract price2 (best offer price) from the server-rendered gtmData script."""
+    """
+    Extract the best offer price using multiple fallback strategies:
+    1. data-section="price" HTML element (SSR text, works for all IPs)
+    2. data-test="bottom-bar-price" HTML element (SSR text, works for all IPs)
+    3. "total" field in gtmData script (works for IE IPs)
+    4. "price2" field in gtmData script (fallback)
+    """
     if not soup:
         return None
+
+    # Strategy 1: data-section="price" div (SSR-rendered main price element)
+    price_section = soup.find(attrs={"data-section": "price"})
+    if price_section:
+        m = re.search(r'[€\s]([0-9]+\.[0-9]+)', price_section.get_text())
+        if m:
+            try:
+                price = float(m.group(1))
+                if price > 0:
+                    return price
+            except ValueError:
+                pass
+
+    # Strategy 2: data-test="bottom-bar-price" element
+    bar_price = soup.find(attrs={"data-test": "bottom-bar-price"})
+    if bar_price:
+        m = re.search(r'[€\s]([0-9]+\.[0-9]+)', bar_price.get_text())
+        if m:
+            try:
+                price = float(m.group(1))
+                if price > 0:
+                    return price
+            except ValueError:
+                pass
+
+    # Strategy 3 & 4: gtmData script fallback (IE IPs only)
     full_text = str(soup)
-    match = re.search(r'"price2"\s*:\s*"([0-9]+(?:\.[0-9]+)?)"', full_text)
-    if match:
-        try:
-            price = float(match.group(1))
-            if price > 0:
-                return price
-        except ValueError:
-            pass
+    for pattern in [r'"total"\s*:\s*"([0-9]+(?:\.[0-9]+)?)"',
+                    r'"price2"\s*:\s*"([0-9]+(?:\.[0-9]+)?)"']:
+        match = re.search(pattern, full_text)
+        if match:
+            try:
+                price = float(match.group(1))
+                if price > 0:
+                    return price
+            except ValueError:
+                pass
     return None
 
 
