@@ -1,10 +1,10 @@
 {
-  "last_updated": "2026-08-17T20:34:23Z",
+  "last_updated": "2026-08-18T01:39:35Z",
   "dashboard": {
     "models_priced": 37,
-    "vs_cheaper": 169,
-    "ref_cheaper": 8,
-    "avg_delta": -97.16,
+    "vs_cheaper": 205,
+    "ref_cheaper": 5,
+    "avg_delta": -117.66,
     "hierarchy_issues": 2
   },
   "apple": [
@@ -90,10 +90,10 @@
             {
               "storage": "512GB",
               "vs_price": 1454.99,
-              "ref_price": 1650.0,
-              "delta": -195.01,
+              "ref_price": 1701.0,
+              "delta": -246.01,
               "recommended": {
-                "price": 1649.99,
+                "price": 1699.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -101,10 +101,10 @@
             {
               "storage": "1TB",
               "vs_price": 1569.99,
-              "ref_price": 1849.0,
-              "delta": -279.01,
+              "ref_price": 1786.0,
+              "delta": -216.01,
               "recommended": {
-                "price": 1849.99,
+                "price": 1789.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -155,62 +155,22 @@
             {
               "storage": "256GB",
               "vs_price": 1064.99,
-              "ref_price": 909.0,
-              "delta": 155.99,
-              "recommended": {
-                "price": 909.99,
-                "direction": "down"
-              },
-              "status": "refurbed_cheaper"
+              "ref_price": null,
+              "delta": null,
+              "recommended": null,
+              "status": "no_ref_data"
             },
             {
               "storage": "512GB",
               "vs_price": 1254.99,
-              "ref_price": 1155.99,
-              "delta": 99.0,
-              "recommended": {
-                "price": 1159.99,
-                "direction": "down"
-              },
-              "status": "refurbed_cheaper"
+              "ref_price": null,
+              "delta": null,
+              "recommended": null,
+              "status": "no_ref_data"
             },
             {
               "storage": "1TB",
               "vs_price": 1489.99,
-              "ref_price": 1628.99,
-              "delta": -139.0,
-              "recommended": {
-                "price": 1629.99,
-                "direction": "up"
-              },
-              "status": "vs_cheaper"
-            }
-          ],
-          "hierarchy_ok": true,
-          "action": "adjust_3"
-        },
-        {
-          "condition": "Excellent",
-          "storages": [
-            {
-              "storage": "256GB",
-              "vs_price": 1094.99,
-              "ref_price": null,
-              "delta": null,
-              "recommended": null,
-              "status": "no_ref_data"
-            },
-            {
-              "storage": "512GB",
-              "vs_price": 1284.99,
-              "ref_price": null,
-              "delta": null,
-              "recommended": null,
-              "status": "no_ref_data"
-            },
-            {
-              "storage": "1TB",
-              "vs_price": 1519.99,
               "ref_price": null,
               "delta": null,
               "recommended": null,
@@ -219,6 +179,46 @@
           ],
           "hierarchy_ok": true,
           "action": "ok"
+        },
+        {
+          "condition": "Excellent",
+          "storages": [
+            {
+              "storage": "256GB",
+              "vs_price": 1094.99,
+              "ref_price": 949.0,
+              "delta": 145.99,
+              "recommended": {
+                "price": 949.99,
+                "direction": "down"
+              },
+              "status": "refurbed_cheaper"
+            },
+            {
+              "storage": "512GB",
+              "vs_price": 1284.99,
+              "ref_price": 1074.0,
+              "delta": 210.99,
+              "recommended": {
+                "price": 1069.99,
+                "direction": "down"
+              },
+              "status": "refurbed_cheaper"
+            },
+            {
+              "storage": "1TB",
+              "vs_price": 1519.99,
+              "ref_price": 1305.0,
+              "delta": 214.99,
+              "recommended": {
+                "price": 1309.99,
+                "direction": "down"
+              },
+              "status": "refurbed_cheaper"
+            }
+          ],
+          "hierarchy_ok": true,
+          "action": "adjust_3"
         }
       ]
     },
@@ -277,22 +277,28 @@
             {
               "storage": "256GB",
               "vs_price": 759.99,
-              "ref_price": null,
-              "delta": null,
-              "recommended": null,
-              "status": "no_ref_data"
+              "ref_price": 770.99,
+              "delta": -11.0,
+              "recommended": {
+                "price": 769.99,
+                "direction": "up"
+              },
+              "status": "vs_cheaper"
             },
             {
               "storage": "512GB",
               "vs_price": 949.99,
-              "ref_price": null,
-              "delta": null,
-              "recommended": null,
-              "status": "no_ref_data"
+              "ref_price": 1292.99,
+              "delta": -343.0,
+              "recommended": {
+                "price": 1289.99,
+                "direction": "up"
+              },
+              "status": "vs_cheaper"
             }
           ],
           "hierarchy_ok": true,
-          "action": "ok"
+          "action": "adjust_2"
         }
       ]
     },
@@ -316,10 +322,10 @@
             {
               "storage": "512GB",
               "vs_price": 834.99,
-              "ref_price": 1077.26,
-              "delta": -242.27,
+              "ref_price": 1040.99,
+              "delta": -206.0,
               "recommended": {
-                "price": 1079.99,
+                "price": 1039.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -327,8 +333,8 @@
             {
               "storage": "1TB",
               "vs_price": 904.99,
-              "ref_price": 1152.26,
-              "delta": -247.27,
+              "ref_price": 1151.99,
+              "delta": -247.0,
               "recommended": {
                 "price": 1149.99,
                 "direction": "up"
@@ -345,30 +351,39 @@
             {
               "storage": "256GB",
               "vs_price": 789.99,
-              "ref_price": null,
-              "delta": null,
-              "recommended": null,
-              "status": "no_ref_data"
+              "ref_price": 973.99,
+              "delta": -184.0,
+              "recommended": {
+                "price": 969.99,
+                "direction": "up"
+              },
+              "status": "vs_cheaper"
             },
             {
               "storage": "512GB",
               "vs_price": 884.99,
-              "ref_price": null,
-              "delta": null,
-              "recommended": null,
-              "status": "no_ref_data"
+              "ref_price": 1151.72,
+              "delta": -266.73,
+              "recommended": {
+                "price": 1149.99,
+                "direction": "up"
+              },
+              "status": "vs_cheaper"
             },
             {
               "storage": "1TB",
               "vs_price": 999.99,
-              "ref_price": null,
-              "delta": null,
-              "recommended": null,
-              "status": "no_ref_data"
+              "ref_price": 1262.72,
+              "delta": -262.73,
+              "recommended": {
+                "price": 1259.99,
+                "direction": "up"
+              },
+              "status": "vs_cheaper"
             }
           ],
           "hierarchy_ok": true,
-          "action": "ok"
+          "action": "adjust_3"
         },
         {
           "condition": "Excellent",
@@ -376,30 +391,39 @@
             {
               "storage": "256GB",
               "vs_price": 814.99,
-              "ref_price": null,
-              "delta": null,
-              "recommended": null,
-              "status": "no_ref_data"
+              "ref_price": 951.99,
+              "delta": -137.0,
+              "recommended": {
+                "price": 979.99,
+                "direction": "up"
+              },
+              "status": "vs_cheaper"
             },
             {
               "storage": "512GB",
               "vs_price": 939.99,
-              "ref_price": null,
-              "delta": null,
-              "recommended": null,
-              "status": "no_ref_data"
+              "ref_price": 1129.72,
+              "delta": -189.73,
+              "recommended": {
+                "price": 1159.99,
+                "direction": "up"
+              },
+              "status": "vs_cheaper"
             },
             {
               "storage": "1TB",
               "vs_price": 1044.99,
-              "ref_price": null,
-              "delta": null,
-              "recommended": null,
-              "status": "no_ref_data"
+              "ref_price": 1240.72,
+              "delta": -195.73,
+              "recommended": {
+                "price": 1269.99,
+                "direction": "up"
+              },
+              "status": "vs_cheaper"
             }
           ],
           "hierarchy_ok": true,
-          "action": "ok"
+          "action": "adjust_3"
         }
       ]
     },
@@ -412,6 +436,164 @@
             {
               "storage": "128GB",
               "vs_price": 674.99,
+              "ref_price": 704.7,
+              "delta": -29.71,
+              "recommended": {
+                "price": 699.99,
+                "direction": "up"
+              },
+              "status": "vs_cheaper"
+            },
+            {
+              "storage": "256GB",
+              "vs_price": 704.99,
+              "ref_price": 812.7,
+              "delta": -107.71,
+              "recommended": {
+                "price": 809.99,
+                "direction": "up"
+              },
+              "status": "vs_cheaper"
+            },
+            {
+              "storage": "512GB",
+              "vs_price": 814.99,
+              "ref_price": 934.7,
+              "delta": -119.71,
+              "recommended": {
+                "price": 929.99,
+                "direction": "up"
+              },
+              "status": "vs_cheaper"
+            },
+            {
+              "storage": "1TB",
+              "vs_price": 989.99,
+              "ref_price": 1010.7,
+              "delta": -20.71,
+              "recommended": {
+                "price": 1009.99,
+                "direction": "up"
+              },
+              "status": "vs_cheaper"
+            }
+          ],
+          "hierarchy_ok": true,
+          "action": "adjust_4"
+        },
+        {
+          "condition": "V. Good",
+          "storages": [
+            {
+              "storage": "128GB",
+              "vs_price": 684.99,
+              "ref_price": 723.99,
+              "delta": -39.0,
+              "recommended": {
+                "price": 719.99,
+                "direction": "up"
+              },
+              "status": "vs_cheaper"
+            },
+            {
+              "storage": "256GB",
+              "vs_price": 729.99,
+              "ref_price": 831.99,
+              "delta": -102.0,
+              "recommended": {
+                "price": 829.99,
+                "direction": "up"
+              },
+              "status": "vs_cheaper"
+            },
+            {
+              "storage": "512GB",
+              "vs_price": 904.99,
+              "ref_price": 953.99,
+              "delta": -49.0,
+              "recommended": {
+                "price": 949.99,
+                "direction": "up"
+              },
+              "status": "vs_cheaper"
+            },
+            {
+              "storage": "1TB",
+              "vs_price": 1014.99,
+              "ref_price": 1029.99,
+              "delta": -15.0,
+              "recommended": {
+                "price": 1029.99,
+                "direction": "up"
+              },
+              "status": "vs_cheaper"
+            }
+          ],
+          "hierarchy_ok": true,
+          "action": "adjust_4"
+        },
+        {
+          "condition": "Excellent",
+          "storages": [
+            {
+              "storage": "128GB",
+              "vs_price": 704.99,
+              "ref_price": 822.99,
+              "delta": -118.0,
+              "recommended": {
+                "price": 819.99,
+                "direction": "up"
+              },
+              "status": "vs_cheaper"
+            },
+            {
+              "storage": "256GB",
+              "vs_price": 759.99,
+              "ref_price": 930.99,
+              "delta": -171.0,
+              "recommended": {
+                "price": 929.99,
+                "direction": "up"
+              },
+              "status": "vs_cheaper"
+            },
+            {
+              "storage": "512GB",
+              "vs_price": 949.99,
+              "ref_price": 1052.99,
+              "delta": -103.0,
+              "recommended": {
+                "price": 1049.99,
+                "direction": "up"
+              },
+              "status": "vs_cheaper"
+            },
+            {
+              "storage": "1TB",
+              "vs_price": 1044.99,
+              "ref_price": 1128.99,
+              "delta": -84.0,
+              "recommended": {
+                "price": 1129.99,
+                "direction": "up"
+              },
+              "status": "vs_cheaper"
+            }
+          ],
+          "hierarchy_ok": true,
+          "action": "adjust_4"
+        }
+      ]
+    },
+    {
+      "model": "iPhone 16 Plus",
+      "conditions": [
+        {
+          "condition": "Good",
+          "storages": [
+            {
+              "storage": "128GB",
+              "vs_price": 589.99,
               "ref_price": null,
               "delta": null,
               "recommended": null,
@@ -419,7 +601,7 @@
             },
             {
               "storage": "256GB",
-              "vs_price": 704.99,
+              "vs_price": 714.99,
               "ref_price": null,
               "delta": null,
               "recommended": null,
@@ -427,15 +609,7 @@
             },
             {
               "storage": "512GB",
-              "vs_price": 814.99,
-              "ref_price": null,
-              "delta": null,
-              "recommended": null,
-              "status": "no_ref_data"
-            },
-            {
-              "storage": "1TB",
-              "vs_price": 989.99,
+              "vs_price": 854.99,
               "ref_price": null,
               "delta": null,
               "recommended": null,
@@ -450,158 +624,11 @@
           "storages": [
             {
               "storage": "128GB",
-              "vs_price": 684.99,
-              "ref_price": 729.99,
-              "delta": -45.0,
-              "recommended": {
-                "price": 729.99,
-                "direction": "up"
-              },
-              "status": "vs_cheaper"
-            },
-            {
-              "storage": "256GB",
-              "vs_price": 729.99,
-              "ref_price": 853.99,
-              "delta": -124.0,
-              "recommended": {
-                "price": 849.99,
-                "direction": "up"
-              },
-              "status": "vs_cheaper"
-            },
-            {
-              "storage": "512GB",
-              "vs_price": 904.99,
-              "ref_price": 852.99,
-              "delta": 52.0,
-              "recommended": {
-                "price": 869.99,
-                "direction": "down"
-              },
-              "status": "refurbed_cheaper"
-            },
-            {
-              "storage": "1TB",
-              "vs_price": 1014.99,
-              "ref_price": 1023.99,
-              "delta": -9.0,
-              "recommended": {
-                "price": 1014.99,
-                "direction": "same"
-              },
-              "status": "competitive"
-            }
-          ],
-          "hierarchy_ok": true,
-          "action": "adjust_3"
-        },
-        {
-          "condition": "Excellent",
-          "storages": [
-            {
-              "storage": "128GB",
-              "vs_price": 704.99,
-              "ref_price": 817.99,
-              "delta": -113.0,
-              "recommended": {
-                "price": 819.99,
-                "direction": "up"
-              },
-              "status": "vs_cheaper"
-            },
-            {
-              "storage": "256GB",
-              "vs_price": 759.99,
-              "ref_price": 941.99,
-              "delta": -182.0,
-              "recommended": {
-                "price": 939.99,
-                "direction": "up"
-              },
-              "status": "vs_cheaper"
-            },
-            {
-              "storage": "512GB",
-              "vs_price": 949.99,
-              "ref_price": 940.99,
-              "delta": 9.0,
-              "recommended": {
-                "price": 959.99,
-                "direction": "up"
-              },
-              "status": "competitive"
-            },
-            {
-              "storage": "1TB",
-              "vs_price": 1044.99,
-              "ref_price": 1111.99,
-              "delta": -67.0,
-              "recommended": {
-                "price": 1109.99,
-                "direction": "up"
-              },
-              "status": "vs_cheaper"
-            }
-          ],
-          "hierarchy_ok": true,
-          "action": "adjust_3"
-        }
-      ]
-    },
-    {
-      "model": "iPhone 16 Plus",
-      "conditions": [
-        {
-          "condition": "Good",
-          "storages": [
-            {
-              "storage": "128GB",
-              "vs_price": 589.99,
-              "ref_price": 638.8,
-              "delta": -48.81,
-              "recommended": {
-                "price": 639.99,
-                "direction": "up"
-              },
-              "status": "vs_cheaper"
-            },
-            {
-              "storage": "256GB",
-              "vs_price": 714.99,
-              "ref_price": 859.8,
-              "delta": -144.81,
-              "recommended": {
-                "price": 859.99,
-                "direction": "up"
-              },
-              "status": "vs_cheaper"
-            },
-            {
-              "storage": "512GB",
-              "vs_price": 854.99,
-              "ref_price": 787.8,
-              "delta": 67.19,
-              "recommended": {
-                "price": 879.99,
-                "direction": "up"
-              },
-              "status": "refurbed_cheaper"
-            }
-          ],
-          "hierarchy_ok": true,
-          "action": "adjust_3"
-        },
-        {
-          "condition": "V. Good",
-          "storages": [
-            {
-              "storage": "128GB",
               "vs_price": 609.99,
-              "ref_price": 653.99,
-              "delta": -44.0,
+              "ref_price": 663.99,
+              "delta": -54.0,
               "recommended": {
-                "price": 649.99,
+                "price": 659.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -609,10 +636,10 @@
             {
               "storage": "256GB",
               "vs_price": 729.99,
-              "ref_price": 874.99,
-              "delta": -145.0,
+              "ref_price": 831.99,
+              "delta": -102.0,
               "recommended": {
-                "price": 879.99,
+                "price": 829.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -620,11 +647,11 @@
             {
               "storage": "512GB",
               "vs_price": 884.99,
-              "ref_price": 802.99,
-              "delta": 82.0,
+              "ref_price": 832.99,
+              "delta": 52.0,
               "recommended": {
-                "price": 899.99,
-                "direction": "up"
+                "price": 849.99,
+                "direction": "down"
               },
               "status": "refurbed_cheaper"
             }
@@ -638,10 +665,10 @@
             {
               "storage": "128GB",
               "vs_price": 654.99,
-              "ref_price": 699.99,
-              "delta": -45.0,
+              "ref_price": 745.99,
+              "delta": -91.0,
               "recommended": {
-                "price": 699.99,
+                "price": 749.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -649,10 +676,10 @@
             {
               "storage": "256GB",
               "vs_price": 769.99,
-              "ref_price": 920.99,
-              "delta": -151.0,
+              "ref_price": 913.99,
+              "delta": -144.0,
               "recommended": {
-                "price": 919.99,
+                "price": 909.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -660,13 +687,13 @@
             {
               "storage": "512GB",
               "vs_price": 894.99,
-              "ref_price": 848.99,
-              "delta": 46.0,
+              "ref_price": 914.99,
+              "delta": -20.0,
               "recommended": {
-                "price": 939.99,
+                "price": 929.99,
                 "direction": "up"
               },
-              "status": "refurbed_cheaper"
+              "status": "vs_cheaper"
             }
           ],
           "hierarchy_ok": true,
@@ -725,10 +752,10 @@
             {
               "storage": "256GB",
               "vs_price": 674.99,
-              "ref_price": 749.2,
-              "delta": -74.21,
+              "ref_price": 785.99,
+              "delta": -111.0,
               "recommended": {
-                "price": 749.99,
+                "price": 789.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -736,10 +763,10 @@
             {
               "storage": "512GB",
               "vs_price": 719.99,
-              "ref_price": 1099.99,
-              "delta": -380.0,
+              "ref_price": 1110.99,
+              "delta": -391.0,
               "recommended": {
-                "price": 1099.99,
+                "price": 1109.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -754,10 +781,10 @@
             {
               "storage": "128GB",
               "vs_price": 609.99,
-              "ref_price": 665.99,
-              "delta": -56.0,
+              "ref_price": 697.99,
+              "delta": -88.0,
               "recommended": {
-                "price": 669.99,
+                "price": 699.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -765,10 +792,10 @@
             {
               "storage": "256GB",
               "vs_price": 684.99,
-              "ref_price": 825.19,
-              "delta": -140.2,
+              "ref_price": 893.98,
+              "delta": -208.99,
               "recommended": {
-                "price": 829.99,
+                "price": 889.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -776,10 +803,10 @@
             {
               "storage": "512GB",
               "vs_price": 759.99,
-              "ref_price": 1175.98,
-              "delta": -415.99,
+              "ref_price": 1218.98,
+              "delta": -458.99,
               "recommended": {
-                "price": 1179.99,
+                "price": 1219.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -799,30 +826,39 @@
             {
               "storage": "256GB",
               "vs_price": 599.99,
-              "ref_price": null,
-              "delta": null,
-              "recommended": null,
-              "status": "no_ref_data"
+              "ref_price": 682.0,
+              "delta": -82.01,
+              "recommended": {
+                "price": 679.99,
+                "direction": "up"
+              },
+              "status": "vs_cheaper"
             },
             {
               "storage": "512GB",
               "vs_price": 624.99,
-              "ref_price": null,
-              "delta": null,
-              "recommended": null,
-              "status": "no_ref_data"
+              "ref_price": 979.99,
+              "delta": -355.0,
+              "recommended": {
+                "price": 979.99,
+                "direction": "up"
+              },
+              "status": "vs_cheaper"
             },
             {
               "storage": "1TB",
               "vs_price": 719.99,
-              "ref_price": null,
-              "delta": null,
-              "recommended": null,
-              "status": "no_ref_data"
+              "ref_price": 848.99,
+              "delta": -129.0,
+              "recommended": {
+                "price": 999.99,
+                "direction": "up"
+              },
+              "status": "vs_cheaper"
             }
           ],
           "hierarchy_ok": true,
-          "action": "ok"
+          "action": "adjust_3"
         },
         {
           "condition": "V. Good",
@@ -830,10 +866,10 @@
             {
               "storage": "256GB",
               "vs_price": 609.99,
-              "ref_price": 736.99,
-              "delta": -127.0,
+              "ref_price": 881.99,
+              "delta": -272.0,
               "recommended": {
-                "price": 739.99,
+                "price": 879.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -841,10 +877,10 @@
             {
               "storage": "512GB",
               "vs_price": 644.99,
-              "ref_price": 1025.99,
-              "delta": -381.0,
+              "ref_price": 1179.98,
+              "delta": -534.99,
               "recommended": {
-                "price": 1029.99,
+                "price": 1179.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -852,10 +888,10 @@
             {
               "storage": "1TB",
               "vs_price": 759.99,
-              "ref_price": 905.99,
-              "delta": -146.0,
+              "ref_price": 1048.98,
+              "delta": -288.99,
               "recommended": {
-                "price": 1049.99,
+                "price": 1199.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -870,10 +906,10 @@
             {
               "storage": "256GB",
               "vs_price": 644.99,
-              "ref_price": 783.99,
-              "delta": -139.0,
+              "ref_price": 690.99,
+              "delta": -46.0,
               "recommended": {
-                "price": 779.99,
+                "price": 889.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -881,10 +917,10 @@
             {
               "storage": "512GB",
               "vs_price": 694.99,
-              "ref_price": 1072.99,
-              "delta": -378.0,
+              "ref_price": 988.98,
+              "delta": -293.99,
               "recommended": {
-                "price": 1069.99,
+                "price": 1189.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -892,10 +928,10 @@
             {
               "storage": "1TB",
               "vs_price": 779.99,
-              "ref_price": 952.99,
-              "delta": -173.0,
+              "ref_price": 857.98,
+              "delta": -77.99,
               "recommended": {
-                "price": 1089.99,
+                "price": 1209.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -954,38 +990,50 @@
             {
               "storage": "128GB",
               "vs_price": 529.99,
-              "ref_price": null,
-              "delta": null,
-              "recommended": null,
-              "status": "no_ref_data"
+              "ref_price": 613.99,
+              "delta": -84.0,
+              "recommended": {
+                "price": 609.99,
+                "direction": "up"
+              },
+              "status": "vs_cheaper"
             },
             {
               "storage": "256GB",
               "vs_price": 579.99,
-              "ref_price": null,
-              "delta": null,
-              "recommended": null,
-              "status": "no_ref_data"
+              "ref_price": 691.99,
+              "delta": -112.0,
+              "recommended": {
+                "price": 689.99,
+                "direction": "up"
+              },
+              "status": "vs_cheaper"
             },
             {
               "storage": "512GB",
               "vs_price": 644.99,
-              "ref_price": null,
-              "delta": null,
-              "recommended": null,
-              "status": "no_ref_data"
+              "ref_price": 941.99,
+              "delta": -297.0,
+              "recommended": {
+                "price": 939.99,
+                "direction": "up"
+              },
+              "status": "vs_cheaper"
             },
             {
               "storage": "1TB",
               "vs_price": 749.99,
-              "ref_price": null,
-              "delta": null,
-              "recommended": null,
-              "status": "no_ref_data"
+              "ref_price": 871.99,
+              "delta": -122.0,
+              "recommended": {
+                "price": 959.99,
+                "direction": "up"
+              },
+              "status": "vs_cheaper"
             }
           ],
           "hierarchy_ok": true,
-          "action": "ok"
+          "action": "adjust_4"
         },
         {
           "condition": "Excellent",
@@ -993,10 +1041,10 @@
             {
               "storage": "128GB",
               "vs_price": 559.99,
-              "ref_price": 614.99,
-              "delta": -55.0,
+              "ref_price": 634.99,
+              "delta": -75.0,
               "recommended": {
-                "price": 619.99,
+                "price": 639.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -1004,10 +1052,10 @@
             {
               "storage": "256GB",
               "vs_price": 599.99,
-              "ref_price": 700.99,
-              "delta": -101.0,
+              "ref_price": 712.99,
+              "delta": -113.0,
               "recommended": {
-                "price": 699.99,
+                "price": 709.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -1015,10 +1063,10 @@
             {
               "storage": "512GB",
               "vs_price": 654.99,
-              "ref_price": 847.99,
-              "delta": -193.0,
+              "ref_price": 962.99,
+              "delta": -308.0,
               "recommended": {
-                "price": 849.99,
+                "price": 959.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -1026,10 +1074,10 @@
             {
               "storage": "1TB",
               "vs_price": 769.99,
-              "ref_price": 1226.99,
-              "delta": -457.0,
+              "ref_price": 892.99,
+              "delta": -123.0,
               "recommended": {
-                "price": 1229.99,
+                "price": 979.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -1060,10 +1108,10 @@
             {
               "storage": "256GB",
               "vs_price": 484.99,
-              "ref_price": 566.99,
-              "delta": -82.0,
+              "ref_price": 586.99,
+              "delta": -102.0,
               "recommended": {
-                "price": 569.99,
+                "price": 589.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -1071,10 +1119,10 @@
             {
               "storage": "512GB",
               "vs_price": 609.99,
-              "ref_price": 735.99,
-              "delta": -126.0,
+              "ref_price": 769.99,
+              "delta": -160.0,
               "recommended": {
-                "price": 739.99,
+                "price": 769.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -1089,8 +1137,8 @@
             {
               "storage": "128GB",
               "vs_price": 464.99,
-              "ref_price": 535.99,
-              "delta": -71.0,
+              "ref_price": 541.99,
+              "delta": -77.0,
               "recommended": {
                 "price": 539.99,
                 "direction": "up"
@@ -1100,10 +1148,10 @@
             {
               "storage": "256GB",
               "vs_price": 524.99,
-              "ref_price": 647.98,
-              "delta": -122.99,
+              "ref_price": 673.98,
+              "delta": -148.99,
               "recommended": {
-                "price": 649.99,
+                "price": 669.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -1111,10 +1159,10 @@
             {
               "storage": "512GB",
               "vs_price": 624.99,
-              "ref_price": 816.98,
-              "delta": -191.99,
+              "ref_price": 856.98,
+              "delta": -231.99,
               "recommended": {
-                "price": 819.99,
+                "price": 859.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -1129,8 +1177,8 @@
             {
               "storage": "128GB",
               "vs_price": 494.99,
-              "ref_price": 519.0,
-              "delta": -24.01,
+              "ref_price": 543.99,
+              "delta": -49.0,
               "recommended": {
                 "price": 549.99,
                 "direction": "up"
@@ -1140,10 +1188,10 @@
             {
               "storage": "256GB",
               "vs_price": 559.99,
-              "ref_price": 630.99,
-              "delta": -71.0,
+              "ref_price": 675.98,
+              "delta": -115.99,
               "recommended": {
-                "price": 659.99,
+                "price": 679.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -1151,10 +1199,10 @@
             {
               "storage": "512GB",
               "vs_price": 674.99,
-              "ref_price": 799.99,
-              "delta": -125.0,
+              "ref_price": 858.98,
+              "delta": -183.99,
               "recommended": {
-                "price": 829.99,
+                "price": 869.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -1174,21 +1222,21 @@
             {
               "storage": "128GB",
               "vs_price": 419.99,
-              "ref_price": 447.99,
-              "delta": -28.0,
+              "ref_price": 429.99,
+              "delta": -10.0,
               "recommended": {
-                "price": 449.99,
-                "direction": "up"
+                "price": 419.99,
+                "direction": "same"
               },
-              "status": "vs_cheaper"
+              "status": "competitive"
             },
             {
               "storage": "256GB",
               "vs_price": 474.99,
-              "ref_price": 562.13,
-              "delta": -87.14,
+              "ref_price": 552.99,
+              "delta": -78.0,
               "recommended": {
-                "price": 559.99,
+                "price": 549.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -1196,17 +1244,17 @@
             {
               "storage": "512GB",
               "vs_price": 589.99,
-              "ref_price": 703.99,
-              "delta": -114.0,
+              "ref_price": 693.99,
+              "delta": -104.0,
               "recommended": {
-                "price": 699.99,
+                "price": 689.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
             }
           ],
           "hierarchy_ok": true,
-          "action": "adjust_3"
+          "action": "adjust_2"
         },
         {
           "condition": "V. Good",
@@ -1245,8 +1293,8 @@
             {
               "storage": "128GB",
               "vs_price": 444.99,
-              "ref_price": 449.99,
-              "delta": -5.0,
+              "ref_price": 453.99,
+              "delta": -9.0,
               "recommended": {
                 "price": 444.99,
                 "direction": "same"
@@ -1256,10 +1304,10 @@
             {
               "storage": "256GB",
               "vs_price": 529.99,
-              "ref_price": 564.13,
-              "delta": -34.14,
+              "ref_price": 576.99,
+              "delta": -47.0,
               "recommended": {
-                "price": 559.99,
+                "price": 579.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -1267,10 +1315,10 @@
             {
               "storage": "512GB",
               "vs_price": 634.99,
-              "ref_price": 705.99,
-              "delta": -71.0,
+              "ref_price": 717.99,
+              "delta": -83.0,
               "recommended": {
-                "price": 709.99,
+                "price": 719.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -1340,10 +1388,10 @@
             {
               "storage": "256GB",
               "vs_price": 494.99,
-              "ref_price": 721.99,
-              "delta": -227.0,
+              "ref_price": 753.99,
+              "delta": -259.0,
               "recommended": {
-                "price": 719.99,
+                "price": 749.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -1351,10 +1399,10 @@
             {
               "storage": "512GB",
               "vs_price": 529.99,
-              "ref_price": 735.99,
-              "delta": -206.0,
+              "ref_price": 737.99,
+              "delta": -208.0,
               "recommended": {
-                "price": 739.99,
+                "price": 769.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -1362,17 +1410,17 @@
             {
               "storage": "1TB",
               "vs_price": 619.99,
-              "ref_price": 621.99,
-              "delta": -2.0,
+              "ref_price": 637.99,
+              "delta": -18.0,
               "recommended": {
-                "price": 759.99,
+                "price": 789.99,
                 "direction": "up"
               },
-              "status": "competitive"
+              "status": "vs_cheaper"
             }
           ],
           "hierarchy_ok": true,
-          "action": "adjust_3"
+          "action": "adjust_4"
         },
         {
           "condition": "Excellent",
@@ -1380,10 +1428,10 @@
             {
               "storage": "128GB",
               "vs_price": 474.99,
-              "ref_price": 608.9,
-              "delta": -133.91,
+              "ref_price": 638.99,
+              "delta": -164.0,
               "recommended": {
-                "price": 609.99,
+                "price": 639.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -1391,10 +1439,10 @@
             {
               "storage": "256GB",
               "vs_price": 549.99,
-              "ref_price": 776.89,
-              "delta": -226.9,
+              "ref_price": 838.98,
+              "delta": -288.99,
               "recommended": {
-                "price": 779.99,
+                "price": 839.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -1402,10 +1450,10 @@
             {
               "storage": "512GB",
               "vs_price": 589.99,
-              "ref_price": 790.89,
-              "delta": -200.9,
+              "ref_price": 822.98,
+              "delta": -232.99,
               "recommended": {
-                "price": 799.99,
+                "price": 859.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -1413,10 +1461,10 @@
             {
               "storage": "1TB",
               "vs_price": 664.99,
-              "ref_price": 676.89,
-              "delta": -11.9,
+              "ref_price": 722.98,
+              "delta": -57.99,
               "recommended": {
-                "price": 819.99,
+                "price": 879.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -1444,30 +1492,39 @@
             {
               "storage": "256GB",
               "vs_price": 434.99,
-              "ref_price": null,
-              "delta": null,
-              "recommended": null,
-              "status": "no_ref_data"
+              "ref_price": 465.0,
+              "delta": -30.01,
+              "recommended": {
+                "price": 469.99,
+                "direction": "up"
+              },
+              "status": "vs_cheaper"
             },
             {
               "storage": "512GB",
               "vs_price": 484.99,
-              "ref_price": null,
-              "delta": null,
-              "recommended": null,
-              "status": "no_ref_data"
+              "ref_price": 620.0,
+              "delta": -135.01,
+              "recommended": {
+                "price": 619.99,
+                "direction": "up"
+              },
+              "status": "vs_cheaper"
             },
             {
               "storage": "1TB",
               "vs_price": 569.99,
-              "ref_price": null,
-              "delta": null,
-              "recommended": null,
-              "status": "no_ref_data"
+              "ref_price": 815.0,
+              "delta": -245.01,
+              "recommended": {
+                "price": 819.99,
+                "direction": "up"
+              },
+              "status": "vs_cheaper"
             }
           ],
           "hierarchy_ok": true,
-          "action": "ok"
+          "action": "adjust_3"
         },
         {
           "condition": "V. Good",
@@ -1475,21 +1532,18 @@
             {
               "storage": "128GB",
               "vs_price": 409.99,
-              "ref_price": 492.99,
-              "delta": -83.0,
-              "recommended": {
-                "price": 489.99,
-                "direction": "up"
-              },
-              "status": "vs_cheaper"
+              "ref_price": null,
+              "delta": null,
+              "recommended": null,
+              "status": "no_ref_data"
             },
             {
               "storage": "256GB",
               "vs_price": 464.99,
-              "ref_price": 518.99,
-              "delta": -54.0,
+              "ref_price": 537.0,
+              "delta": -72.01,
               "recommended": {
-                "price": 519.99,
+                "price": 539.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -1497,10 +1551,10 @@
             {
               "storage": "512GB",
               "vs_price": 504.99,
-              "ref_price": 580.99,
-              "delta": -76.0,
+              "ref_price": 692.0,
+              "delta": -187.01,
               "recommended": {
-                "price": 579.99,
+                "price": 689.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -1508,17 +1562,17 @@
             {
               "storage": "1TB",
               "vs_price": 589.99,
-              "ref_price": 866.99,
-              "delta": -277.0,
+              "ref_price": 887.0,
+              "delta": -297.01,
               "recommended": {
-                "price": 869.99,
+                "price": 889.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
             }
           ],
           "hierarchy_ok": true,
-          "action": "adjust_4"
+          "action": "adjust_3"
         },
         {
           "condition": "Excellent",
@@ -1526,21 +1580,18 @@
             {
               "storage": "128GB",
               "vs_price": 434.99,
-              "ref_price": 552.99,
-              "delta": -118.0,
-              "recommended": {
-                "price": 549.99,
-                "direction": "up"
-              },
-              "status": "vs_cheaper"
+              "ref_price": null,
+              "delta": null,
+              "recommended": null,
+              "status": "no_ref_data"
             },
             {
               "storage": "256GB",
               "vs_price": 504.99,
-              "ref_price": 578.99,
-              "delta": -74.0,
+              "ref_price": 585.0,
+              "delta": -80.01,
               "recommended": {
-                "price": 579.99,
+                "price": 589.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -1548,10 +1599,10 @@
             {
               "storage": "512GB",
               "vs_price": 569.99,
-              "ref_price": 640.99,
-              "delta": -71.0,
+              "ref_price": 740.0,
+              "delta": -170.01,
               "recommended": {
-                "price": 639.99,
+                "price": 739.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -1559,17 +1610,17 @@
             {
               "storage": "1TB",
               "vs_price": 619.99,
-              "ref_price": 926.99,
-              "delta": -307.0,
+              "ref_price": 935.0,
+              "delta": -315.01,
               "recommended": {
-                "price": 929.99,
+                "price": 939.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
             }
           ],
           "hierarchy_ok": true,
-          "action": "adjust_4"
+          "action": "adjust_3"
         }
       ]
     },
@@ -1582,10 +1633,10 @@
             {
               "storage": "128GB",
               "vs_price": 324.99,
-              "ref_price": 369.0,
-              "delta": -44.01,
+              "ref_price": 377.0,
+              "delta": -52.01,
               "recommended": {
-                "price": 369.99,
+                "price": 379.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -1593,10 +1644,10 @@
             {
               "storage": "256GB",
               "vs_price": 379.99,
-              "ref_price": 628.99,
-              "delta": -249.0,
+              "ref_price": 462.99,
+              "delta": -83.0,
               "recommended": {
-                "price": 629.99,
+                "price": 459.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -1604,10 +1655,10 @@
             {
               "storage": "512GB",
               "vs_price": 474.99,
-              "ref_price": 509.99,
-              "delta": -35.0,
+              "ref_price": 704.99,
+              "delta": -230.0,
               "recommended": {
-                "price": 649.99,
+                "price": 699.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -1622,8 +1673,8 @@
             {
               "storage": "128GB",
               "vs_price": 339.99,
-              "ref_price": 417.99,
-              "delta": -78.0,
+              "ref_price": 424.99,
+              "delta": -85.0,
               "recommended": {
                 "price": 419.99,
                 "direction": "up"
@@ -1633,10 +1684,10 @@
             {
               "storage": "256GB",
               "vs_price": 419.99,
-              "ref_price": 677.98,
-              "delta": -257.99,
+              "ref_price": 510.98,
+              "delta": -90.99,
               "recommended": {
-                "price": 679.99,
+                "price": 509.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -1644,10 +1695,10 @@
             {
               "storage": "512GB",
               "vs_price": 504.99,
-              "ref_price": 558.98,
-              "delta": -53.99,
+              "ref_price": 752.98,
+              "delta": -247.99,
               "recommended": {
-                "price": 699.99,
+                "price": 749.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -1662,10 +1713,10 @@
             {
               "storage": "128GB",
               "vs_price": 389.99,
-              "ref_price": 513.99,
-              "delta": -124.0,
+              "ref_price": 480.99,
+              "delta": -91.0,
               "recommended": {
-                "price": 509.99,
+                "price": 479.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -1673,10 +1724,10 @@
             {
               "storage": "256GB",
               "vs_price": 454.99,
-              "ref_price": 773.98,
-              "delta": -318.99,
+              "ref_price": 566.98,
+              "delta": -111.99,
               "recommended": {
-                "price": 769.99,
+                "price": 569.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -1684,10 +1735,10 @@
             {
               "storage": "512GB",
               "vs_price": 529.99,
-              "ref_price": 654.98,
-              "delta": -124.99,
+              "ref_price": 808.98,
+              "delta": -278.99,
               "recommended": {
-                "price": 789.99,
+                "price": 809.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -1707,39 +1758,30 @@
             {
               "storage": "128GB",
               "vs_price": 304.99,
-              "ref_price": 311.99,
-              "delta": -7.0,
-              "recommended": {
-                "price": 304.99,
-                "direction": "same"
-              },
-              "status": "competitive"
+              "ref_price": null,
+              "delta": null,
+              "recommended": null,
+              "status": "no_ref_data"
             },
             {
               "storage": "256GB",
               "vs_price": 359.99,
-              "ref_price": 519.99,
-              "delta": -160.0,
-              "recommended": {
-                "price": 519.99,
-                "direction": "up"
-              },
-              "status": "vs_cheaper"
+              "ref_price": null,
+              "delta": null,
+              "recommended": null,
+              "status": "no_ref_data"
             },
             {
               "storage": "512GB",
               "vs_price": 409.99,
-              "ref_price": 512.99,
-              "delta": -103.0,
-              "recommended": {
-                "price": 539.99,
-                "direction": "up"
-              },
-              "status": "vs_cheaper"
+              "ref_price": null,
+              "delta": null,
+              "recommended": null,
+              "status": "no_ref_data"
             }
           ],
           "hierarchy_ok": true,
-          "action": "adjust_2"
+          "action": "ok"
         },
         {
           "condition": "V. Good",
@@ -1747,8 +1789,8 @@
             {
               "storage": "128GB",
               "vs_price": 324.99,
-              "ref_price": 318.99,
-              "delta": 6.0,
+              "ref_price": 315.95,
+              "delta": 9.04,
               "recommended": {
                 "price": 324.99,
                 "direction": "same"
@@ -1758,10 +1800,10 @@
             {
               "storage": "256GB",
               "vs_price": 379.99,
-              "ref_price": 526.99,
-              "delta": -147.0,
+              "ref_price": 457.99,
+              "delta": -78.0,
               "recommended": {
-                "price": 529.99,
+                "price": 459.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -1769,10 +1811,10 @@
             {
               "storage": "512GB",
               "vs_price": 429.99,
-              "ref_price": 519.99,
-              "delta": -90.0,
+              "ref_price": 521.99,
+              "delta": -92.0,
               "recommended": {
-                "price": 549.99,
+                "price": 519.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -1787,8 +1829,8 @@
             {
               "storage": "128GB",
               "vs_price": 334.99,
-              "ref_price": 341.99,
-              "delta": -7.0,
+              "ref_price": 331.99,
+              "delta": 3.0,
               "recommended": {
                 "price": 334.99,
                 "direction": "same"
@@ -1798,10 +1840,10 @@
             {
               "storage": "256GB",
               "vs_price": 389.99,
-              "ref_price": 549.99,
-              "delta": -160.0,
+              "ref_price": 474.03,
+              "delta": -84.04,
               "recommended": {
-                "price": 549.99,
+                "price": 469.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -1809,10 +1851,10 @@
             {
               "storage": "512GB",
               "vs_price": 434.99,
-              "ref_price": 542.99,
-              "delta": -108.0,
+              "ref_price": 538.03,
+              "delta": -103.04,
               "recommended": {
-                "price": 569.99,
+                "price": 539.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -1882,10 +1924,10 @@
             {
               "storage": "256GB",
               "vs_price": 409.99,
-              "ref_price": 504.99,
-              "delta": -95.0,
+              "ref_price": 509.99,
+              "delta": -100.0,
               "recommended": {
-                "price": 499.99,
+                "price": 509.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -1893,8 +1935,8 @@
             {
               "storage": "512GB",
               "vs_price": 444.99,
-              "ref_price": 529.99,
-              "delta": -85.0,
+              "ref_price": 525.99,
+              "delta": -81.0,
               "recommended": {
                 "price": 529.99,
                 "direction": "up"
@@ -1904,8 +1946,8 @@
             {
               "storage": "1TB",
               "vs_price": 464.99,
-              "ref_price": 531.99,
-              "delta": -67.0,
+              "ref_price": 510.99,
+              "delta": -46.0,
               "recommended": {
                 "price": 549.99,
                 "direction": "up"
@@ -1922,8 +1964,8 @@
             {
               "storage": "128GB",
               "vs_price": 399.99,
-              "ref_price": 533.99,
-              "delta": -134.0,
+              "ref_price": 529.99,
+              "delta": -130.0,
               "recommended": {
                 "price": 529.99,
                 "direction": "up"
@@ -1933,10 +1975,10 @@
             {
               "storage": "256GB",
               "vs_price": 464.99,
-              "ref_price": 594.5,
-              "delta": -129.51,
+              "ref_price": 595.5,
+              "delta": -130.51,
               "recommended": {
-                "price": 589.99,
+                "price": 599.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -1944,8 +1986,8 @@
             {
               "storage": "512GB",
               "vs_price": 474.99,
-              "ref_price": 619.5,
-              "delta": -144.51,
+              "ref_price": 611.5,
+              "delta": -136.51,
               "recommended": {
                 "price": 619.99,
                 "direction": "up"
@@ -1955,8 +1997,8 @@
             {
               "storage": "1TB",
               "vs_price": 504.99,
-              "ref_price": 621.5,
-              "delta": -116.51,
+              "ref_price": 596.5,
+              "delta": -91.51,
               "recommended": {
                 "price": 639.99,
                 "direction": "up"
@@ -2017,8 +2059,8 @@
             {
               "storage": "128GB",
               "vs_price": 334.99,
-              "ref_price": 400.99,
-              "delta": -66.0,
+              "ref_price": 404.99,
+              "delta": -70.0,
               "recommended": {
                 "price": 399.99,
                 "direction": "up"
@@ -2028,10 +2070,10 @@
             {
               "storage": "256GB",
               "vs_price": 359.99,
-              "ref_price": 519.99,
-              "delta": -160.0,
+              "ref_price": 529.99,
+              "delta": -170.0,
               "recommended": {
-                "price": 519.99,
+                "price": 529.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -2039,10 +2081,10 @@
             {
               "storage": "512GB",
               "vs_price": 399.99,
-              "ref_price": 553.99,
-              "delta": -154.0,
+              "ref_price": 555.99,
+              "delta": -156.0,
               "recommended": {
-                "price": 549.99,
+                "price": 559.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -2050,10 +2092,10 @@
             {
               "storage": "1TB",
               "vs_price": 434.99,
-              "ref_price": 592.99,
-              "delta": -158.0,
+              "ref_price": 605.99,
+              "delta": -171.0,
               "recommended": {
-                "price": 589.99,
+                "price": 609.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -2068,10 +2110,10 @@
             {
               "storage": "128GB",
               "vs_price": 359.99,
-              "ref_price": 440.99,
-              "delta": -81.0,
+              "ref_price": 717.99,
+              "delta": -358.0,
               "recommended": {
-                "price": 439.99,
+                "price": 719.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -2079,10 +2121,10 @@
             {
               "storage": "256GB",
               "vs_price": 379.99,
-              "ref_price": 559.99,
-              "delta": -180.0,
+              "ref_price": 842.99,
+              "delta": -463.0,
               "recommended": {
-                "price": 559.99,
+                "price": 839.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -2090,10 +2132,10 @@
             {
               "storage": "512GB",
               "vs_price": 434.99,
-              "ref_price": 593.99,
-              "delta": -159.0,
+              "ref_price": 868.99,
+              "delta": -434.0,
               "recommended": {
-                "price": 589.99,
+                "price": 869.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -2101,10 +2143,10 @@
             {
               "storage": "1TB",
               "vs_price": 484.99,
-              "ref_price": 632.99,
-              "delta": -148.0,
+              "ref_price": 918.99,
+              "delta": -434.0,
               "recommended": {
-                "price": 629.99,
+                "price": 919.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -2124,30 +2166,39 @@
             {
               "storage": "128GB",
               "vs_price": 244.99,
-              "ref_price": null,
-              "delta": null,
-              "recommended": null,
-              "status": "no_ref_data"
+              "ref_price": 273.0,
+              "delta": -28.01,
+              "recommended": {
+                "price": 269.99,
+                "direction": "up"
+              },
+              "status": "vs_cheaper"
             },
             {
               "storage": "256GB",
               "vs_price": 274.99,
-              "ref_price": null,
-              "delta": null,
-              "recommended": null,
-              "status": "no_ref_data"
+              "ref_price": 341.99,
+              "delta": -67.0,
+              "recommended": {
+                "price": 339.99,
+                "direction": "up"
+              },
+              "status": "vs_cheaper"
             },
             {
               "storage": "512GB",
               "vs_price": 359.99,
-              "ref_price": null,
-              "delta": null,
-              "recommended": null,
-              "status": "no_ref_data"
+              "ref_price": 396.99,
+              "delta": -37.0,
+              "recommended": {
+                "price": 399.99,
+                "direction": "up"
+              },
+              "status": "vs_cheaper"
             }
           ],
           "hierarchy_ok": true,
-          "action": "ok"
+          "action": "adjust_3"
         },
         {
           "condition": "V. Good",
@@ -2155,10 +2206,10 @@
             {
               "storage": "128GB",
               "vs_price": 254.99,
-              "ref_price": 292.99,
-              "delta": -38.0,
+              "ref_price": 307.99,
+              "delta": -53.0,
               "recommended": {
-                "price": 289.99,
+                "price": 309.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -2166,10 +2217,10 @@
             {
               "storage": "256GB",
               "vs_price": 304.99,
-              "ref_price": 350.99,
-              "delta": -46.0,
+              "ref_price": 376.98,
+              "delta": -71.99,
               "recommended": {
-                "price": 349.99,
+                "price": 379.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -2177,17 +2228,17 @@
             {
               "storage": "512GB",
               "vs_price": 389.99,
-              "ref_price": 388.99,
-              "delta": 1.0,
+              "ref_price": 431.98,
+              "delta": -41.99,
               "recommended": {
-                "price": 389.99,
-                "direction": "same"
+                "price": 429.99,
+                "direction": "up"
               },
-              "status": "competitive"
+              "status": "vs_cheaper"
             }
           ],
           "hierarchy_ok": true,
-          "action": "adjust_2"
+          "action": "adjust_3"
         },
         {
           "condition": "Excellent",
@@ -2195,10 +2246,10 @@
             {
               "storage": "128GB",
               "vs_price": 294.99,
-              "ref_price": 314.99,
-              "delta": -20.0,
+              "ref_price": 330.99,
+              "delta": -36.0,
               "recommended": {
-                "price": 319.99,
+                "price": 329.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -2206,10 +2257,10 @@
             {
               "storage": "256GB",
               "vs_price": 334.99,
-              "ref_price": 372.99,
-              "delta": -38.0,
+              "ref_price": 399.98,
+              "delta": -64.99,
               "recommended": {
-                "price": 369.99,
+                "price": 399.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -2217,17 +2268,17 @@
             {
               "storage": "512GB",
               "vs_price": 409.99,
-              "ref_price": 410.99,
-              "delta": -1.0,
+              "ref_price": 454.98,
+              "delta": -44.99,
               "recommended": {
-                "price": 409.99,
-                "direction": "same"
+                "price": 449.99,
+                "direction": "up"
               },
-              "status": "competitive"
+              "status": "vs_cheaper"
             }
           ],
           "hierarchy_ok": true,
-          "action": "adjust_2"
+          "action": "adjust_3"
         }
       ]
     },
@@ -2240,30 +2291,39 @@
             {
               "storage": "128GB",
               "vs_price": 254.99,
-              "ref_price": null,
-              "delta": null,
-              "recommended": null,
-              "status": "no_ref_data"
+              "ref_price": 325.0,
+              "delta": -70.01,
+              "recommended": {
+                "price": 329.99,
+                "direction": "up"
+              },
+              "status": "vs_cheaper"
             },
             {
               "storage": "256GB",
               "vs_price": 284.99,
-              "ref_price": null,
-              "delta": null,
-              "recommended": null,
-              "status": "no_ref_data"
+              "ref_price": 406.0,
+              "delta": -121.01,
+              "recommended": {
+                "price": 409.99,
+                "direction": "up"
+              },
+              "status": "vs_cheaper"
             },
             {
               "storage": "512GB",
               "vs_price": 359.99,
-              "ref_price": null,
-              "delta": null,
-              "recommended": null,
-              "status": "no_ref_data"
+              "ref_price": 530.0,
+              "delta": -170.01,
+              "recommended": {
+                "price": 529.99,
+                "direction": "up"
+              },
+              "status": "vs_cheaper"
             }
           ],
           "hierarchy_ok": true,
-          "action": "ok"
+          "action": "adjust_3"
         },
         {
           "condition": "V. Good",
@@ -2282,10 +2342,10 @@
             {
               "storage": "256GB",
               "vs_price": 304.99,
-              "ref_price": 397.99,
-              "delta": -93.0,
+              "ref_price": 415.99,
+              "delta": -111.0,
               "recommended": {
-                "price": 399.99,
+                "price": 419.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -2293,8 +2353,8 @@
             {
               "storage": "512GB",
               "vs_price": 379.99,
-              "ref_price": 536.99,
-              "delta": -157.0,
+              "ref_price": 539.99,
+              "delta": -160.0,
               "recommended": {
                 "price": 539.99,
                 "direction": "up"
@@ -2311,8 +2371,8 @@
             {
               "storage": "128GB",
               "vs_price": 294.99,
-              "ref_price": 460.99,
-              "delta": -166.0,
+              "ref_price": 463.99,
+              "delta": -169.0,
               "recommended": {
                 "price": 459.99,
                 "direction": "up"
@@ -2322,10 +2382,10 @@
             {
               "storage": "256GB",
               "vs_price": 324.99,
-              "ref_price": 523.99,
-              "delta": -199.0,
+              "ref_price": 544.99,
+              "delta": -220.0,
               "recommended": {
-                "price": 519.99,
+                "price": 539.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -2333,10 +2393,10 @@
             {
               "storage": "512GB",
               "vs_price": 399.99,
-              "ref_price": 662.99,
-              "delta": -263.0,
+              "ref_price": 668.99,
+              "delta": -269.0,
               "recommended": {
-                "price": 659.99,
+                "price": 669.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -2398,10 +2458,10 @@
             {
               "storage": "256GB",
               "vs_price": 284.99,
-              "ref_price": 350.99,
-              "delta": -66.0,
+              "ref_price": 365.99,
+              "delta": -81.0,
               "recommended": {
-                "price": 349.99,
+                "price": 369.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -2427,10 +2487,10 @@
             {
               "storage": "128GB",
               "vs_price": 284.99,
-              "ref_price": 330.99,
-              "delta": -46.0,
+              "ref_price": 342.99,
+              "delta": -58.0,
               "recommended": {
-                "price": 329.99,
+                "price": 339.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -2438,10 +2498,10 @@
             {
               "storage": "256GB",
               "vs_price": 294.99,
-              "ref_price": 410.26,
-              "delta": -115.27,
+              "ref_price": 437.26,
+              "delta": -142.27,
               "recommended": {
-                "price": 409.99,
+                "price": 439.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -2449,10 +2509,10 @@
             {
               "storage": "512GB",
               "vs_price": 379.99,
-              "ref_price": 480.26,
-              "delta": -100.27,
+              "ref_price": 492.26,
+              "delta": -112.27,
               "recommended": {
-                "price": 479.99,
+                "price": 489.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -2483,8 +2543,8 @@
             {
               "storage": "128GB",
               "vs_price": 189.99,
-              "ref_price": 245.07,
-              "delta": -55.08,
+              "ref_price": 245.99,
+              "delta": -56.0,
               "recommended": {
                 "price": 249.99,
                 "direction": "up"
@@ -2494,10 +2554,10 @@
             {
               "storage": "256GB",
               "vs_price": 229.99,
-              "ref_price": 266.99,
-              "delta": -37.0,
+              "ref_price": 293.99,
+              "delta": -64.0,
               "recommended": {
-                "price": 269.99,
+                "price": 289.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -2512,8 +2572,8 @@
             {
               "storage": "64GB",
               "vs_price": 189.99,
-              "ref_price": 226.99,
-              "delta": -37.0,
+              "ref_price": 233.99,
+              "delta": -44.0,
               "recommended": {
                 "price": 229.99,
                 "direction": "up"
@@ -2523,10 +2583,10 @@
             {
               "storage": "128GB",
               "vs_price": 209.99,
-              "ref_price": 258.26,
-              "delta": -48.27,
+              "ref_price": 266.18,
+              "delta": -56.19,
               "recommended": {
-                "price": 259.99,
+                "price": 269.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -2534,10 +2594,10 @@
             {
               "storage": "256GB",
               "vs_price": 244.99,
-              "ref_price": 280.18,
-              "delta": -35.19,
+              "ref_price": 314.18,
+              "delta": -69.19,
               "recommended": {
-                "price": 279.99,
+                "price": 309.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -2552,8 +2612,8 @@
             {
               "storage": "64GB",
               "vs_price": 229.99,
-              "ref_price": 231.99,
-              "delta": -2.0,
+              "ref_price": 233.99,
+              "delta": -4.0,
               "recommended": {
                 "price": 239.99,
                 "direction": "up"
@@ -2563,10 +2623,10 @@
             {
               "storage": "128GB",
               "vs_price": 244.99,
-              "ref_price": 263.26,
-              "delta": -18.27,
+              "ref_price": 266.18,
+              "delta": -21.19,
               "recommended": {
-                "price": 269.99,
+                "price": 279.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -2574,10 +2634,10 @@
             {
               "storage": "256GB",
               "vs_price": 254.99,
-              "ref_price": 285.18,
-              "delta": -30.19,
+              "ref_price": 314.18,
+              "delta": -59.19,
               "recommended": {
-                "price": 289.99,
+                "price": 319.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -2639,10 +2699,10 @@
             {
               "storage": "128GB",
               "vs_price": 199.99,
-              "ref_price": 211.99,
-              "delta": -12.0,
+              "ref_price": 219.99,
+              "delta": -20.0,
               "recommended": {
-                "price": 209.99,
+                "price": 219.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -2650,10 +2710,10 @@
             {
               "storage": "256GB",
               "vs_price": 229.99,
-              "ref_price": 262.99,
-              "delta": -33.0,
+              "ref_price": 277.99,
+              "delta": -48.0,
               "recommended": {
-                "price": 259.99,
+                "price": 279.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -2679,10 +2739,10 @@
             {
               "storage": "128GB",
               "vs_price": 239.99,
-              "ref_price": 220.07,
-              "delta": 19.92,
+              "ref_price": 228.07,
+              "delta": 11.92,
               "recommended": {
-                "price": 219.99,
+                "price": 229.99,
                 "direction": "down"
               },
               "status": "refurbed_cheaper"
@@ -2690,10 +2750,10 @@
             {
               "storage": "256GB",
               "vs_price": 239.99,
-              "ref_price": 271.07,
-              "delta": -31.08,
+              "ref_price": 286.07,
+              "delta": -46.08,
               "recommended": {
-                "price": 269.99,
+                "price": 289.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -2744,8 +2804,8 @@
             {
               "storage": "64GB",
               "vs_price": 209.99,
-              "ref_price": 240.99,
-              "delta": -31.0,
+              "ref_price": 238.12,
+              "delta": -28.13,
               "recommended": {
                 "price": 239.99,
                 "direction": "up"
@@ -2755,10 +2815,10 @@
             {
               "storage": "256GB",
               "vs_price": 229.99,
-              "ref_price": 315.99,
-              "delta": -86.0,
+              "ref_price": 326.99,
+              "delta": -97.0,
               "recommended": {
-                "price": 319.99,
+                "price": 329.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -2766,10 +2826,10 @@
             {
               "storage": "512GB",
               "vs_price": 284.99,
-              "ref_price": 524.99,
-              "delta": -240.0,
+              "ref_price": 525.99,
+              "delta": -241.0,
               "recommended": {
-                "price": 519.99,
+                "price": 529.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -2784,10 +2844,10 @@
             {
               "storage": "64GB",
               "vs_price": 244.99,
-              "ref_price": 317.99,
-              "delta": -73.0,
+              "ref_price": 332.99,
+              "delta": -88.0,
               "recommended": {
-                "price": 319.99,
+                "price": 329.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -2795,10 +2855,10 @@
             {
               "storage": "256GB",
               "vs_price": 274.99,
-              "ref_price": 392.99,
-              "delta": -118.0,
+              "ref_price": 421.86,
+              "delta": -146.87,
               "recommended": {
-                "price": 389.99,
+                "price": 419.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -2806,10 +2866,10 @@
             {
               "storage": "512GB",
               "vs_price": 324.99,
-              "ref_price": 601.99,
-              "delta": -277.0,
+              "ref_price": 620.86,
+              "delta": -295.87,
               "recommended": {
-                "price": 599.99,
+                "price": 619.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -2860,10 +2920,10 @@
             {
               "storage": "64GB",
               "vs_price": 189.99,
-              "ref_price": 209.99,
-              "delta": -20.0,
+              "ref_price": 216.02,
+              "delta": -26.03,
               "recommended": {
-                "price": 209.99,
+                "price": 219.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -2871,10 +2931,10 @@
             {
               "storage": "256GB",
               "vs_price": 209.99,
-              "ref_price": 259.99,
-              "delta": -50.0,
+              "ref_price": 266.99,
+              "delta": -57.0,
               "recommended": {
-                "price": 259.99,
+                "price": 269.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -2882,10 +2942,10 @@
             {
               "storage": "512GB",
               "vs_price": 264.99,
-              "ref_price": 324.99,
-              "delta": -60.0,
+              "ref_price": 326.99,
+              "delta": -62.0,
               "recommended": {
-                "price": 319.99,
+                "price": 329.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -2900,10 +2960,10 @@
             {
               "storage": "64GB",
               "vs_price": 199.99,
-              "ref_price": 271.99,
-              "delta": -72.0,
+              "ref_price": 282.99,
+              "delta": -83.0,
               "recommended": {
-                "price": 269.99,
+                "price": 279.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -2911,10 +2971,10 @@
             {
               "storage": "256GB",
               "vs_price": 244.99,
-              "ref_price": 321.99,
-              "delta": -77.0,
+              "ref_price": 333.96,
+              "delta": -88.97,
               "recommended": {
-                "price": 319.99,
+                "price": 329.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -2922,8 +2982,8 @@
             {
               "storage": "512GB",
               "vs_price": 284.99,
-              "ref_price": 386.99,
-              "delta": -102.0,
+              "ref_price": 393.96,
+              "delta": -108.97,
               "recommended": {
                 "price": 389.99,
                 "direction": "up"
@@ -2987,8 +3047,8 @@
             {
               "storage": "128GB",
               "vs_price": 174.99,
-              "ref_price": 214.99,
-              "delta": -40.0,
+              "ref_price": 222.99,
+              "delta": -48.0,
               "recommended": {
                 "price": 219.99,
                 "direction": "up"
@@ -2998,10 +3058,10 @@
             {
               "storage": "256GB",
               "vs_price": 219.99,
-              "ref_price": 364.99,
-              "delta": -145.0,
+              "ref_price": 373.99,
+              "delta": -154.0,
               "recommended": {
-                "price": 359.99,
+                "price": 369.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -3016,8 +3076,8 @@
             {
               "storage": "64GB",
               "vs_price": 179.99,
-              "ref_price": 207.99,
-              "delta": -28.0,
+              "ref_price": 212.99,
+              "delta": -33.0,
               "recommended": {
                 "price": 209.99,
                 "direction": "up"
@@ -3027,10 +3087,10 @@
             {
               "storage": "128GB",
               "vs_price": 189.99,
-              "ref_price": 253.08,
-              "delta": -63.09,
+              "ref_price": 266.08,
+              "delta": -76.09,
               "recommended": {
-                "price": 249.99,
+                "price": 269.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -3038,10 +3098,10 @@
             {
               "storage": "256GB",
               "vs_price": 229.99,
-              "ref_price": 403.08,
-              "delta": -173.09,
+              "ref_price": 417.08,
+              "delta": -187.09,
               "recommended": {
-                "price": 399.99,
+                "price": 419.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -3105,10 +3165,10 @@
             {
               "storage": "512GB",
               "vs_price": 769.99,
-              "ref_price": 792.99,
-              "delta": -23.0,
+              "ref_price": 827.99,
+              "delta": -58.0,
               "recommended": {
-                "price": 789.99,
+                "price": 829.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -3116,8 +3176,8 @@
             {
               "storage": "1TB",
               "vs_price": 814.99,
-              "ref_price": 873.99,
-              "delta": -59.0,
+              "ref_price": 868.99,
+              "delta": -54.0,
               "recommended": {
                 "price": 869.99,
                 "direction": "up"
@@ -3134,21 +3194,21 @@
             {
               "storage": "256GB",
               "vs_price": 759.99,
-              "ref_price": 759.99,
-              "delta": 0.0,
+              "ref_price": 793.99,
+              "delta": -34.0,
               "recommended": {
-                "price": 759.99,
-                "direction": "same"
+                "price": 789.99,
+                "direction": "up"
               },
-              "status": "competitive"
+              "status": "vs_cheaper"
             },
             {
               "storage": "512GB",
               "vs_price": 799.99,
-              "ref_price": 827.95,
-              "delta": -27.96,
+              "ref_price": 896.95,
+              "delta": -96.96,
               "recommended": {
-                "price": 829.99,
+                "price": 899.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -3156,17 +3216,17 @@
             {
               "storage": "1TB",
               "vs_price": 854.99,
-              "ref_price": 908.95,
-              "delta": -53.96,
+              "ref_price": 937.95,
+              "delta": -82.96,
               "recommended": {
-                "price": 909.99,
+                "price": 939.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
             }
           ],
           "hierarchy_ok": true,
-          "action": "adjust_2"
+          "action": "adjust_3"
         }
       ]
     },
@@ -3187,7 +3247,7 @@
             {
               "storage": "512GB",
               "vs_price": null,
-              "ref_price": 804.99,
+              "ref_price": 796.99,
               "delta": null,
               "recommended": null,
               "status": "no_data"
@@ -3202,7 +3262,7 @@
             {
               "storage": "256GB",
               "vs_price": null,
-              "ref_price": 685.0,
+              "ref_price": 707.99,
               "delta": null,
               "recommended": null,
               "status": "no_data"
@@ -3210,7 +3270,7 @@
             {
               "storage": "512GB",
               "vs_price": null,
-              "ref_price": 903.94,
+              "ref_price": 918.93,
               "delta": null,
               "recommended": null,
               "status": "no_data"
@@ -3234,10 +3294,10 @@
             {
               "storage": "256GB",
               "vs_price": 504.99,
-              "ref_price": 604.99,
-              "delta": -100.0,
+              "ref_price": 633.99,
+              "delta": -129.0,
               "recommended": {
-                "price": 599.99,
+                "price": 629.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -3248,7 +3308,7 @@
               "ref_price": 595.14,
               "delta": -5.15,
               "recommended": {
-                "price": 619.99,
+                "price": 649.99,
                 "direction": "up"
               },
               "status": "competitive"
@@ -3256,10 +3316,10 @@
             {
               "storage": "1TB",
               "vs_price": 664.99,
-              "ref_price": 839.99,
-              "delta": -175.0,
+              "ref_price": 868.99,
+              "delta": -204.0,
               "recommended": {
-                "price": 839.99,
+                "price": 869.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -3274,10 +3334,10 @@
             {
               "storage": "256GB",
               "vs_price": 514.99,
-              "ref_price": 659.84,
-              "delta": -144.85,
+              "ref_price": 709.84,
+              "delta": -194.85,
               "recommended": {
-                "price": 659.99,
+                "price": 709.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -3285,10 +3345,10 @@
             {
               "storage": "512GB",
               "vs_price": 619.99,
-              "ref_price": 649.99,
-              "delta": -30.0,
+              "ref_price": 670.99,
+              "delta": -51.0,
               "recommended": {
-                "price": 679.99,
+                "price": 729.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -3296,10 +3356,10 @@
             {
               "storage": "1TB",
               "vs_price": 704.99,
-              "ref_price": 894.84,
-              "delta": -189.85,
+              "ref_price": 944.84,
+              "delta": -239.85,
               "recommended": {
-                "price": 889.99,
+                "price": 939.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -3314,10 +3374,10 @@
             {
               "storage": "256GB",
               "vs_price": 569.99,
-              "ref_price": 886.84,
-              "delta": -316.85,
+              "ref_price": 951.84,
+              "delta": -381.85,
               "recommended": {
-                "price": 889.99,
+                "price": 949.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -3325,10 +3385,10 @@
             {
               "storage": "512GB",
               "vs_price": 644.99,
-              "ref_price": 876.99,
-              "delta": -232.0,
+              "ref_price": 912.99,
+              "delta": -268.0,
               "recommended": {
-                "price": 909.99,
+                "price": 969.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -3336,10 +3396,10 @@
             {
               "storage": "1TB",
               "vs_price": 759.99,
-              "ref_price": 1121.84,
-              "delta": -361.85,
+              "ref_price": 1186.84,
+              "delta": -426.85,
               "recommended": {
-                "price": 1119.99,
+                "price": 1189.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -3367,7 +3427,7 @@
             {
               "storage": "512GB",
               "vs_price": null,
-              "ref_price": 550.99,
+              "ref_price": 521.99,
               "delta": null,
               "recommended": null,
               "status": "no_data"
@@ -3382,7 +3442,7 @@
             {
               "storage": "256GB",
               "vs_price": null,
-              "ref_price": 496.99,
+              "ref_price": 506.99,
               "delta": null,
               "recommended": null,
               "status": "no_data"
@@ -3390,7 +3450,7 @@
             {
               "storage": "512GB",
               "vs_price": null,
-              "ref_price": 597.98,
+              "ref_price": 578.98,
               "delta": null,
               "recommended": null,
               "status": "no_data"
@@ -3405,7 +3465,7 @@
             {
               "storage": "256GB",
               "vs_price": null,
-              "ref_price": 545.99,
+              "ref_price": 555.99,
               "delta": null,
               "recommended": null,
               "status": "no_data"
@@ -3413,7 +3473,7 @@
             {
               "storage": "512GB",
               "vs_price": null,
-              "ref_price": 646.98,
+              "ref_price": 627.98,
               "delta": null,
               "recommended": null,
               "status": "no_data"
@@ -3433,7 +3493,7 @@
             {
               "storage": "128GB",
               "vs_price": null,
-              "ref_price": 385.0,
+              "ref_price": 364.99,
               "delta": null,
               "recommended": null,
               "status": "no_data"
@@ -3441,10 +3501,10 @@
             {
               "storage": "256GB",
               "vs_price": 409.99,
-              "ref_price": 452.99,
-              "delta": -43.0,
+              "ref_price": 472.99,
+              "delta": -63.0,
               "recommended": {
-                "price": 449.99,
+                "price": 469.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -3467,7 +3527,7 @@
             {
               "storage": "128GB",
               "vs_price": null,
-              "ref_price": 415.99,
+              "ref_price": 418.99,
               "delta": null,
               "recommended": null,
               "status": "no_data"
@@ -3475,10 +3535,10 @@
             {
               "storage": "256GB",
               "vs_price": 434.99,
-              "ref_price": 483.98,
-              "delta": -48.99,
+              "ref_price": 526.99,
+              "delta": -92.0,
               "recommended": {
-                "price": 479.99,
+                "price": 529.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -3501,7 +3561,7 @@
             {
               "storage": "128GB",
               "vs_price": null,
-              "ref_price": 442.99,
+              "ref_price": 421.99,
               "delta": null,
               "recommended": null,
               "status": "no_data"
@@ -3509,10 +3569,10 @@
             {
               "storage": "256GB",
               "vs_price": 464.99,
-              "ref_price": 510.98,
-              "delta": -45.99,
+              "ref_price": 529.99,
+              "delta": -65.0,
               "recommended": {
-                "price": 509.99,
+                "price": 539.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -3551,10 +3611,10 @@
             {
               "storage": "256GB",
               "vs_price": 399.99,
-              "ref_price": 473.99,
-              "delta": -74.0,
+              "ref_price": 486.99,
+              "delta": -87.0,
               "recommended": {
-                "price": 469.99,
+                "price": 489.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -3569,8 +3629,8 @@
             {
               "storage": "128GB",
               "vs_price": 369.99,
-              "ref_price": 368.99,
-              "delta": 1.0,
+              "ref_price": 367.99,
+              "delta": 2.0,
               "recommended": {
                 "price": 369.99,
                 "direction": "same"
@@ -3580,10 +3640,10 @@
             {
               "storage": "256GB",
               "vs_price": 429.99,
-              "ref_price": 482.98,
-              "delta": -52.99,
+              "ref_price": 494.98,
+              "delta": -64.99,
               "recommended": {
-                "price": 479.99,
+                "price": 499.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -3598,8 +3658,8 @@
             {
               "storage": "128GB",
               "vs_price": 389.99,
-              "ref_price": 415.99,
-              "delta": -26.0,
+              "ref_price": 418.99,
+              "delta": -29.0,
               "recommended": {
                 "price": 419.99,
                 "direction": "up"
@@ -3609,10 +3669,10 @@
             {
               "storage": "256GB",
               "vs_price": 444.99,
-              "ref_price": 529.98,
-              "delta": -84.99,
+              "ref_price": 545.98,
+              "delta": -100.99,
               "recommended": {
-                "price": 529.99,
+                "price": 549.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
@@ -3632,30 +3692,39 @@
             {
               "storage": "256GB",
               "vs_price": 409.99,
-              "ref_price": null,
-              "delta": null,
-              "recommended": null,
-              "status": "no_ref_data"
+              "ref_price": 444.51,
+              "delta": -34.52,
+              "recommended": {
+                "price": 439.99,
+                "direction": "up"
+              },
+              "status": "vs_cheaper"
             },
             {
               "storage": "512GB",
               "vs_price": 454.99,
-              "ref_price": null,
-              "delta": null,
-              "recommended": null,
-              "status": "no_ref_data"
+              "ref_price": 509.99,
+              "delta": -55.0,
+              "recommended": {
+                "price": 509.99,
+                "direction": "up"
+              },
+              "status": "vs_cheaper"
             },
             {
               "storage": "1TB",
               "vs_price": 529.99,
-              "ref_price": null,
-              "delta": null,
-              "recommended": null,
-              "status": "no_ref_data"
+              "ref_price": 628.99,
+              "delta": -99.0,
+              "recommended": {
+                "price": 629.99,
+                "direction": "up"
+              },
+              "status": "vs_cheaper"
             }
           ],
           "hierarchy_ok": true,
-          "action": "ok"
+          "action": "adjust_3"
         },
         {
           "condition": "V. Good",
@@ -3663,30 +3732,39 @@
             {
               "storage": "256GB",
               "vs_price": 429.99,
-              "ref_price": null,
-              "delta": null,
-              "recommended": null,
-              "status": "no_ref_data"
+              "ref_price": 523.99,
+              "delta": -94.0,
+              "recommended": {
+                "price": 519.99,
+                "direction": "up"
+              },
+              "status": "vs_cheaper"
             },
             {
               "storage": "512GB",
               "vs_price": 484.99,
-              "ref_price": null,
-              "delta": null,
-              "recommended": null,
-              "status": "no_ref_data"
+              "ref_price": 589.47,
+              "delta": -104.48,
+              "recommended": {
+                "price": 589.99,
+                "direction": "up"
+              },
+              "status": "vs_cheaper"
             },
             {
               "storage": "1TB",
               "vs_price": 549.99,
-              "ref_price": null,
-              "delta": null,
-              "recommended": null,
-              "status": "no_ref_data"
+              "ref_price": 708.47,
+              "delta": -158.48,
+              "recommended": {
+                "price": 709.99,
+                "direction": "up"
+              },
+              "status": "vs_cheaper"
             }
           ],
           "hierarchy_ok": true,
-          "action": "ok"
+          "action": "adjust_3"
         },
         {
           "condition": "Excellent",
@@ -3694,39 +3772,39 @@
             {
               "storage": "256GB",
               "vs_price": 484.99,
-              "ref_price": 445.0,
-              "delta": 39.99,
+              "ref_price": 555.99,
+              "delta": -71.0,
               "recommended": {
-                "price": 449.99,
-                "direction": "down"
+                "price": 559.99,
+                "direction": "up"
               },
-              "status": "refurbed_cheaper"
+              "status": "vs_cheaper"
             },
             {
               "storage": "512GB",
               "vs_price": 549.99,
-              "ref_price": 553.99,
-              "delta": -4.0,
+              "ref_price": 621.47,
+              "delta": -71.48,
               "recommended": {
-                "price": 549.99,
-                "direction": "same"
+                "price": 619.99,
+                "direction": "up"
               },
-              "status": "competitive"
+              "status": "vs_cheaper"
             },
             {
               "storage": "1TB",
               "vs_price": 619.99,
-              "ref_price": 715.99,
-              "delta": -96.0,
+              "ref_price": 740.47,
+              "delta": -120.48,
               "recommended": {
-                "price": 719.99,
+                "price": 739.99,
                 "direction": "up"
               },
               "status": "vs_cheaper"
             }
           ],
           "hierarchy_ok": true,
-          "action": "adjust_2"
+          "action": "adjust_3"
         }
       ]
     },
@@ -3739,7 +3817,7 @@
             {
               "storage": "256GB",
               "vs_price": null,
-              "ref_price": 378.99,
+              "ref_price": 377.07,
               "delta": null,
               "recommended": null,
               "status": "no_data"
@@ -3747,7 +3825,7 @@
             {
               "storage": "512GB",
               "vs_price": null,
-              "ref_price": 445.99,
+              "ref_price": 448.99,
               "delta": null,
               "recommended": null,
               "status": "no_data"
@@ -3762,7 +3840,7 @@
             {
               "storage": "256GB",
               "vs_price": null,
-              "ref_price": 414.13,
+              "ref_price": 417.99,
               "delta": null,
               "recommended": null,
               "status": "no_data"
@@ -3770,7 +3848,7 @@
             {
               "storage": "512GB",
               "vs_price": null,
-              "ref_price": 481.13,
+              "ref_price": 489.91,
               "delta": null,
               "recommended": null,
               "status": "no_data"
@@ -3785,7 +3863,7 @@
             {
               "storage": "256GB",
               "vs_price": null,
-              "ref_price": 462.99,
+              "ref_price": 468.99,
               "delta": null,
               "recommended": null,
               "status": "no_data"
@@ -3793,7 +3871,7 @@
             {
               "storage": "512GB",
               "vs_price": null,
-              "ref_price": 529.99,
+              "ref_price": 540.91,
               "delta": null,
               "recommended": null,
               "status": "no_data"
@@ -3824,8 +3902,8 @@
             {
               "storage": "256GB",
               "vs_price": 294.99,
-              "ref_price": 366.99,
-              "delta": -72.0,
+              "ref_price": 367.99,
+              "delta": -73.0,
               "recommended": {
                 "price": 369.99,
                 "direction": "up"
@@ -3861,8 +3939,8 @@
             {
               "storage": "256GB",
               "vs_price": 334.99,
-              "ref_price": 388.28,
-              "delta": -53.29,
+              "ref_price": 389.28,
+              "delta": -54.29,
               "recommended": {
                 "price": 389.99,
                 "direction": "up"
@@ -3887,8 +3965,8 @@
             {
               "storage": "128GB",
               "vs_price": 324.99,
-              "ref_price": 339.99,
-              "delta": -15.0,
+              "ref_price": 341.99,
+              "delta": -17.0,
               "recommended": {
                 "price": 349.99,
                 "direction": "up"
@@ -3898,8 +3976,8 @@
             {
               "storage": "256GB",
               "vs_price": 359.99,
-              "ref_price": 386.28,
-              "delta": -26.29,
+              "ref_price": 389.28,
+              "delta": -29.29,
               "recommended": {
                 "price": 399.99,
                 "direction": "up"
