@@ -473,7 +473,25 @@ function fillList() {
     if (rows.length > 250) html += `<div class="empty">Showing the 250 highest-priority changes. Narrow the filters to see the rest.</div>`;
     html += "</div>";
   }
+  html += unchangedRows(name);
   $("#listBox").innerHTML = html;
+}
+
+/* When you search, also show matching in-stock prices that need no change, so a model never seems to be missing. */
+function unchangedRows(name) {
+  const q = S.f.q.toLowerCase().trim();
+  if (!q || name !== "action") return "";
+  const rows = S.rows
+    .filter(r => r.queue === "none" && r.vs_in_stock && r.ref_floor != null)
+    .filter(r => S.f.brand === "all" || r.brand === S.f.brand)
+    .filter(r => (r.model + " " + r.storage + " " + r.condition).toLowerCase().includes(q))
+    .sort((a, b) => a.brand.localeCompare(b.brand) || a.model.localeCompare(b.model, "en", {numeric: true}) || gb(a.storage) - gb(b.storage) || COND.indexOf(a.condition) - COND.indexOf(b.condition));
+  if (!rows.length) return "";
+  const gap = r => { const d = r.vs_price - r.ref_floor; return d === 0 ? "same as Refurbed" : d < 0 ? `you’re ${eur(-d)} cheaper` : `you’re ${eur(d)} dearer`; };
+  return `<div class="list" style="margin-top:18px"><div class="empty" style="text-align:left;padding:14px 16px 6px"><b>No change needed (${rows.length})</b>These match your search and are already within range of Refurbed.</div>` +
+    rows.map(r => `<div style="display:flex;flex-wrap:wrap;gap:6px 24px;align-items:baseline;padding:10px 16px;border-top:1px solid var(--line,#e5e7eb)">
+      <b style="min-width:260px">${esc(r.model)}</b><span style="min-width:150px">${esc(r.storage)} · ${esc(r.condition)}</span>
+      <span style="min-width:110px">You ${eur(r.vs_price)}</span><span style="min-width:150px">Refurbed ${eur(r.ref_floor)}</span><span>${gap(r)}${r.flags && r.flags.includes("same_seller_only") ? " · one seller only" : ""}</span></div>`).join("") + `</div>`;
 }
 
 function confLabel(c) { return {high: "High confidence", medium: "Medium confidence", low: "Low confidence", none: "No comparison"}[c]; }
