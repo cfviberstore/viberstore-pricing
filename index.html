@@ -304,7 +304,7 @@ const REASONS = ["Deliberately priced to sell", "Margin too thin", "Refurbed off
 
 const S = {
   data: null, hist: null, tab: "actions", dec: {}, edit: null, showDone: false,
-  f: {q: "", brand: "all", kind: "all", conf: "any", dir: "all"},
+  f: {q: "", brand: "all", kind: "all", conf: "any", dir: "all", sort: "model"},
   cb: null, cmap: {}, cs: Object.assign({}, Costs.DEFAULTS), matches: [], costMsg: ""
 };
 
@@ -425,7 +425,9 @@ function listRows(queue) {
     .filter(r => f.conf === "any" || (f.conf === "high" ? r.confidence.level === "high" : rank[r.confidence.level] >= 2))
     .filter(r => f.dir === "all" || r.recommended.direction === f.dir)
     .filter(r => !q || (r.model + " " + r.storage + " " + r.condition).toLowerCase().includes(q))
-    .sort((a, b) => b.priority - a.priority);
+    .sort(f.sort === "priority" ? (a, b) => b.priority - a.priority : (a, b) =>
+      a.brand.localeCompare(b.brand) || a.model.localeCompare(b.model, "en", {numeric: true}) ||
+      gb(a.storage) - gb(b.storage) || COND.indexOf(a.condition) - COND.indexOf(b.condition));
 }
 
 /* ---------- views --------------------------------------------------------- */
@@ -445,6 +447,7 @@ function toolbar(extra = "") {
     <div class="seg" role="group" aria-label="Kind of change">${kinds.map(k => `<button data-kind="${k[0]}" aria-pressed="${f.kind === k[0]}">${k[1]}</button>`).join("")}</div>
     <select id="conf" aria-label="Confidence"><option value="any">Any confidence</option><option value="medium" ${f.conf==="medium"?"selected":""}>Medium or high</option><option value="high" ${f.conf==="high"?"selected":""}>High only</option></select>
     <select id="dir" aria-label="Direction"><option value="all">Up and down</option><option value="down" ${f.dir==="down"?"selected":""}>Lower only</option><option value="up" ${f.dir==="up"?"selected":""}>Raise only</option></select>
+    <select id="sort" aria-label="Order"><option value="model">By model, storage, grade</option><option value="priority" ${f.sort==="priority"?"selected":""}>Biggest gap first</option></select>
     <label class="chk"><input type="checkbox" id="done" ${S.showDone?"checked":""}>Show decided</label>
     ${extra}</div>`;
 }
@@ -645,6 +648,7 @@ document.addEventListener("change", e => {
   if (t.id === "brand") S.f.brand = t.value;
   else if (t.id === "conf") S.f.conf = t.value;
   else if (t.id === "dir") S.f.dir = t.value;
+  else if (t.id === "sort") S.f.sort = t.value;
   else if (t.id === "done") S.showDone = t.checked;
   else if (t.id === "costFile") { if (t.files[0]) loadPriceBook(t.files[0]); return; }
   else if (t.id === "cmRestore") { const f = t.files[0]; if (f) f.text().then(x => { try { Object.assign(S.cmap, JSON.parse(x)); lsSet(CKEYS.map, S.cmap); applyCosts(); header(); render(); } catch (e) { S.costMsg = "That file isn't a confirmed-matches file."; render(); } }); return; }
