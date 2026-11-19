@@ -1,652 +1,927 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>ViberStore — Live Pricing Intelligence</title>
-  <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ViberStore pricing desk</title>
+<style>
+  :root{
+    --paper:#EEF0F3; --panel:#FFFFFF; --line:#DADFE6; --line-soft:#E8EBF0;
+    --ink:#11151B; --muted:#58626F; --faint:#8A93A0;
+    --vs:#2B38DB; --ref:#5A6472;
+    --lower:#BF4A14; --lower-bg:#FCEFE7; --raise:#0A7566; --raise-bg:#E4F4F1;
+    --flat:#8A93A0; --warn:#8A5A00; --warn-bg:#FFF4D6;
+    --focus:#2B38DB; --radius:6px;
+    --font:"Schibsted Grotesk","Avenir Next","Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
+  }
+  @media (prefers-color-scheme:dark){
     :root{
-      --navy:#0f172a;--navy-light:#1e293b;--slate-700:#334155;
-      --slate-500:#64748b;--slate-400:#94a3b8;--slate-200:#e2e8f0;
-      --slate-100:#f1f5f9;--slate-50:#f8fafc;--white:#ffffff;
-      --blue:#3b82f6;--blue-dark:#2563eb;--blue-bg:#eff6ff;
-      --green:#16a34a;--green-bg:#f0fdf4;--red:#dc2626;--red-bg:#fef2f2;
-      --amber:#d97706;--amber-bg:#fffbeb;--purple:#7c3aed;--purple-bg:#f5f3ff;
-      --radius:10px;
-      --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
-      --shadow-md:0 4px 12px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.04)
+      --paper:#0E1115; --panel:#161A20; --line:#2A303A; --line-soft:#1F242C;
+      --ink:#ECEFF3; --muted:#9AA4B1; --faint:#6D7886;
+      --vs:#8E98FF; --ref:#9AA4B1;
+      --lower:#FF9A66; --lower-bg:#2A1B13; --raise:#4FD1BD; --raise-bg:#10261F;
+      --warn:#F2C25B; --warn-bg:#2A2312; --focus:#8E98FF;
     }
-    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--slate-50);color:var(--navy);min-height:100vh}
-    nav{background:var(--navy);padding:0 20px;display:flex;align-items:center;gap:6px;height:52px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.2)}
-    .nav-logo{font-size:15px;font-weight:700;color:var(--white);letter-spacing:-.01em;margin-right:8px}
-    .nav-divider{width:1px;height:20px;background:rgba(255,255,255,.12);margin:0 6px}
-    .nav-label{font-size:11px;font-weight:600;color:var(--slate-400);text-transform:uppercase;letter-spacing:.08em;margin-right:2px}
-    .brand-btn{padding:5px 14px;border-radius:6px;border:1.5px solid transparent;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;color:var(--slate-400);background:transparent}
-    .brand-btn:hover{color:var(--white);border-color:rgba(255,255,255,.2)}
-    .brand-btn.active{background:var(--white);color:var(--navy);border-color:var(--white)}
-    .nav-spacer{flex:1}
-    #lastUpdated{font-size:12px;color:var(--slate-400)}
-    #lastUpdated.has-data::before{content:"●";margin-right:5px;color:var(--green)}
-    .nav-btn{padding:6px 14px;border-radius:6px;border:1.5px solid rgba(255,255,255,.2);font-size:12px;font-weight:600;cursor:pointer;background:transparent;color:var(--slate-400);transition:all .15s;margin-left:6px}
-    .nav-btn:hover{background:rgba(255,255,255,.08);color:var(--white)}
-    .nav-btn.primary{background:var(--blue);border-color:var(--blue);color:var(--white)}
-    .nav-btn.primary:hover{background:var(--blue-dark)}
-    .staleness-bar{background:var(--amber);color:var(--white);font-size:12px;font-weight:600;padding:7px 20px;display:none;align-items:center;gap:8px}
-    .staleness-bar.show{display:flex}
-    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:center;justify-content:center}
-    .modal-overlay.show{display:flex}
-    .modal{background:var(--white);border-radius:var(--radius);padding:28px;width:400px;max-width:90vw;box-shadow:var(--shadow-md)}
-    .modal h2{font-size:16px;font-weight:700;color:var(--navy);margin-bottom:6px}
-    .modal p{font-size:13px;color:var(--slate-500);margin-bottom:18px;line-height:1.5}
-    .form-group{margin-bottom:14px}
-    .form-group label{display:block;font-size:12px;font-weight:600;color:var(--slate-700);margin-bottom:5px}
-    .form-group input{width:100%;padding:8px 10px;border:1.5px solid var(--slate-200);border-radius:7px;font-size:13px;outline:none}
-    .form-group input:focus{border-color:var(--blue)}
-    .modal-actions{display:flex;gap:10px;margin-top:18px}
-    .modal-actions button{flex:1;padding:9px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none}
-    .btn-cancel{background:var(--slate-100);color:var(--slate-700)}
-    .btn-trigger{background:var(--blue);color:var(--white)}
-    .btn-trigger:hover{background:var(--blue-dark)}
-    #modalStatus{font-size:12px;color:var(--slate-500);margin-top:10px;text-align:center;min-height:16px}
-    .stats-row{display:flex;gap:12px;padding:16px 20px 12px;overflow-x:auto}
-    .stat-card{background:var(--white);border-radius:var(--radius);padding:16px 18px;min-width:140px;flex:1;box-shadow:var(--shadow)}
-    .stat-label{font-size:10px;font-weight:700;color:var(--slate-500);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px}
-    .stat-value{font-size:28px;font-weight:800;color:var(--navy);line-height:1}
-    .stat-value.green{color:var(--green)}
-    .stat-value.red{color:var(--red)}
-    .stat-value.amber{color:var(--amber)}
-    .stat-value.purple{color:var(--purple)}
-    .stat-sub{font-size:11px;color:var(--slate-500);margin-top:4px}
-    #filterBar{background:var(--white);border-bottom:1px solid var(--slate-200);padding:10px 20px;display:flex;flex-wrap:wrap;align-items:center;gap:10px}
-    .filter-group{display:flex;align-items:center;gap:6px}
-    .filter-label{font-size:11px;font-weight:700;color:var(--slate-500);text-transform:uppercase;letter-spacing:.06em}
-    .filter-input{padding:5px 10px;border:1.5px solid var(--slate-200);border-radius:6px;font-size:13px;outline:none}
-    .filter-input:focus{border-color:var(--blue)}
-    .filter-select{padding:5px 10px;border:1.5px solid var(--slate-200);border-radius:6px;font-size:13px;outline:none;background:var(--white);cursor:pointer}
-    .show-btn{padding:5px 12px;border-radius:6px;border:1.5px solid var(--slate-200);font-size:12px;font-weight:600;cursor:pointer;background:transparent;color:var(--slate-700);transition:all .15s}
-    .show-btn:hover{background:var(--slate-100)}
-    .show-btn.active{background:var(--navy);color:var(--white);border-color:var(--navy)}
-    .filter-spacer{flex:1}
-    #resultsCount{font-size:12px;color:var(--slate-400);white-space:nowrap}
-    #tableView{padding:0 20px 24px;overflow-x:auto}
-    .price-table{width:100%;border-collapse:collapse;background:var(--white);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);margin-top:14px}
-    .price-table thead th{background:var(--navy);color:var(--slate-400);padding:10px 14px;text-align:left;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;white-space:nowrap;user-select:none;transition:background .15s}
-    .price-table thead th:hover{background:var(--navy-light);color:var(--white)}
-    .price-table thead th.sorted{color:var(--white)}
-    .price-table tbody td{padding:10px 14px;border-bottom:1px solid var(--slate-200);font-size:13px;vertical-align:middle}
-    .price-table tbody tr:last-child td{border-bottom:none}
-    .price-table tbody tr:hover td{background:var(--slate-50)}
-    .model-cell{font-weight:600;color:var(--navy);white-space:nowrap}
-    .tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;white-space:nowrap}
-    .tag-storage{background:var(--slate-100);color:var(--slate-700)}
-    .tag-excellent{background:var(--green-bg);color:var(--green)}
-    .tag-vgood{background:var(--blue-bg);color:var(--blue-dark)}
-    .tag-good{background:var(--amber-bg);color:var(--amber)}
-    .price-cell{font-weight:600;color:var(--navy);font-variant-numeric:tabular-nums}
-    .no-price{color:var(--slate-400);font-size:12px;font-style:italic}
-    .delta-win{color:var(--green);font-weight:700;font-variant-numeric:tabular-nums}
-    .delta-loss{color:var(--red);font-weight:700;font-variant-numeric:tabular-nums}
-    .delta-neutral{color:var(--slate-500);font-variant-numeric:tabular-nums}
-    .status-cell{display:flex;align-items:center;gap:6px;white-space:nowrap;font-size:12px;color:var(--slate-700)}
-    .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-    .dot-green{background:var(--green)}
-    .dot-red{background:var(--red)}
-    .dot-amber{background:var(--amber)}
-    .dot-slate{background:var(--slate-400)}
-    .action-badge{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:5px;font-size:11px;font-weight:700;white-space:nowrap}
-    .action-raise{background:var(--green-bg);color:var(--green)}
-    .action-lower{background:var(--red-bg);color:var(--red)}
-    .action-hold{background:var(--slate-100);color:var(--slate-500)}
-    .action-none{color:var(--slate-400);font-size:12px}
-    .empty-row td{text-align:center;padding:48px;color:var(--slate-400);font-size:14px}
-    #analyticsView{padding:0 20px 24px;display:none}
-    .analytics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px;margin-top:16px}
-    .chart-card{background:var(--white);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow)}
-    .chart-card h3{font-size:11px;font-weight:700;color:var(--slate-500);text-transform:uppercase;letter-spacing:.07em;margin-bottom:16px}
-    .chart-wrap{position:relative;height:200px}
-    .chart-wrap-tall{position:relative;height:300px}
-  
-    .hist-btn{background:none;border:1px solid #CBD5E1;color:#64748B;cursor:pointer;font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;margin-left:6px;transition:all .15s;white-space:nowrap}
-    .hist-btn:hover{background:#4338CA;border-color:#4338CA;color:#fff}
-    .hist-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:100;display:none;opacity:0;transition:opacity .2s}
-    .hist-overlay.open{display:block;opacity:1}
-    .hist-drawer{position:fixed;top:0;right:0;height:100%;width:500px;max-width:92vw;background:#fff;z-index:101;box-shadow:-6px 0 32px rgba(0,0,0,.15);transform:translateX(100%);transition:transform .25s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column}
-    .hist-drawer.open{transform:translateX(0)}
-    .hist-head{padding:20px 20px 16px;border-bottom:1px solid #E2E8F0;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
-    .hist-model{font-size:17px;font-weight:700;color:#0F172A;margin-bottom:2px}
-    .hist-sub{font-size:12px;color:#94A3B8}
-    .hist-close{background:none;border:none;font-size:20px;cursor:pointer;color:#94A3B8;line-height:1;padding:4px;border-radius:4px;flex-shrink:0}
-    .hist-close:hover{background:#F1F5F9;color:#0F172A}
-    .hist-sel{margin:12px 20px 0;padding:7px 10px;border:1px solid #E2E8F0;border-radius:6px;font-size:13px;color:#0F172A;width:calc(100% - 40px);background:#fff;outline:none}
-    .hist-sel:focus{border-color:#4338CA}
-    .hist-body{flex:1;padding:16px 20px 20px;min-height:0;display:flex;flex-direction:column}
-    .hist-empty{text-align:center;padding:60px 20px;color:#94A3B8}
-    .hist-empty strong{display:block;font-size:15px;font-weight:700;color:#64748B;margin-bottom:8px}
-    .hist-chart-wrap{flex:1;min-height:280px;position:relative}
+  }
+  *,*::before,*::after{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.45 var(--font);font-variant-numeric:tabular-nums}
+  button,input,select{font:inherit;color:inherit}
+  a{color:var(--vs)}
+  :focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:3px}
+  .wrap{max-width:1240px;margin:0 auto;padding:0 20px}
+
+  /* header ------------------------------------------------------------- */
+  header.top{background:var(--panel);border-bottom:1px solid var(--line)}
+  .top-row{display:flex;align-items:center;gap:20px;padding:14px 0;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:12px;margin-right:auto}
+  .brand img{height:26px;display:block}
+  @media (prefers-color-scheme:light){.brand img{filter:none}}
+  @media (prefers-color-scheme:dark){.brand img{filter:brightness(0) invert(1)}}
+  .brand h1{font-size:15px;font-weight:650;margin:0;letter-spacing:-.005em;color:var(--muted)}
+  .fresh{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px}
+  .fresh .pip{width:8px;height:8px;border-radius:50%;background:var(--raise)}
+  .fresh.stale .pip{background:var(--lower)}
+  .btn{border:1px solid var(--line);background:var(--panel);padding:6px 12px;border-radius:var(--radius);cursor:pointer;font-weight:550;font-size:13px;text-decoration:none;color:var(--ink);display:inline-flex;align-items:center;gap:6px}
+  .btn:hover{border-color:var(--faint)}
+  .btn.primary{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .btn[disabled]{opacity:.45;cursor:not-allowed}
+  .figures{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--line)}
+  .fig{padding:14px 18px 14px 0;border-right:1px solid var(--line-soft);margin-right:18px}
+  .fig:last-child{border-right:0}
+  .fig b{display:block;font-size:26px;font-weight:650;letter-spacing:-.02em;line-height:1.1}
+  .fig span{font-size:13px;color:var(--muted)}
+  .fig b small{font-size:14px;font-weight:550;color:var(--muted);margin-left:2px;letter-spacing:0}
+  nav.tabs{display:flex;gap:2px;border-top:1px solid var(--line)}
+  nav.tabs button{background:none;border:0;padding:11px 16px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+  nav.tabs button[aria-selected=true]{color:var(--ink);border-bottom-color:var(--ink)}
+  nav.tabs button .n{margin-left:6px;font-weight:550;color:var(--faint)}
+
+  .banner{background:var(--warn-bg);color:var(--warn);padding:9px 0;font-size:14px;font-weight:550;border-bottom:1px solid var(--line)}
+  .banner[hidden]{display:none}
+
+  /* toolbar ---------------------------------------------------------- */
+  .toolbar{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;padding:16px 0 12px}
+  .toolbar input[type=search],.toolbar select{border:1px solid var(--line);background:var(--panel);border-radius:var(--radius);padding:7px 10px;min-width:0}
+  .toolbar input[type=search]{width:min(260px,100%)}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--panel)}
+  .seg button{background:none;border:0;padding:7px 12px;cursor:pointer;font-weight:550;color:var(--muted);border-right:1px solid var(--line)}
+  .seg button:last-child{border-right:0}
+  .seg button[aria-pressed=true]{background:var(--ink);color:var(--paper)}
+  .chk{display:inline-flex;align-items:center;gap:7px;color:var(--muted);cursor:pointer;font-size:14px}
+  .chk input{width:16px;height:16px;accent-color:var(--vs)}
+  .grow{flex:1}
+  .count{color:var(--muted);font-size:14px}
+
+  /* action rows ------------------------------------------------------- */
+  .list{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius)}
+  .row{display:grid;grid-template-columns:28px minmax(190px,1.1fr) minmax(240px,1.6fr) 150px 150px;gap:16px;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line-soft)}
+  .row:last-child{border-bottom:0}
+  .row.head{padding:9px 16px;font-size:12.5px;color:var(--muted);font-weight:600;background:transparent;border-bottom:1px solid var(--line)}
+  .row .who b{display:block;font-weight:650;letter-spacing:-.005em}
+  .row .who span{color:var(--muted);font-size:13.5px}
+  .chip{display:inline-block;font-size:12px;font-weight:600;padding:1px 7px;border-radius:99px;border:1px solid var(--line);color:var(--muted);margin-left:6px;vertical-align:1px}
+  .chip.out{color:var(--warn);background:var(--warn-bg);border-color:transparent}
+  .strip{position:relative;height:44px}
+  .strip .axis{position:absolute;left:0;right:0;top:15px;height:1px;background:var(--line)}
+  .strip .span{position:absolute;top:13px;height:5px;border-radius:3px;opacity:.28}
+  .strip .span.down{background:var(--lower)} .strip .span.up{background:var(--raise)} .strip .span.flat{background:var(--flat)}
+  .dot{position:absolute;top:8px;width:15px;height:15px;margin-left:-7.5px;border-radius:50%}
+  .dot.vs{background:var(--vs);border:2px solid var(--panel);box-shadow:0 0 0 1px var(--vs)}
+  .dot.ref{background:var(--panel);border:2.5px solid var(--ref)}
+  .dot.rec{width:0;height:0;border-radius:0;top:-3px;margin-left:-7px;border-left:7px solid transparent;border-right:7px solid transparent;border-top:12px solid var(--ink);}
+  .strip .lab{position:absolute;top:26px;font-size:11.5px;color:var(--muted);transform:translateX(-50%);white-space:nowrap}
+  .strip .lab.l{transform:translateX(0)} .strip .lab.r{transform:translateX(-100%)}
+  .move{font-weight:650}
+  .move .arrow{display:inline-flex;align-items:center;gap:5px}
+  .move.down{color:var(--lower)} .move.up{color:var(--raise)}
+  .move small{display:block;color:var(--muted);font-weight:500;font-size:13px}
+  .why{font-size:13px;color:var(--muted);margin-top:2px}
+  .flags{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+  .flag{font-size:12px;background:var(--warn-bg);color:var(--warn);border-radius:4px;padding:1px 7px;font-weight:550}
+
+  /* daily queue ------------------------------------------------------- */
+  .q-head,.q-row{display:grid;grid-template-columns:minmax(170px,1.3fr) 92px 124px 112px minmax(140px,1fr) 176px;gap:12px 14px;align-items:start;padding:13px 16px}
+  .q-head{padding:9px 16px;grid-template-columns:minmax(170px,1.3fr) 92px 124px 112px minmax(140px,1fr) 176px;font-size:12.5px;color:var(--muted);font-weight:600;border-bottom:1px solid var(--line);align-items:end}
+  .q-row{border-bottom:1px solid var(--line-soft)}
+  .q-row:last-child{border-bottom:0}
+  .q-row.done{opacity:.6}
+  .q-row .who b{display:block;font-weight:650;letter-spacing:-.005em}
+  .q-row .who span{color:var(--muted);font-size:13.5px}
+  .num{font-weight:650}
+  .num small{display:block;font-weight:500;color:var(--muted);font-size:12.5px}
+  .num.dim{color:var(--faint);font-weight:500}
+  .sug-cell .move{font-size:16px}
+  .sub{grid-column:1 / -1;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline;font-size:13.5px;color:var(--muted);margin-top:-4px}
+  .kind{font-size:12px;font-weight:650;padding:1px 8px;border-radius:99px;border:1px solid var(--line);color:var(--ink);white-space:nowrap}
+  .kind.manual_review{background:var(--warn-bg);color:var(--warn);border-color:transparent}
+  .conf{font-size:12px;font-weight:650;white-space:nowrap;display:inline-flex;align-items:center;gap:5px}
+  .conf::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--c)}
+  .conf.high{--c:var(--raise)} .conf.medium{--c:#C98A00} .conf.low{--c:var(--lower)} .conf.none{--c:var(--faint)}
+  .missing{flex-basis:100%;color:var(--warn);font-size:13px}
+  .decided{font-weight:650;font-size:13px;color:var(--raise)} .decided.no{color:var(--muted)}
+  .q-row .acts{flex-wrap:wrap;justify-content:flex-start}
+  .btn.ok{background:var(--raise);border-color:var(--raise);color:#fff}
+  .btn.sm{padding:3px 8px;font-size:12.5px}
+  .editbox{display:grid;gap:6px}
+  .editbox input,.editbox select{border:1px solid var(--line);background:var(--panel);border-radius:var(--radius);padding:5px 8px;width:100%;min-width:0}
+  .editbox .acts{justify-content:flex-start}
+  .stepcard{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;margin-top:18px}
+  .stepcard h2{margin:0 0 4px;font-size:15px;font-weight:650}
+  .stepcard ol{margin:8px 0 0;padding-left:20px;color:var(--muted);font-size:14px}
+  .stepcard ol li{margin-bottom:6px}
+  .res{margin-top:14px;font-size:14px}
+  .res .good{color:var(--raise);font-weight:650} .res .bad{color:var(--lower);font-weight:650}
+  .res table{margin-top:8px}
+  .chk[hidden]{display:none}
+  .mg{font-weight:650;white-space:nowrap}
+  .mg.ok{color:var(--raise)} .mg.soft{color:#9A6B00} .mg.hard,.mg.loss{color:var(--lower)}
+  .setgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px 16px;margin-top:10px}
+  .setgrid label{display:grid;gap:4px;font-size:13px;color:var(--muted);font-weight:600}
+  .setgrid input[type=number],.setgrid select{border:1px solid var(--line);background:var(--panel);border-radius:var(--radius);padding:6px 8px;width:100%}
+  .note{background:var(--warn-bg);color:var(--warn);border-radius:var(--radius);padding:9px 12px;font-size:13.5px;margin-top:10px}
+  .note.info{background:var(--raise-bg);color:var(--raise)}
+  table.ev select{max-width:340px;border:1px solid var(--line);background:var(--panel);border-radius:var(--radius);padding:4px 6px}
+  .tabs-mini{display:flex;gap:6px;margin-bottom:12px}
+  .tabs-mini button[aria-pressed=true]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+
+  .acts{display:flex;gap:6px;justify-content:flex-end}
+  .acts .btn{padding:4px 9px}
+  .empty{padding:48px 20px;text-align:center;color:var(--muted)}
+  .empty b{display:block;color:var(--ink);font-size:16px;margin-bottom:4px}
+
+  /* catalogue --------------------------------------------------------- */
+  details.model{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);margin-bottom:8px}
+  details.model summary{list-style:none;cursor:pointer;padding:13px 16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  details.model summary::-webkit-details-marker{display:none}
+  details.model summary::before{content:"";width:7px;height:7px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(-45deg);transition:transform .15s}
+  details.model[open] summary::before{transform:rotate(45deg)}
+  details.model summary b{font-weight:650;min-width:190px}
+  details.model summary .meta{color:var(--muted);font-size:13.5px}
+  .tag{font-size:12.5px;font-weight:600;padding:2px 8px;border-radius:99px}
+  .tag.down{background:var(--lower-bg);color:var(--lower)} .tag.up{background:var(--raise-bg);color:var(--raise)} .tag.warn{background:var(--warn-bg);color:var(--warn)}
+  table.mx{border-collapse:collapse;width:100%;border-top:1px solid var(--line)}
+  table.mx th{font-size:12.5px;color:var(--muted);font-weight:600;text-align:left;padding:8px 16px}
+  table.mx td{padding:10px 16px;border-top:1px solid var(--line-soft);vertical-align:top;width:25%}
+  table.mx td.st{font-weight:650;width:12%}
+  .cell .p{font-weight:650}
+  .cell .r{color:var(--muted);font-size:13px}
+  .cell .d{font-size:13px;font-weight:600}
+  .d.neg{color:var(--raise)} .d.pos{color:var(--lower)} .d.zero{color:var(--muted)}
+  .cell .sug{font-size:12.5px;font-weight:650;margin-top:2px}
+  .cell .sug.down{color:var(--lower)} .cell .sug.up{color:var(--raise)}
+  .cell button{all:unset;cursor:pointer;color:var(--vs);font-size:12.5px;font-weight:600;margin-top:3px;display:inline-block}
+  .cell.none{color:var(--faint)}
+
+  /* insights ---------------------------------------------------------- */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  section.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px}
+  section.panel h2{font-size:15px;margin:0 0 3px;font-weight:650}
+  section.panel p.sub{margin:0 0 14px;color:var(--muted);font-size:13.5px}
+  .bars{display:grid;grid-template-columns:190px 1fr 44px;gap:7px 12px;align-items:center;font-size:13.5px}
+  .bars .t{height:12px;background:transparent;position:relative}
+  .bars .f{position:absolute;left:0;top:0;bottom:0;border-radius:0 4px 4px 0;min-width:2px}
+  .bars .v{text-align:right;color:var(--muted)}
+  .stack{display:flex;height:16px;gap:2px}
+  .stack i{display:block;border-radius:3px;min-width:2px}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-bottom:12px}
+  .legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;background:var(--c)}
+  .stk-row{display:grid;grid-template-columns:110px 1fr 70px;gap:12px;align-items:center;margin-bottom:9px;font-size:13.5px}
+  .stk-row .v{text-align:right;color:var(--muted)}
+  ul.plain{margin:0;padding-left:18px;color:var(--muted);font-size:14px;columns:2;column-gap:28px}
+  ul.plain li{margin-bottom:3px;break-inside:avoid}
+
+  /* drawer ------------------------------------------------------------- */
+  .scrim{position:fixed;inset:0;background:rgba(10,12,16,.4);display:none;z-index:40}
+  .scrim.open{display:block}
+  aside.drawer{position:fixed;top:0;right:0;bottom:0;width:min(520px,100vw);background:var(--panel);border-left:1px solid var(--line);z-index:50;transform:translateX(102%);transition:transform .22s ease;display:flex;flex-direction:column}
+  aside.drawer.open{transform:none}
+  .dr-head{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:flex-start}
+  .dr-head h3{margin:0;font-size:17px;font-weight:650}
+  .dr-head p{margin:2px 0 0;color:var(--muted);font-size:13.5px}
+  .dr-body{padding:18px 20px;overflow:auto}
+  .dr-body select{width:100%;border:1px solid var(--line);background:var(--panel);border-radius:var(--radius);padding:8px 10px;margin-bottom:14px}
+  svg.hist{width:100%;height:auto;display:block;overflow:visible}
+  svg.hist text{fill:var(--muted);font-size:11.5px;font-family:var(--font)}
+  .tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--paper);padding:6px 9px;border-radius:5px;font-size:12.5px;white-space:nowrap;transform:translate(-50%,-110%)}
+  .kv{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:14px;margin-top:18px}
+  .kv dt{color:var(--muted)} .kv dd{margin:0;font-weight:600}
+
+  details.how{margin:14px 0 0;color:var(--muted);font-size:14px}
+  details.how summary{cursor:pointer;font-weight:600;color:var(--ink);width:max-content}
+  details.how p{margin:8px 0 0;max-width:78ch}
+  h4.evh{margin:22px 0 8px;font-size:14px;font-weight:650}
+  table.ev{width:100%;border-collapse:collapse;font-size:13.5px}
+  table.ev th{text-align:left;color:var(--muted);font-weight:600;padding:4px 8px 4px 0;font-size:12.5px}
+  table.ev td{padding:6px 8px 6px 0;border-top:1px solid var(--line-soft)}
+  table.ev td.pr{font-weight:650}
+  p.evn{margin:10px 0 0;font-size:13.5px;color:var(--muted)}
+  .cell .ctx{font-size:12px;color:var(--warn);margin-top:2px}
+  @media (max-width:980px){
+    .figures{grid-template-columns:1fr 1fr}.fig{border-right:0;padding:10px 0}
+    .row{grid-template-columns:24px 1fr;grid-template-areas:"c who" ". strip" ". move" ". acts"}
+    .row.head{display:none}
+    .q-head{display:none}
+    .q-row{grid-template-columns:1fr 1fr}
+    .q-row .who{grid-column:1 / -1}.q-row .sub{grid-column:1 / -1}.q-row .acts{grid-column:1 / -1}
+
+    .row>:nth-child(1){grid-area:c}.row>:nth-child(2){grid-area:who}.row>:nth-child(3){grid-area:strip}.row>:nth-child(4){grid-area:move}.row>:nth-child(5){grid-area:acts}
+    .acts{justify-content:flex-start}
+    .grid2{grid-template-columns:1fr}
+    table.mx td,table.mx th{padding:8px 10px}
+    ul.plain{columns:1}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+  .sr{position:absolute;left:-9999px}
 </style>
 </head>
 <body>
-  <nav>
-    <img src="assets/vs-logo.png" style="height:32px;filter:brightness(0) invert(1);vertical-align:middle" alt="ViberStore">
-    <span class="nav-divider"></span>
-    <span class="nav-label">Live Pricing</span>
-    <button class="brand-btn active" id="appleBtn" onclick="switchBrand('apple')">Apple</button>
-    <button class="brand-btn" id="samsungBtn" onclick="switchBrand('samsung')">Samsung</button>
-    <button class="brand-btn" id="analyticsBtn" onclick="switchBrand('analytics')">Analytics</button>
-    <span class="nav-spacer"></span>
-    <span id="lastUpdated"></span>
-    <button class="nav-btn" id="reloadBtn" onclick="loadData()">↺ Reload</button>
-    <button class="nav-btn primary" id="scrapeBtn" onclick="document.getElementById('scrapeModal').classList.add('show')">⚡ Run Scraper</button>
-  </nav>
-
-  <div id="stalenessBar" class="staleness-bar">⚠ Data may be stale — last update was over 4 hours ago</div>
-
-  <div id="scrapeModal" class="modal-overlay" onclick="if(event.target===this)this.classList.remove('show')">
-    <div class="modal">
-      <h2>Run Price Scraper</h2>
-      <p>Enter your GitHub credentials to trigger the scraper workflow. These are saved locally in your browser.</p>
-      <div class="form-group"><label>GitHub Username</label><input id="ghUser" type="text" placeholder="cfviberstore"></div>
-      <div class="form-group"><label>Repository</label><input id="ghRepo" type="text" placeholder="viberstore-pricing"></div>
-      <div class="form-group"><label>Personal Access Token</label><input id="ghToken" type="password" placeholder="ghp_..."></div>
-      <div id="modalStatus"></div>
-      <div class="modal-actions">
-        <button class="btn-cancel" onclick="document.getElementById('scrapeModal').classList.remove('show')">Cancel</button>
-        <button class="btn-trigger" id="triggerBtn" onclick="triggerScrape()">Trigger Scraper</button>
-      </div>
+<header class="top">
+  <div class="wrap">
+    <div class="top-row">
+      <div class="brand"><img src="assets/vs-logo.png" alt="ViberStore"><h1>Pricing desk</h1></div>
+      <div class="fresh" id="fresh"><span class="pip"></span><span id="freshText">Loading…</span></div>
+      <a class="btn" id="runBtn" href="#" target="_blank" rel="noopener">Refresh prices</a>
     </div>
+    <div class="figures" id="figures"></div>
+    <nav class="tabs" role="tablist" aria-label="Views">
+      <button role="tab" aria-selected="true" data-tab="actions">Today’s queue<span class="n" id="nActions"></span></button>
+      <button role="tab" aria-selected="false" data-tab="basket">Review basket<span class="n" id="nBasket"></span></button>
+      <button role="tab" aria-selected="false" data-tab="maint">Maintenance<span class="n" id="nMaint"></span></button>
+      <button role="tab" aria-selected="false" data-tab="costs">Costs<span class="n" id="nCosts"></span></button>
+      <button role="tab" aria-selected="false" data-tab="catalogue">All models<span class="n" id="nModels"></span></button>
+      <button role="tab" aria-selected="false" data-tab="insights">Market position</button>
+    </nav>
   </div>
+</header>
+<div class="banner" id="banner" hidden><div class="wrap" id="bannerText"></div></div>
 
-  <div class="stats-row">
-    <div class="stat-card">
-      <div class="stat-label">Models Priced</div>
-      <div class="stat-value" id="statModels">—</div>
-      <div class="stat-sub" id="statModelsSub"></div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">VS Cheaper</div>
-      <div class="stat-value green" id="statVS">—</div>
-      <div class="stat-sub">variants where we win</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Refurbed Cheaper</div>
-      <div class="stat-value red" id="statRef">—</div>
-      <div class="stat-sub">variants to watch</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Avg Price Delta</div>
-      <div class="stat-value" id="statDelta">—</div>
-      <div class="stat-sub" id="statDeltaSub"></div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Hierarchy Issues</div>
-      <div class="stat-value purple" id="statHier">—</div>
-      <div class="stat-sub">condition pricing violations</div>
-    </div>
+<main class="wrap" id="main" aria-live="polite"></main>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-hidden="true" aria-label="Price details">
+  <div class="dr-head">
+    <div style="flex:1"><h3 id="drTitle"></h3><p id="drSub"></p></div>
+    <button class="btn" id="drClose" aria-label="Close details">Close</button>
   </div>
+  <div class="dr-body" id="drBody"></div>
+</aside>
 
-  <div id="filterBar">
-    <div class="filter-group">
-      <span class="filter-label">Model</span>
-      <input class="filter-input" id="searchInput" type="text" placeholder="Search model..." oninput="applyFilters()">
-    </div>
-    <div class="filter-group">
-      <span class="filter-label">Condition</span>
-      <select class="filter-select" id="condFilter" onchange="applyFilters()">
-        <option value="">All conditions</option>
-        <option value="Excellent">Excellent</option>
-        <option value="V. Good">V. Good</option>
-        <option value="Good">Good</option>
-      </select>
-    </div>
-    <div class="filter-group">
-      <span class="filter-label">Storage</span>
-      <select class="filter-select" id="storageFilter" onchange="applyFilters()">
-        <option value="">All storage</option>
-        <option value="64GB">64GB</option>
-        <option value="128GB">128GB</option>
-        <option value="256GB">256GB</option>
-        <option value="512GB">512GB</option>
-        <option value="1TB">1TB</option>
-      </select>
-    </div>
-    <div class="filter-group">
-      <span class="filter-label">Show</span>
-      <button class="show-btn active" id="btnAll" onclick="setShowFilter('all')">All</button>
-      <button class="show-btn" id="btnAdjust" onclick="setShowFilter('adjust')">Needs Adjustment</button>
-      <button class="show-btn" id="btnHier" onclick="setShowFilter('hierarchy')">Hierarchy Issues</button>
-      <button class="show-btn" id="btnOK" onclick="setShowFilter('ok')">All OK</button>
-    </div>
-    <span class="filter-spacer"></span>
-    <span id="resultsCount"></span>
-  </div>
+<script src="js/shopify_export.js"></script>
+<script src="js/costs.js"></script>
+<script>
+"use strict";
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const eur = n => n == null ? "–" : "€" + n.toLocaleString("en-IE", {minimumFractionDigits: 2, maximumFractionDigits: 2});
+const eur0 = n => n == null ? "–" : "€" + Math.round(n).toLocaleString("en-IE");
+const COND = ["Good", "V. Good", "Excellent"];
+const gb = s => parseInt(s) * (/TB/i.test(s) ? 1000 : 1);
 
-  <div id="tableView">
-    <table class="price-table">
-      <thead>
-        <tr>
-          <th id="th-model" onclick="sortTable('model')">Model</th>
-          <th id="th-storage" onclick="sortTable('storage')">Storage</th>
-          <th id="th-condition" onclick="sortTable('condition')">Condition</th>
-          <th id="th-vs_price" onclick="sortTable('vs_price')">VS Price</th>
-          <th id="th-ref_price" onclick="sortTable('ref_price')">Ref Price</th>
-          <th id="th-delta" onclick="sortTable('delta')" class="sorted">Δ Delta ↓</th>
-          <th>Status</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody id="tableBody">
-        <tr class="empty-row"><td colspan="8">Loading…</td></tr>
-      </tbody>
-    </table>
-  </div>
+const FLAG_TEXT = {
+  ref_anomaly: "Refurbed's own grades look out of order. Check the live listing.",
+  review_large_gap: "Gap is over 35%. Check it's the same spec before changing.",
+  mixed_colour_prices: "Colours are priced differently here.",
+  ref_out_of_stock: "Refurbed is out of stock.",
+  ref_fetch_failed: "Refurbed price couldn't be refreshed.",
+  stale_data: "Refurbed price is from an earlier run.",
+  lone_cheap_offer: "Refurbed's cheapest offer stands alone, with the next one much higher.",
+  single_offer: "Only one comparable Refurbed offer was found.",
+  same_seller_only: "Every offer seen comes from one seller.",
+  spec_unverified: "Battery or SIM details are missing on the cheapest offer.",
+  no_comparable_offer: "Refurbed has no offer comparable to yours (standard SIM, standard battery).",
+  ladder_violation: "Breaks your Good < V. Good < Excellent ladder.",
+  ladder_unresolved: "The ladder can't be fixed within the price limits."
+};
+const KIND = {market: "Market", capped: "Capped", ladder: "Ladder", manual_review: "Needs review"};
+const KIND_HELP = {
+  market: "Moves toward Refurbed's price.",
+  capped: "Market target is further away, but one step is limited by your policy.",
+  ladder: "Keeps grades and storages in order; not driven by Refurbed.",
+  manual_review: "Not safe to apply automatically. Choose the price yourself."
+};
+const REASONS = ["Deliberately priced to sell", "Margin too thin", "Refurbed offer looks unreliable", "Stock is low", "Price ladder preference", "Other"];
 
-  <div id="analyticsView">
-    <div class="analytics-grid">
-      <div class="chart-card">
-        <h3>Overall Win Rate</h3>
-        <div class="chart-wrap"><canvas id="chartWinRate"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <h3>Win Rate by Condition</h3>
-        <div class="chart-wrap"><canvas id="chartByCondition"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <h3>Win Rate by Brand</h3>
-        <div class="chart-wrap"><canvas id="chartByBrand"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <h3>Price Delta Distribution</h3>
-        <div class="chart-wrap"><canvas id="chartDeltaDist"></canvas></div>
-      </div>
-      <div class="chart-card" style="grid-column:1/-1">
-        <h3>Avg Delta by Model — all brands (green = VS wins)</h3>
-        <div class="chart-wrap-tall"><canvas id="chartTopModels"></canvas></div>
-      </div>
-      <div class="chart-card" style="grid-column:1/-1">
-        <h3>Variants Needing Action by Model</h3>
-        <div class="chart-wrap-tall"><canvas id="chartActions"></canvas></div>
-      </div>
-    </div>
-  </div>
+const S = {
+  data: null, hist: null, tab: "actions", dec: {}, edit: null, showDone: false,
+  f: {q: "", brand: "all", kind: "all", conf: "any", dir: "all"},
+  cb: null, cmap: {}, cs: Object.assign({}, Costs.DEFAULTS), matches: [], costMsg: ""
+};
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js">
-  let HIST_DATA=null,histChart=null;
-  async function loadHistData(){
-    if(HIST_DATA)return;
-    try{const r=await fetch('data/history.json?_='+Date.now());HIST_DATA=r.ok?await r.json():{entries:[]};}
-    catch(e){HIST_DATA={entries:[]};}
-  }
-  function openHistory(btn){
-    const key=btn.dataset.key;
-    const [brand,model,condition,storage]=key.split('|');
-    const rows=flattenBrand(brand).filter(r=>r.model===model);
-    const sel=document.getElementById('histVariant');
-    sel.innerHTML=rows.map(r=>{
-      const k=r.brand+'|'+r.model+'|'+r.condition+'|'+r.storage;
-      return '<option value="'+k+'"'+(r.condition===condition&&r.storage===storage?' selected':'')+'>'+r.storage+' — '+r.condition+'</option>';
-    }).join('');
-    document.getElementById('histModel').textContent=model;
-    document.getElementById('histSub').textContent=brand.charAt(0).toUpperCase()+brand.slice(1);
-    document.getElementById('histOverlay').classList.add('open');
-    document.getElementById('histDrawer').classList.add('open');
-    loadHistData().then(()=>renderHistChart());
-  }
-  function closeHistory(){
-    document.getElementById('histOverlay').classList.remove('open');
-    document.getElementById('histDrawer').classList.remove('open');
-    if(histChart){histChart.destroy();histChart=null;}
-  }
-  function renderHistChart(){
-    const key=document.getElementById('histVariant').value;
-    const [brand,model,condition,storage]=key.split('|');
-    document.getElementById('histSub').textContent=storage+' · '+condition;
-    const entries=(HIST_DATA&&HIST_DATA.entries)||[];
-    const labels=[],vsArr=[],refArr=[];
-    for(const e of entries){const p=(e.prices||{})[key];if(p){labels.push(e.date);vsArr.push(p.vs??null);refArr.push(p.ref??null);}}
-    const emEl=document.getElementById('histEmpty'),wEl=document.getElementById('histChartWrap');
-    if(labels.length<2){emEl.style.display='block';wEl.style.display='none';return;}
-    emEl.style.display='none';wEl.style.display='block';
-    if(histChart)histChart.destroy();
-    histChart=new Chart(document.getElementById('histCanvas').getContext('2d'),{
-      type:'line',
-      data:{labels,datasets:[
-        {label:'ViberStore',data:vsArr,borderColor:'#4338CA',backgroundColor:'rgba(67,56,202,0.08)',tension:0.3,pointRadius:4,pointHoverRadius:6},
-        {label:'Refurbed',data:refArr,borderColor:'#E11D48',backgroundColor:'rgba(225,29,72,0.08)',tension:0.3,pointRadius:4,pointHoverRadius:6}
-      ]},
-      options:{responsive:true,maintainAspectRatio:false,
-        plugins:{legend:{position:'top'},tooltip:{callbacks:{label:c=>c.dataset.label+': €'+(c.raw??'—')}}},
-        scales:{y:{ticks:{callback:v=>'€'+v}}}}
-    });
-  }
-</script>
-  <script>
-  let DATA={}, currentBrand='apple', currentShowFilter='all';
-  let sortCol='delta', sortDir='desc';
-  const chartInst={};
-
-  async function loadData(){
-    try{
-      const r=await fetch('data/prices.json?t='+Date.now());
-      if(!r.ok) throw new Error('HTTP '+r.status);
-      DATA=await r.json();
-      onDataLoaded();
-    }catch(e){
-      document.getElementById('tableBody').innerHTML='<tr class="empty-row"><td colspan="8">Cannot load pricing data — run the scraper first</td></tr>';
-      document.getElementById('lastUpdated').textContent='No data';
+/* ---------- cost data (kept in this browser only: this site is public, so costs never go in the repo) ---------- */
+const CKEYS = {book: "viberstore-costbook-v1", map: "viberstore-costmap-v1", set: "viberstore-costsettings-v1"};
+const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } };
+function loadCostState() {
+  S.cs = Object.assign({}, Costs.DEFAULTS, lsGet(CKEYS.set, {}));
+  S.cmap = lsGet(CKEYS.map, {});
+  // Brian's price book lives in this tab only ("session") unless you chose to remember it on this computer.
+  let book = null; try { const v = sessionStorage.getItem(CKEYS.book); book = v ? JSON.parse(v) : null; } catch (e) {}
+  if (!book) { book = lsGet(CKEYS.book, null); }
+  S.cb = book;
+}
+function storeBook() {
+  try { sessionStorage.removeItem(CKEYS.book); localStorage.removeItem(CKEYS.book); } catch (e) {}
+  if (!S.cb) return true;
+  try { (S.cs.remember ? localStorage : sessionStorage).setItem(CKEYS.book, JSON.stringify(S.cb)); return true; } catch (e) { return false; }
+}
+function costAge() { return S.cb ? Costs.ageDays(S.cb.savedAt || S.cb.uploadedAt) : null; }
+function costStale() { const a = costAge(); return a != null && a > S.cs.maxAgeDays; }
+/** Margin rules are enforced exactly as you set them. An old or unverified cost sheet adds warnings; it never switches a rule off. */
+function effectiveSettings() { return S.cs; }
+const costEstimated = () => !(S.cs.gradesConfirmed && S.cs.vatConfirmed);
+function applyCosts() {
+  const uniq = new Map(S.rows.map(r => [Costs.shopKey(r.model, r.storage), {model: r.model, storage: r.storage}]));
+  S.matches = S.cb ? Costs.matchAll([...uniq.values()], S.cb.records, S.cmap) : [];
+  const byKey = new Map(S.matches.map(m => [m.key, m])), es = effectiveSettings();
+  for (const r of S.rows) {
+    if (r._rec0 === undefined) r._rec0 = r.recommended ? JSON.parse(JSON.stringify(r.recommended)) : null;
+    const m = byKey.get(Costs.shopKey(r.model, r.storage));
+    r.costStatus = !S.cb ? "off" : !m ? "none" : (m.status === "matched" || m.status === "confirmed") ? "ok" : m.status;
+    r.cx = null; r.recommended = r._rec0 ? JSON.parse(JSON.stringify(r._rec0)) : null;
+    if (r.costStatus === "ok") {
+      r.cx = Costs.assess({vs_price: r.vs_price, recommended: r._rec0}, m.record.cost, es);
+      r.cx.ref = m.record.ref; r.cx.recordModel = m.record.model;
+      r.recommended = r.cx.rec;
     }
   }
+}
 
-  function checkStaleness(ts){
-    if((Date.now()-new Date(ts).getTime())/36e5>4)
-      document.getElementById('stalenessBar').classList.add('show');
+/* ---------- decisions (stored in this browser only) ---------------------- */
+const DKEY = "viberstore-decisions-v1";
+function loadDec() { try { return JSON.parse(localStorage.getItem(DKEY) || "{}"); } catch (e) { return {}; } }
+function saveDec() { try { localStorage.setItem(DKEY, JSON.stringify(S.dec)); } catch (e) { /* private mode: decisions last for this visit */ } }
+
+/* ---------- data ---------------------------------------------------------- */
+async function load() {
+  try {
+    const r = await fetch("data/prices.json?t=" + Date.now());
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    S.data = await r.json();
+    if (S.data.schema !== 3) throw new Error("This page needs the v4 data format. Run the updater once.");
+  } catch (e) {
+    $("#main").innerHTML = `<div class="list" style="margin-top:20px"><div class="empty"><b>No pricing data yet</b>${esc(e.message)}. Open the GitHub Actions tab and run “Update prices”, or serve this folder with <code>python -m http.server</code> if you opened the file directly.</div></div>`;
+    $("#freshText").textContent = "No data";
+    return;
   }
+  S.rows = [];
+  for (const m of S.data.models) for (const v of m.variants)
+    S.rows.push(Object.assign({}, v, {brand: m.brand, model: m.model, handle: m.handle,
+      key: [m.brand, m.model, v.condition, v.storage].join("|")}));
+  // a saved decision only stands while the price it was made against is unchanged
+  loadCostState(); applyCosts();
+  S.rowBy = new Map(S.rows.map(r => [r.key, r]));
+  S.dec = loadDec();
+  const byKey = new Map(S.rows.map(r => [r.key, r]));
+  for (const k of Object.keys(S.dec)) { const r = byKey.get(k); if (!r || r.vs_price !== S.dec[k].vs_price) delete S.dec[k]; }
+  saveDec();
+  header(); render();
+  fetch("data/history.json?t=" + Date.now()).then(r => r.ok ? r.json() : null).then(h => S.hist = h).catch(() => {});
+}
 
-  function onDataLoaded(){
-    const dash=DATA.dashboard||{};
-    document.getElementById('statModels').textContent=dash.models_priced??'—';
-    const ac=(DATA.apple||[]).length, sc=(DATA.samsung||[]).length;
-    document.getElementById('statModelsSub').textContent=ac+' Apple · '+sc+' Samsung';
-    document.getElementById('statVS').textContent=dash.vs_cheaper??'—';
-    document.getElementById('statRef').textContent=dash.ref_cheaper??'—';
-    const d=dash.avg_delta, de=document.getElementById('statDelta'), ds=document.getElementById('statDeltaSub');
-    if(d!=null){
-      de.textContent='€'+Math.abs(d).toFixed(2);
-      if(d<-0.005){de.className='stat-value green';ds.textContent='avg we undercut Refurbed';}
-      else if(d>0.005){de.className='stat-value red';ds.textContent='avg Refurbed undercuts us';}
-      else{de.className='stat-value amber';ds.textContent='on par with Refurbed';}
+/** A saved approval counts only while the evidence it rested on still holds. */
+function decIssues(key) {
+  const d = S.dec[key], r = S.rowBy && S.rowBy.get(key); if (!d || !r) return {evidence: "", loss: ""};
+  return Costs.approvalIssues(d, {refPrice: r.ref_price, cost: r.cx ? r.cx.cost : null}, effectiveSettings());
+}
+const liveDec = key => { const d = S.dec[key]; if (!d) return null; if (d.status !== "approved") return d; const i = decIssues(key); return i.evidence || (i.loss && d.lossOk) ? null : d; };
+function hoursOld() { return (Date.now() - new Date(S.data.last_updated)) / 36e5; }
+const queueRows = name => S.rows.filter(r => r.queue === name);
+
+function header() {
+  const d = S.data, s = d.summary, age = hoursOld();
+  const when = new Date(d.last_updated).toLocaleString("en-IE", {day: "numeric", month: "short", hour: "2-digit", minute: "2-digit"});
+  $("#freshText").textContent = `Prices from ${when} (${age < 1 ? "under an hour" : Math.round(age) + "h"} ago)`;
+  $("#fresh").classList.toggle("stale", age > 18);
+  const bn = $("#banner");
+  if (age > 18) { bn.hidden = false; $("#bannerText").textContent = `These prices are ${Math.round(age)} hours old. The scheduled update may have failed; check the Actions tab on GitHub.`; }
+  const m = location.hostname.match(/^(.+)\.github\.io$/), repo = location.pathname.split("/")[1];
+  $("#runBtn").href = m && repo ? `https://github.com/${m[1]}/${repo}/actions/workflows/update_prices.yml` : "https://github.com";
+  const q = queueRows("action"), hi = q.filter(r => r.confidence.level === "high").length, rv = q.filter(r => r.recommended.kind === "manual_review").length;
+  $("#figures").innerHTML = `
+    <div class="fig"><b>${q.length}</b><span>in-stock prices worth a look today</span></div>
+    <div class="fig"><b>${hi}</b><span>of those are high confidence</span></div>
+    <div class="fig"><b>${rv}</b><span>need a manual decision (not safe to automate)</span></div>
+    <div class="fig"><b>${s.win_rate ?? "–"}<small>%</small></b><span>of ${s.comparable} compared variants are at or below Refurbed</span></div>`;
+  counts();
+  $("#nModels").textContent = S.data.models.length;
+}
+function counts() {
+  const open = queueRows("action").filter(r => !liveDec(r.key)).length;
+  $("#nActions").textContent = open;
+  $("#nCosts").textContent = S.cb ? "" : "new";
+  $("#nMaint").textContent = queueRows("maintenance").length;
+  $("#nBasket").textContent = Object.values(S.dec).filter(d => d.status === "approved").length || "";
+}
+
+/* ---------- filtering ----------------------------------------------------- */
+function listRows(queue) {
+  const f = S.f, q = f.q.toLowerCase();
+  const rank = {high: 3, medium: 2, low: 1, none: 0};
+  return queueRows(queue)
+    .filter(r => S.showDone || !liveDec(r.key))
+    .filter(r => f.brand === "all" || r.brand === f.brand)
+    .filter(r => f.kind === "all" || r.recommended.kind === f.kind)
+    .filter(r => f.conf === "any" || (f.conf === "high" ? r.confidence.level === "high" : rank[r.confidence.level] >= 2))
+    .filter(r => f.dir === "all" || r.recommended.direction === f.dir)
+    .filter(r => !q || (r.model + " " + r.storage + " " + r.condition).toLowerCase().includes(q))
+    .sort((a, b) => b.priority - a.priority);
+}
+
+/* ---------- views --------------------------------------------------------- */
+function howNote() {
+  return `<details class="how"><summary>How prices are chosen and how to read this page</summary>
+    <p><b>Refurbed price.</b> For each storage and condition we look at Refurbed offers with a standard SIM and a standard battery, in any colour (no eSIM-only, new-battery or sold-out). The <b>cheapest comparable</b> price is what a shopper can buy, so gaps are measured against it. The <b>supported price</b> is the lowest price that two different sellers are close to; it is blank when we only saw one seller.</p>
+    <p><b>Suggestions.</b> <i>Market</i> moves toward Refurbed. <i>Capped</i> is limited by your step limits. <i>Ladder</i> keeps grades and storages in order. <i>Needs review</i> means the tool won't pick a price for you. <b>Confidence</b> shows how much evidence stands behind it, and what is missing.</p>
+    <p><b>Nothing changes in Shopify from here.</b> Approve or edit prices, then export from the Review basket. The export is checked against a fresh Shopify product export first.</p></details>`;
+}
+
+function toolbar(extra = "") {
+  const f = S.f;
+  const kinds = [["all", "All"], ["market", "Market"], ["capped", "Capped"], ["ladder", "Ladder"], ["manual_review", "Needs review"]];
+  return `<div class="toolbar">
+    <input type="search" id="q" placeholder="Search model, storage, grade" value="${esc(f.q)}" aria-label="Search">
+    <select id="brand" aria-label="Brand"><option value="all">All brands</option><option value="apple" ${f.brand==="apple"?"selected":""}>Apple</option><option value="samsung" ${f.brand==="samsung"?"selected":""}>Samsung</option></select>
+    <div class="seg" role="group" aria-label="Kind of change">${kinds.map(k => `<button data-kind="${k[0]}" aria-pressed="${f.kind === k[0]}">${k[1]}</button>`).join("")}</div>
+    <select id="conf" aria-label="Confidence"><option value="any">Any confidence</option><option value="medium" ${f.conf==="medium"?"selected":""}>Medium or high</option><option value="high" ${f.conf==="high"?"selected":""}>High only</option></select>
+    <select id="dir" aria-label="Direction"><option value="all">Up and down</option><option value="down" ${f.dir==="down"?"selected":""}>Lower only</option><option value="up" ${f.dir==="up"?"selected":""}>Raise only</option></select>
+    <label class="chk"><input type="checkbox" id="done" ${S.showDone?"checked":""}>Show decided</label>
+    ${extra}</div>`;
+}
+
+function renderQueue(name) {
+  const intro = name === "maint"
+    ? `<p class="count" style="margin:16px 0 0;max-width:78ch">These variants are sold out on your site, so there is no rush. Use them to set prices before you restock. They don’t count toward today’s queue.</p>`
+    : "";
+  return intro + howNote() + toolbar(`<span class="grow"></span><span class="count" id="listCount"></span>`) + `<div id="listBox"></div>`;
+}
+
+function fillList() {
+  const name = S.tab === "maint" ? "maintenance" : "action";
+  const rows = listRows(name);
+  $("#listCount").textContent = `${rows.length} shown`;
+  let html;
+  if (!rows.length) {
+    const any = queueRows(name).length;
+    html = `<div class="list"><div class="empty"><b>${any ? "Nothing left with these filters" : name === "action" ? "No in-stock prices need changing" : "Nothing in maintenance"}</b>${any ? "Clear the filters, or tick “Show decided”." : "Your in-stock prices are within range of Refurbed."}</div></div>`;
+  } else {
+    html = `<div class="list"><div class="q-head"><span>Variant</span><span>You</span><span>Refurbed cheapest</span><span>Supported price</span><span>Suggested</span><span></span></div>`;
+    html += rows.slice(0, 250).map(qRow).join("");
+    if (rows.length > 250) html += `<div class="empty">Showing the 250 highest-priority changes. Narrow the filters to see the rest.</div>`;
+    html += "</div>";
+  }
+  $("#listBox").innerHTML = html;
+}
+
+function confLabel(c) { return {high: "High confidence", medium: "Medium confidence", low: "Low confidence", none: "No comparison"}[c]; }
+
+function qRow(r) {
+  const rec = r.recommended, down = rec.direction === "down", d = liveDec(r.key), review = rec.kind === "manual_review";
+  let sug;
+  if (S.edit && S.edit.key === r.key) {
+    const rej = S.edit.mode === "reject";
+    sug = `<div class="editbox" data-key="${esc(r.key)}">
+      ${rej ? "" : `<input type="number" step="0.01" min="1" id="edPrice" value="${rec.price.toFixed(2)}" aria-label="New price in euro">`}
+      <select id="edReason" aria-label="Reason">${rej || review || true ? `<option value="">Reason…</option>` : ""}${REASONS.map(x => `<option>${esc(x)}</option>`).join("")}</select>
+      <input type="text" id="edNote" placeholder="Note (optional)" aria-label="Note">
+      ${rej || !r.cx ? "" : `<div id="edMargin" class="evn" aria-live="polite"></div><label class="chk" id="edLossWrap" hidden><input type="checkbox" id="edLoss">Sell below cost anyway</label>`}
+      <div class="acts"><button class="btn sm ok" data-act="save">${rej ? "Skip this one" : "Approve this price"}</button><button class="btn sm" data-act="cancel">Cancel</button></div></div>`;
+  } else {
+    sug = `<div class="sug-cell"><div class="move ${down ? "down" : "up"}">${down ? "▼" : "▲"} ${eur(rec.price)}</div>
+      <small class="num" style="display:block"><small>${rec.change > 0 ? "+" : "−"}${eur(Math.abs(rec.change))}</small></small></div>`;
+  }
+  const gap = r.delta == null ? "" : `<small>${r.delta > 0 ? "you’re " + eur(r.delta) + " dearer" : r.delta < 0 ? "you’re " + eur(-r.delta) + " cheaper" : "level"}</small>`;
+  let acts;
+  if (d) acts = `<span class="decided ${d.status === "approved" ? "" : "no"}">${d.status === "approved" ? "Approved " + eur(d.price) : "Skipped"}</span><button class="btn sm" data-act="undo">Undo</button>`;
+  else acts = `${review ? `<button class="btn sm primary" data-act="edit">Choose price</button>` : `<button class="btn sm ok" data-act="approve">Approve</button><button class="btn sm" data-act="edit">Edit</button>`}<button class="btn sm" data-act="reject">Skip</button><button class="btn sm" data-act="details">Details</button>`;
+  const miss = r.confidence.missing.length ? `<span class="missing">Missing evidence: ${esc(r.confidence.missing.join("; "))}.</span>` : "";
+  const sc = r.flags.filter(f => ["lone_cheap_offer"].includes(f) && FLAG_TEXT[f]).map(() => "").join("");
+  return `<div class="q-row ${d ? "done" : ""}" data-key="${esc(r.key)}">
+    <div class="who"><b>${esc(r.model)}</b><span>${esc(r.storage)} · ${esc(r.condition)}</span>${r.vs_in_stock ? "" : '<span class="chip out">Sold out</span>'}</div>
+    <div class="num">${eur(r.vs_price)}</div>
+    <div class="num">${eur(r.ref_price)}${gap}</div>
+    <div class="num ${r.ref_supported == null ? "dim" : ""}">${r.ref_supported != null ? eur(r.ref_supported) : "none yet"}${r.ref_sellers != null ? `<small>${r.ref_sellers} seller${r.ref_sellers === 1 ? "" : "s"} seen</small>` : ""}</div>
+    ${sug}
+    <div class="acts">${S.edit && S.edit.key === r.key ? "" : acts}</div>
+    <div class="sub"><span class="kind ${rec.kind}" title="${esc(KIND_HELP[rec.kind])}">${KIND[rec.kind]}</span><span class="conf ${r.confidence.level}">${confLabel(r.confidence.level)}</span><span>${esc(rec.reason)}</span>${marginLine(r)}${miss}</div>
+  </div>`;
+}
+
+/* ---------- basket + safe export ---------------------------------------- */
+function decisionItems(status) {
+  return Object.entries(S.dec).filter(([, d]) => d.status === status).map(([k, d]) => ({k, d, r: S.rows.find(x => x.key === k)})).filter(x => x.r);
+}
+/** Margin check on the FINAL approved price, whoever chose it, using today's costs and settings. */
+function finalCheck(r, d) { return Costs.checkPrice(d.price, r.cx && r.cx.cost, effectiveSettings()); }
+function approvedForExport() {
+  return decisionItems("approved").map(({k, d, r}) => { const c = finalCheck(r, d); return ({key: k, handle: r.handle, price: d.price,
+    blockReason: (() => { const i = decIssues(k); return i.evidence ? "Needs re-review: " + i.evidence : i.loss; })(),
+    reason: d.kind + (d.reason ? ": " + d.reason : "") + (c.margin != null ? ` | ${costEstimated() ? "est. " : ""}margin ${(c.margin * 100).toFixed(1)}%${c.message ? " (" + c.message + ")" : ""}` : ""), note: d.note || "",
+    variants: (r.shop_variants || []).map(v => ({id: v.id, sku: v.sku, price: v.price, options: v.options}))}); });
+}
+
+function staleBadge(r, d) {
+  if (d.status !== "approved") return "";
+  const i = decIssues(r.key); if (!i.evidence) return "";
+  return `<br><span class="mg hard" style="font-weight:500">Needs re-review. ${esc(i.evidence)} It will not export. It is back in Today’s queue.</span>`;
+}
+function basketMargin(r, d) {
+  if (d.status !== "approved" || !S.cb) return "";
+  if (!r.cx) return `<br><span style="color:var(--muted)">No cost on file</span>`;
+  const c = finalCheck(r, d);
+  return `<br><span class="mg ${c.level}">${costEstimated() ? "Est. margin" : "Margin"} ${(c.margin * 100).toFixed(1)}%</span>${c.message ? `<br><span class="mg ${c.level}" style="font-weight:500">${esc(c.message)}${decIssues(r.key).loss ? " Will not export until confirmed again." : ""}</span>` : ""}`;
+}
+function renderBasket() {
+  const ap = decisionItems("approved"), rj = decisionItems("rejected");
+  const rows = list => list.map(({k, d, r}) => `<tr data-key="${esc(k)}"><td><b>${esc(r.model)}</b><br><span style="color:var(--muted)">${esc(r.storage)} · ${esc(r.condition)}</span></td>
+      <td class="pr">${eur(r.vs_price)}</td><td class="pr">${d.status === "approved" ? eur(d.price) : "–"}</td>
+      <td>${esc(KIND[d.kind] || d.kind)}${d.edited ? " (edited)" : ""}${basketMargin(r, d)}${staleBadge(r, d)}</td><td>${esc(d.reason || "")}${d.note ? `<br><span style="color:var(--muted)">${esc(d.note)}</span>` : ""}</td>
+      <td><button class="btn sm" data-act="undo">Remove</button></td></tr>`).join("");
+  const table = (list, empty) => list.length ? `<table class="ev"><thead><tr><th>Variant</th><th>Now</th><th>New</th><th>Type</th><th>Reason</th><th></th></tr></thead><tbody>${rows(list)}</tbody></table>` : `<p class="evn">${empty}</p>`;
+  return `<div class="stepcard"><h2>Approved price changes (${ap.length})</h2>
+      <p class="evn" style="margin-top:0">Only what you approve is exported. Each price applies to every colour of that variant.</p>
+      ${table(ap, "Nothing approved yet. Approve or edit prices in Today’s queue.")}</div>
+    <div class="stepcard"><h2>Skipped (${rj.length})</h2>${table(rj, "Nothing skipped.")}</div>
+    <div class="stepcard"><h2>Make the Shopify price file</h2>
+      <ol><li>In Shopify admin: Products → Export → All products → CSV for Excel, numbers, or similar. Do this now, so it holds today’s prices.</li>
+        <li>Choose that file here: <input type="file" id="shopFile" accept=".csv,text/csv"></li>
+        <li><button class="btn primary" id="build" ${ap.length ? "" : "disabled"}>Check and build price file</button></li></ol>
+      <div class="res" id="exResult" aria-live="polite"></div>
+      <p class="evn">We match each variant by its exact SKU and check the handle, options and current price. Anything that doesn’t match is left out and listed. Nothing is sent to Shopify: you import the file yourself (Products → Import → tick “Overwrite existing products”).</p>
+      <div style="margin-top:12px"><button class="btn" id="exLog" ${ap.length + rj.length ? "" : "disabled"}>Download decision log (approved and skipped)</button></div></div>`;
+}
+
+let LAST_EXPORT = null;
+async function buildExport() {
+  const f = $("#shopFile").files[0], out = $("#exResult");
+  if (!f) { out.innerHTML = `<span class="bad">Choose your fresh Shopify export first.</span>`; return; }
+  const items = approvedForExport();
+  const res = ShopifyExport.buildExport(await f.text(), items, {maxChangePct: 30});
+  LAST_EXPORT = res;
+  const byKey = new Map(S.rows.map(r => [r.key, r]));
+  const name = k => { const r = byKey.get(k); return r ? `${esc(r.model)} ${esc(r.storage)} ${esc(r.condition)}` : esc(k); };
+  let h = "";
+  if (res.fatal) h += `<div class="bad">${esc(res.fatal)}</div>`;
+  else h += `<div class="good">${res.applied.length} variant price${res.applied.length === 1 ? "" : "s"} ready across ${new Set(res.applied.map(a => a.handle)).size} product(s).</div>`;
+  if (res.warnings.length) h += `<p class="evn"><b>Check these big changes:</b> ${res.warnings.map(esc).join("; ")}</p>`;
+  if (res.blocked.length) h += `<p class="evn"><b>Left out (${res.blocked.length}):</b></p><table class="ev"><tbody>${res.blocked.map(b => `<tr><td>${name(b.key)}</td><td>${esc(b.reason)}</td></tr>`).join("")}</tbody></table>`;
+  if (res.ok) h += `<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" id="dlPrice">Download Shopify price file</button><button class="btn" id="dlChange">Download change log</button></div>`;
+  out.innerHTML = h;
+}
+
+function decide(key, status, extra = {}) {
+  const r = S.rows.find(x => x.key === key), rec = r.recommended;
+  S.dec[key] = Object.assign({status, price: rec.price, kind: rec.kind, reason: rec.reason, vs_price: r.vs_price, refPrice: r.ref_price, at: new Date().toISOString()}, extra);
+  saveDec();
+}
+
+/* ---------- main render ---------------------------------------------------- */
+function render() {
+  const el = $("#main"), scrollY = window.scrollY;
+  const focusId = document.activeElement && document.activeElement.id;
+  if (S.tab === "actions" || S.tab === "maint") { el.innerHTML = renderQueue(S.tab); fillList(); }
+  else if (S.tab === "basket") el.innerHTML = renderBasket();
+  else if (S.tab === "costs") el.innerHTML = renderCosts();
+  else el.innerHTML = S.tab === "catalogue" ? renderCatalogue() : renderInsights();
+  document.querySelectorAll("nav.tabs button").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === S.tab));
+  if (focusId) { const f = document.getElementById(focusId); if (f && f.focus) { f.focus(); if (f.setSelectionRange && f.type === "search") f.setSelectionRange(f.value.length, f.value.length); } }
+  window.scrollTo(0, scrollY);
+  counts();
+}
+const isQueue = () => S.tab === "actions" || S.tab === "maint";
+
+/* ---------- events -------------------------------------------------------- */
+document.addEventListener("click", e => {
+  const t = e.target.closest("button,input"); if (!t) return;
+  if (t.dataset.tab) { S.tab = t.dataset.tab; S.edit = null; render(); return; }
+  if (t.dataset.kind) { S.f.kind = t.dataset.kind; render(); return; }
+  if (t.id === "dlPrice" && LAST_EXPORT && LAST_EXPORT.ok) { download(`shopify-price-update-${new Date().toISOString().slice(0, 10)}.csv`, LAST_EXPORT.csv); return; }
+  if (t.id === "dlChange" && LAST_EXPORT && LAST_EXPORT.ok) { download(`price-change-log-${new Date().toISOString().slice(0, 10)}.csv`, LAST_EXPORT.log); return; }
+  if (t.id === "build") { buildExport(); return; }
+  if (t.id === "cmBackup") { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(S.cmap, null, 1)], {type: "application/json"})); a.download = "confirmed-cost-matches.json"; a.click(); return; }
+  if (t.id === "exLog") { decisionLog(); return; }
+  if (t.id === "drClose") { closeDrawer(); return; }
+  if (t.dataset.dtab) { drTab(t.dataset.dtab); return; }
+  const act = t.dataset.act; if (!act) return;
+  const holder = t.closest("[data-key]"), key = holder && holder.dataset.key;
+  if (act === "details") openDetails(key);
+  else if (act === "approve") { decide(key, "approved"); fillList(); counts(); }
+  else if (act === "edit") { S.edit = {key, mode: "edit"}; fillList(); editCheck(); const i = $("#edPrice"); i && i.focus(); }
+  else if (act === "reject") { S.edit = {key, mode: "reject"}; fillList(); const i = $("#edReason"); i && i.focus(); }
+  else if (act === "cancel") { S.edit = null; fillList(); }
+  else if (act === "save") {
+    const mode = S.edit.mode, reason = $("#edReason").value, note = $("#edNote").value.trim();
+    const r = S.rows.find(x => x.key === key);
+    if (!reason) { $("#edReason").focus(); $("#edReason").style.borderColor = "var(--lower)"; return; }
+    if (mode === "reject") decide(key, "rejected", {reason, note});
+    else {
+      const price = Math.round(parseFloat($("#edPrice").value) * 100) / 100;
+      if (!isFinite(price) || price < 1) { $("#edPrice").focus(); return; }
+      const chk = editCheck();
+      if (chk && chk.level === "loss" && !$("#edLoss").checked) { $("#edLoss").focus(); return; }
+      decide(key, "approved", {price, reason, note, lossOk: !!(chk && chk.level === "loss"), lossSig: chk && chk.level === "loss" && r.cx ? Costs.costSig(r.cx.cost, effectiveSettings()) : null, edited: Math.abs(price - r.recommended.price) > 0.005, kind: Math.abs(price - r.recommended.price) > 0.005 ? "manual_review" : r.recommended.kind});
     }
-    document.getElementById('statHier').textContent=dash.hierarchy_issues??'—';
-    if(DATA.last_updated){
-      const dt=new Date(DATA.last_updated);
-      const lu=document.getElementById('lastUpdated');
-      lu.className='has-data';
-      lu.textContent='Updated '+dt.toLocaleDateString('en-IE',{day:'numeric',month:'short'})+' at '+dt.toLocaleTimeString('en-IE',{hour:'2-digit',minute:'2-digit'});
-      checkStaleness(DATA.last_updated);
-    }else{
-      document.getElementById('lastUpdated').textContent='No data — run the scraper';
-      document.getElementById('stalenessBar').classList.add('show');
-    }
-    applyFilters();
+    S.edit = null; fillList(); counts();
   }
-
-  async function triggerScrape(){
-    const user=document.getElementById('ghUser').value.trim();
-    const repo=document.getElementById('ghRepo').value.trim();
-    const token=document.getElementById('ghToken').value.trim();
-    if(!user||!repo||!token){document.getElementById('modalStatus').textContent='Please fill in all fields.';return;}
-    localStorage.setItem('vs_gh_config',JSON.stringify({user,repo,token}));
-    const btn=document.getElementById('triggerBtn');
-    btn.textContent='Triggering…';btn.disabled=true;
-    document.getElementById('modalStatus').textContent='';
-    try{
-      const r=await fetch('https://api.github.com/repos/'+user+'/'+repo+'/actions/workflows/update_prices.yml/dispatches',{
-        method:'POST',
-        headers:{Authorization:'token '+token,Accept:'application/vnd.github.v3+json','Content-Type':'application/json'},
-        body:JSON.stringify({ref:'main'})
-      });
-      if(r.status===204){document.getElementById('modalStatus').textContent='✓ Scraper triggered — check GitHub Actions';btn.textContent='Triggered!';}
-      else{const e=await r.json().catch(()=>({}));document.getElementById('modalStatus').textContent='Error: '+(e.message||r.status);btn.textContent='Try Again';btn.disabled=false;}
-    }catch(e){document.getElementById('modalStatus').textContent='Network error: '+e.message;btn.textContent='Try Again';btn.disabled=false;}
+  else if (act === "costClear") { S.cb = null; storeBook(); applyCosts(); header(); render(); }
+  else if (act === "cmConfirm") { const sel = holder.querySelector(".cmSel"); if (sel) { const rec = S.cb.records.find(x => x.ref === sel.value); S.cmap[key] = {ref: sel.value, recordModel: rec ? rec.model : "", storage: rec ? rec.storage : "", at: new Date().toISOString()}; lsSet(CKEYS.map, S.cmap); applyCosts(); header(); render(); } }
+  else if (act === "cmUndo") { delete S.cmap[key]; lsSet(CKEYS.map, S.cmap); applyCosts(); header(); render(); }
+  else if (act === "undo") { delete S.dec[key]; saveDec(); if (S.tab === "basket") render(); else { fillList(); counts(); } }
+});
+function editCheck() {
+  const box = $("#edMargin"); if (!box || !S.edit) return null;
+  const r = S.rows.find(x => x.key === S.edit.key), price = parseFloat($("#edPrice").value);
+  const c = Costs.checkPrice(price, r.cx && r.cx.cost, effectiveSettings());
+  box.className = "evn mg " + (c.level || ""); box.textContent = c.margin == null ? "" : `${costEstimated() ? "Est. margin" : "Margin"} ${(c.margin * 100).toFixed(1)}%${c.message ? ". " + c.message : ""}`;
+  $("#edLossWrap").hidden = c.level !== "loss";
+  return c;
+}
+document.addEventListener("input", e => {
+  if (e.target.id === "edPrice") { editCheck(); return; }
+  if (e.target.id === "q") { S.f.q = e.target.value; if (isQueue()) fillList(); else render(); }   // list only: the search box is never rebuilt while typing
+});
+document.addEventListener("change", e => {
+  const t = e.target;
+  if (t.id === "brand") S.f.brand = t.value;
+  else if (t.id === "conf") S.f.conf = t.value;
+  else if (t.id === "dir") S.f.dir = t.value;
+  else if (t.id === "done") S.showDone = t.checked;
+  else if (t.id === "costFile") { if (t.files[0]) loadPriceBook(t.files[0]); return; }
+  else if (t.id === "cmRestore") { const f = t.files[0]; if (f) f.text().then(x => { try { Object.assign(S.cmap, JSON.parse(x)); lsSet(CKEYS.map, S.cmap); applyCosts(); header(); render(); } catch (e) { S.costMsg = "That file isn't a confirmed-matches file."; render(); } }); return; }
+  else if (t.id && t.id.startsWith("cs_")) {
+    const k = t.id.slice(3);
+    S.cs[k] = t.type === "checkbox" ? t.checked : t.tagName === "SELECT" ? t.value : (parseFloat(t.value) || 0);
+    lsSet(CKEYS.set, S.cs); if (k === "remember") storeBook(); applyCosts(); header(); render(); return;
   }
+  else return;
+  isQueue() ? fillList() : render();
+});
+$("#scrim").addEventListener("click", closeDrawer);
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeDrawer(); });
 
-  (function(){
-    const cfg=JSON.parse(localStorage.getItem('vs_gh_config')||'{}');
-    if(cfg.user)document.getElementById('ghUser').value=cfg.user;
-    if(cfg.repo)document.getElementById('ghRepo').value=cfg.repo;
-    if(cfg.token)document.getElementById('ghToken').value=cfg.token;
-  })();
-
-  function switchBrand(b){
-    currentBrand=b;
-    document.getElementById('appleBtn').classList.toggle('active',b==='apple');
-    document.getElementById('samsungBtn').classList.toggle('active',b==='samsung');
-    document.getElementById('analyticsBtn').classList.toggle('active',b==='analytics');
-    const isA=b==='analytics';
-    document.getElementById('filterBar').style.display=isA?'none':'';
-    document.getElementById('tableView').style.display=isA?'none':'';
-    document.getElementById('analyticsView').style.display=isA?'block':'none';
-    if(isA)renderAnalytics(); else applyFilters();
-  }
-
-  function flattenBrand(brand){
-    const rows=[];
-    for(const m of (DATA[brand]||[])){
-      for(const c of (m.conditions||[])){
-        for(const s of (c.storages||[])){
-          rows.push({model:m.model,condition:c.condition,storage:s.storage,
-            vs_price:s.vs_price,ref_price:s.ref_price,delta:s.delta,
-            recommended:s.recommended,status:s.status,brand:brand});
-        }
+/* ---------- catalogue + insights ----------------------------------------- */
+function renderCatalogue() {
+  const q = S.f.q.toLowerCase();
+  const models = S.data.models.filter(m => (S.f.brand === "all" || m.brand === S.f.brand) && (!q || m.model.toLowerCase().includes(q)))
+    .sort((a, b) => a.brand.localeCompare(b.brand) || a.model.localeCompare(b.model, "en", {numeric: true}));
+  let html = howNote() + toolbar(`<span class="grow"></span><span class="count">${models.length} models</span>`);
+  if (!models.length) return html + `<div class="list"><div class="empty"><b>No models match</b>Clear the search to see all models.</div></div>`;
+  for (const m of models) {
+    const acts = m.variants.filter(v => v.recommended);
+    const down = acts.filter(v => v.recommended.direction === "down").length, up = acts.filter(v => v.recommended.direction === "up").length;
+    const cmp = m.variants.filter(v => v.delta != null);
+    const wins = cmp.filter(v => v.delta <= 0).length;
+    const stor = [...new Set(m.variants.map(v => v.storage))].sort((a, b) => gb(a) - gb(b));
+    let t = `<table class="mx"><thead><tr><th></th>${COND.map(c => `<th>${c}</th>`).join("")}</tr></thead><tbody>`;
+    for (const s of stor) {
+      t += `<tr><td class="st">${s}</td>`;
+      for (const c of COND) {
+        const v = m.variants.find(x => x.storage === s && x.condition === c);
+        if (!v) { t += `<td class="cell none">Not sold</td>`; continue; }
+        const key = [m.brand, m.model, c, s].join("|");
+        const dcls = v.delta == null ? "" : v.delta < -0.005 ? "neg" : v.delta > 0.005 ? "pos" : "zero";
+        t += `<td><div class="cell" data-key="${esc(key)}"><div class="p">${eur(v.vs_price)}${v.vs_in_stock ? "" : '<span class="chip out">Sold out</span>'}</div>
+          <div class="r">${v.ref_price != null ? "Refurbed " + eur(v.ref_price) : "No comparable Refurbed offer"}</div>
+          ${v.ref_price == null && v.ref_excluded_from && v.ref_excluded_from.new_battery ? `<div class="ctx">New-battery only, from ${eur(v.ref_excluded_from.new_battery)}</div>` : ""}
+          ${v.flags.includes("lone_cheap_offer") ? `<div class="ctx">Lone offer; next is ${eur(v.ref_typical)}</div>` : ""}
+          ${v.delta != null ? `<div class="d ${dcls}">${v.delta > 0 ? "+" : v.delta < 0 ? "−" : ""}${eur(Math.abs(v.delta))} (${v.delta_pct > 0 ? "+" : ""}${v.delta_pct}%)</div>` : ""}
+          ${v.recommended ? `<div class="sug ${v.recommended.direction}">${v.recommended.direction === "down" ? "▼ Lower" : "▲ Raise"} to ${eur(v.recommended.price)}</div>` : ""}
+          <button data-act="hist">History</button></div></td>`;
       }
+      t += "</tr>";
     }
-    return rows;
+    t += "</tbody></table>";
+    html += `<details class="model"><summary><b>${esc(m.model)}</b>
+      <span class="meta">${cmp.length ? `Cheaper or equal on ${wins} of ${cmp.length} compared` : "No Refurbed comparison"}</span>
+      ${down ? `<span class="tag down">▼ ${down} to lower</span>` : ""}${up ? `<span class="tag up">▲ ${up} to raise</span>` : ""}
+      ${!m.refurbed_slug ? `<span class="tag warn">Not on Refurbed</span>` : ""}</summary>${t}</details>`;
   }
+  return html;
+}
 
-  function sortTable(col){
-    if(sortCol===col) sortDir=sortDir==='asc'?'desc':'asc';
-    else{sortCol=col;sortDir='asc';}
-    applyFilters();
+function stackRow(label, rows) {
+  const c = rows.filter(r => r.delta != null && r.status !== "ref_out_of_stock");
+  const n = c.length || 1;
+  const cheaper = c.filter(r => r.status === "vs_cheaper").length, comp = c.filter(r => r.status === "competitive").length, dearer = c.filter(r => r.status === "refurbed_cheaper").length;
+  return `<div class="stk-row"><span>${label}</span><div class="stack" role="img" aria-label="${label}: ${cheaper} cheaper, ${comp} within €10, ${dearer} dearer">
+    <i style="flex:${cheaper};background:var(--raise)"></i><i style="flex:${comp};background:var(--flat)"></i><i style="flex:${dearer};background:var(--lower)"></i></div><span class="v">${c.length ? Math.round(100 * (cheaper + comp) / n) + "% ok" : "–"}</span></div>`;
+}
+
+function renderInsights() {
+  const rows = S.rows, c = rows.filter(r => r.delta_pct != null && r.status !== "ref_out_of_stock");
+  const bands = [["More than 20% cheaper", r => r.delta_pct < -20, "var(--raise)"], ["10–20% cheaper", r => r.delta_pct >= -20 && r.delta_pct < -10, "var(--raise)"],
+    ["3–10% cheaper", r => r.delta_pct >= -10 && r.delta_pct < -3, "var(--raise)"], ["Within 3%", r => Math.abs(r.delta_pct) <= 3 || (r.delta_pct >= -3 && r.delta_pct <= 3), "var(--flat)"],
+    ["3–10% dearer", r => r.delta_pct > 3 && r.delta_pct <= 10, "var(--lower)"], ["10–20% dearer", r => r.delta_pct > 10 && r.delta_pct <= 20, "var(--lower)"], ["More than 20% dearer", r => r.delta_pct > 20, "var(--lower)"]];
+  const counts = bands.map(b => c.filter(b[1]).length), max = Math.max(...counts, 1);
+  const gaps = Object.values(c.reduce((a, r) => ((a[r.brand + r.model] ||= {m: r.model, ds: []}).ds.push(r.delta_pct), a), {}))
+    .map(x => ({m: x.m, avg: x.ds.reduce((p, q) => p + q, 0) / x.ds.length})).sort((a, b) => Math.abs(b.avg) - Math.abs(a.avg)).slice(0, 10);
+  const gmax = Math.max(...gaps.map(g => Math.abs(g.avg)), 1);
+  const un = S.data.unmatched_models || [];
+  const noref = rows.filter(r => r.status === "no_ref_data").length;
+  return `<div style="padding-top:18px"><div class="grid2">
+    <section class="panel"><h2>Where you sit against Refurbed</h2><p class="sub">Compared variants by price gap. Cheaper than Refurbed is teal, dearer is orange.</p>
+      <div class="bars">${bands.map((b, i) => `<span>${b[0]}</span><div class="t"><div class="f" style="width:${counts[i] / max * 100}%;background:${b[2]}"></div></div><span class="v">${counts[i]}</span>`).join("")}</div></section>
+    <section class="panel"><h2>Competitiveness by group</h2><p class="sub">Share of compared variants where you are cheaper or within €10.</p>
+      <div class="legend"><span style="--c:var(--raise)">Cheaper</span><span style="--c:var(--flat)">Within €10</span><span style="--c:var(--lower)">Dearer</span></div>
+      ${COND.map(k => stackRow(k, rows.filter(r => r.condition === k))).join("")}
+      ${stackRow("Apple", rows.filter(r => r.brand === "apple"))}${stackRow("Samsung", rows.filter(r => r.brand === "samsung"))}</section>
+    <section class="panel"><h2>Largest average gaps by model</h2><p class="sub">Average % difference across a model’s compared variants.</p>
+      <div class="bars">${gaps.map(g => `<span>${esc(g.m)}</span><div class="t"><div class="f" style="width:${Math.abs(g.avg) / gmax * 100}%;background:${g.avg < 0 ? "var(--raise)" : "var(--lower)"}"></div></div><span class="v">${g.avg > 0 ? "+" : "−"}${Math.abs(g.avg).toFixed(0)}%</span>`).join("")}</div></section>
+    <section class="panel"><h2>Can’t be compared</h2><p class="sub">${noref} variants have no comparable Refurbed price (${S.data.summary.no_comparable || 0} because Refurbed only has new-battery or other non-matching offers). ${un.length} models have no Refurbed listing we could match:</p>
+      <ul class="plain">${un.map(u => `<li>${esc(u)}</li>`).join("") || "<li>None</li>"}</ul></section>
+  </div></div>`;
+}
+
+
+/* ---------- price details drawer ------------------------------------------ */
+
+/* ---------- margins in the queue and details ------------------------------------------------ */
+function marginLine(r) {
+  if (!S.cb) return "";
+  const x = r.cx;
+  if (!x) return r.costStatus === "unconfirmed" || r.costStatus === "proposed" || r.costStatus === "choose"
+    ? `<span class="missing" style="color:var(--muted)">Cost not used: the price-book match needs your confirmation (Costs tab).</span>`
+    : `<span class="missing" style="color:var(--muted)">No cost on file for this variant.</span>`;
+  if (x.marginNew == null) return "";
+  const cls = x.level || "ok", g = (costEstimated() ? " (estimate)" : "") + (costStale() ? " (old cost sheet)" : "");
+  return `<span class="mg ${cls}" title="Estimated gross margin on ex-VAT revenue, before fees, delivery and returns. One cost per model and storage is used for every grade.">${costEstimated() ? "Est. margin" : "Margin"} ${(x.marginNow * 100).toFixed(1)}% → ${(x.marginNew * 100).toFixed(1)}% · profit ${eur0(x.profitNow)} → ${eur0(x.profitNew)} per phone${esc(g)}</span>`;
+}
+function costBlock(r) {
+  if (!S.cb) return "";
+  if (!r.cx) return `<p class="evn">No usable cost for this variant${r.costStatus === "none" ? "" : " yet: the price-book match needs confirming"}.</p>`;
+  const x = r.cx, es = effectiveSettings();
+  return `<h4 class="evh">Cost and margin</h4><dl class="kv"><dt>Cost (price book)</dt><dd>${eur(x.cost)} <span style="color:var(--muted);font-weight:500">${esc(x.recordModel)}</span></dd>
+    <dt>Margin today</dt><dd>${(x.marginNow * 100).toFixed(1)}%</dd>${x.marginNew != null ? `<dt>Margin after change</dt><dd>${(x.marginNew * 100).toFixed(1)}%</dd>` : ""}
+    <dt>Lowest price for ${S.cs.softFloor}%</dt><dd>${eur(x.minPrice)}</dd><dt>Price for ${S.cs.target}% target</dt><dd>${eur(x.targetPrice)}</dd></dl>
+    <p class="evn">Margin = (price ex-VAT − cost) ÷ price ex-VAT, VAT at ${es.vatRate}%, cost treated as ${es.costIncludesVat ? "including" : "excluding"} VAT. Fees, delivery and returns are not included.</p>`;
+}
+
+/* ---------- costs tab ------------------------------------------------------------------------ */
+const fmtDate = d => d ? new Date(d).toLocaleDateString("en-IE", {day: "numeric", month: "short", year: "numeric"}) : "unknown";
+
+async function loadPriceBook(file) {
+  S.costMsg = "";
+  try {
+    const xl = await Costs.readXlsx(await file.arrayBuffer());
+    const pb = Costs.parsePriceBook(xl);
+    S.cb = {fileName: file.name, sheet: xl.sheetName, savedAt: xl.savedAt ? xl.savedAt.toISOString() : null, uploadedAt: new Date().toISOString(), records: pb.records, warnings: pb.warnings};
+    if (!storeBook()) S.costMsg = "Loaded for now, but this browser wouldn't store it, so you'll need to upload it again.";
+  } catch (e) { S.costMsg = "Couldn't read that file: " + e.message; }
+  applyCosts(); header(); render();
+}
+
+function renderCosts() {
+  const cs = S.cs, num = (id, label, v, step = 1) => `<label>${label}<input type="number" id="${id}" value="${v}" step="${step}"></label>`;
+  let h = `<div class="stepcard"><h2>Cost data</h2>
+    <p class="evn" style="margin-top:0">Upload Brian’s price book (.xlsx). The <b>VSG Cost</b> column is used. The file is read inside this browser and stored only here. It is never uploaded or published, which matters because this site is public.</p>
+    <p style="margin:10px 0 0"><label class="chk"><input type="checkbox" id="cs_remember" ${S.cs.remember ? "checked" : ""}>Remember the price book on this computer</label><br><span class="evn">${S.cs.remember ? "Saved in this browser until you remove it. Anyone using this computer profile, and scripts on this site’s address, can reach it." : "Session only: kept in this tab and gone when you close it. Upload again next time."}</span></p>
+    <p style="margin:10px 0 0"><input type="file" id="costFile" accept=".xlsx"> ${S.cb ? `<button class="btn sm" data-act="costClear">Remove cost data from this browser</button>` : ""}</p>`;
+  if (S.costMsg) h += `<div class="note">${esc(S.costMsg)}</div>`;
+  if (S.cb) {
+    const usable = S.cb.records.filter(r => r.usable).length, age = costAge(), cnt = {};
+    S.matches.forEach(m => cnt[m.status] = (cnt[m.status] || 0) + 1);
+    const okRows = S.rows.filter(r => r.cx).length;
+    h += `<p class="res"><b>${esc(S.cb.fileName)}</b>, sheet “${esc(S.cb.sheet)}”, file saved ${fmtDate(S.cb.savedAt)}${age != null ? ` (${age} days ago)` : ""}.<br>
+      ${S.cb.records.length} price-book rows: ${usable} with a usable cost, ${S.cb.records.length - usable} with a zero base price (ignored: the sheet still shows a €5 “cost” for them, which is only the handling fee).<br>
+      Your ${S.matches.length} model and storage combinations: ${cnt.matched || 0} matched exactly, ${cnt.confirmed || 0} confirmed by you, ${(cnt.proposed || 0) + (cnt.choose || 0)} need your confirmation, ${cnt.no_match || 0} have no match, ${cnt.no_cost || 0} matched a row with no usable cost. ${okRows} of ${S.rows.length} variants now have a margin.</p>`;
+    if (costStale()) h += `<div class="note">This price book is ${age} days old (warning after ${cs.maxAgeDays}). Margin rules still apply as set below. Check the costs are still right, and upload a newer book when you have one.</div>`;
+    S.cb.warnings.forEach(w => h += `<div class="note">${esc(w)}</div>`);
   }
+  h += `</div>`;
+  h += `<div class="stepcard"><h2>Margin settings</h2>
+    <p class="evn" style="margin-top:0">Margin means profit as a share of the ex-VAT selling price, not a mark-up on cost.</p>
+    <div class="setgrid">${num("cs_vatRate", "VAT rate %", cs.vatRate)}${num("cs_target", "Target margin %", cs.target)}${num("cs_softFloor", "Floor margin %", cs.softFloor)}${num("cs_hardWarn", "Hard warning below %", cs.hardWarn)}${num("cs_maxAgeDays", "Cost sheet counts as old after (days)", cs.maxAgeDays)}
+      <label>Protection<select id="cs_mode"><option value="block" ${cs.mode === "block" ? "selected" : ""}>Send low-margin changes to review</option><option value="warn" ${cs.mode === "warn" ? "selected" : ""}>Warn only</option></select></label></div>
+    <p style="margin:12px 0 0"><label class="chk"><input type="checkbox" id="cs_costIncludesVat" ${cs.costIncludesVat ? "checked" : ""}>Costs already include VAT</label><br>
+      <label class="chk"><input type="checkbox" id="cs_gradesConfirmed" ${cs.gradesConfirmed ? "checked" : ""}>Brian has confirmed one cost applies to Good, V. Good and Excellent</label><br>
+      <label class="chk"><input type="checkbox" id="cs_vatConfirmed" ${cs.vatConfirmed ? "checked" : ""}>VAT treatment confirmed (settings above are right)</label></p>
+    <div class="note">Margins are labelled “estimates” until you tick both boxes above. Still unconfirmed: whether VSG Cost is ex-VAT, whether one cost really applies to every grade, and whether you sell under standard VAT or the second-hand margin scheme (this tool assumes standard VAT on the full price). Your ${cs.target}% target is a guide to profitability, never a price the tool aims for: it only sets the floor below which changes are held for review. Rules apply to every approved price, including ones you type yourself.</div></div>`;
+  if (!S.cb) return h;
 
-  function snapPrice(p){return(Math.round((p+0.01)/10)*10-0.01).toFixed(2);}
-    function storageSize(s){
-    if(!s)return 0;
-    const n=parseFloat(s);
-    return s.includes('TB')?n*1024:n;
+  const order = {choose: 0, proposed: 1, no_match: 2};
+  const todo = S.matches.filter(m => order[m.status] != null).sort((a, b) => order[a.status] - order[b.status] || a.key.localeCompare(b.key, "en", {numeric: true}));
+  h += `<div class="stepcard"><h2>Matches that need you (${todo.length})</h2>
+    <p class="evn" style="margin-top:0">These names differ between the shop and the price book (for example 5G or 4G, or “Z Flip”). Nothing is matched until you confirm it. Check the model is the same phone.</p>`;
+  if (!todo.length) h += `<p class="evn">Nothing to confirm.</p>`;
+  else h += `<table class="ev"><thead><tr><th>Shop variant</th><th>Price-book row</th><th></th></tr></thead><tbody>${todo.map(m => `<tr data-key="${esc(m.key)}"><td><b>${esc(m.model)}</b> ${esc(m.storage)}<br><span style="color:var(--muted)">${m.status === "no_match" ? "No match found" : m.status === "choose" ? "Several rows fit" : "Close match"}</span></td>
+    <td>${m.candidates.length ? `<select class="cmSel" aria-label="Price-book row for ${esc(m.model)} ${esc(m.storage)}">${m.candidates.map(c => `<option value="${esc(c.ref)}">${esc(c.model)}${c.usable ? " · " + eur(c.cost) : " · no cost"}</option>`).join("")}</select>` : `<span style="color:var(--muted)">No similar name in the price book</span>`}</td>
+    <td>${m.candidates.length ? `<button class="btn sm" data-act="cmConfirm">Confirm</button>` : ""}</td></tr>`).join("")}</tbody></table>`;
+  h += `</div>`;
+
+  const bad = S.matches.filter(m => m.rejected);
+  if (bad.length) h += `<div class="stepcard"><h2>Confirmed matches that were rejected (${bad.length})</h2><p class="evn" style="margin-top:0">These were ignored because the storage size differs. Confirm the right row again.</p><ul class="plain">${bad.map(m => `<li>${esc(m.model)} ${esc(m.storage)}: ${esc(m.rejected)}</li>`).join("")}</ul></div>`;
+  const mine = S.matches.filter(m => m.status === "confirmed" || (S.cmap[m.key] && m.status === "no_cost"));
+  h += `<div class="stepcard"><h2>Confirmed by you (${mine.length})</h2>`;
+  h += mine.length ? `<table class="ev"><tbody>${mine.map(m => `<tr data-key="${esc(m.key)}"><td>${esc(m.model)} ${esc(m.storage)}</td><td>${esc(m.record.model)}<br><span style="color:var(--muted)">${S.cmap[m.key] && S.cmap[m.key].at ? "confirmed " + fmtDate(S.cmap[m.key].at) : ""}</span></td><td><button class="btn sm" data-act="cmUndo">Undo</button></td></tr>`).join("")}</tbody></table>` : `<p class="evn" style="margin-top:0">None yet.</p>`;
+  h += `<p style="margin:10px 0 0"><button class="btn sm" id="cmBackup" ${Object.keys(S.cmap).length ? "" : "disabled"}>Download my confirmed matches</button> <label class="chk">Restore: <input type="file" id="cmRestore" accept=".json"></label></p></div>`;
+
+  const low = S.rows.filter(r => r.cx && r.vs_in_stock && (r.cx.flags.includes("loss_now") || r.cx.flags.includes("below_margin_floor_now"))).sort((a, b) => a.cx.marginNow - b.cx.marginNow);
+  h += `<div class="stepcard"><h2>In stock and under your ${cs.softFloor}% floor today (${low.length})</h2>`;
+  h += low.length ? `<table class="ev"><thead><tr><th>Variant</th><th>Price</th><th>Cost</th><th>Margin</th><th>Lowest price for ${cs.softFloor}%</th><th></th></tr></thead><tbody>${low.slice(0, 40).map(r => `<tr data-key="${esc(r.key)}"><td><b>${esc(r.model)}</b><br><span style="color:var(--muted)">${esc(r.storage)} · ${esc(r.condition)}</span></td><td class="pr">${eur(r.vs_price)}</td><td>${eur(r.cx.cost)}</td><td class="mg ${r.cx.marginNow < 0 ? "loss" : "hard"}">${(r.cx.marginNow * 100).toFixed(1)}%</td><td>${eur(r.cx.minPrice)}</td><td><button class="btn sm" data-act="details">Details</button></td></tr>`).join("")}</tbody></table>${low.length > 40 ? `<p class="evn">Showing the 40 lowest.</p>` : ""}` : `<p class="evn" style="margin-top:0">None.</p>`;
+  h += `<p class="evn">Margins use one cost per model and storage for every grade, so Good may look better and Excellent worse than they really are.</p></div>`;
+  return h;
+}
+
+function whyBlock(row) {
+  const rec = row.recommended;
+  let h = "";
+  if (rec) h += `<p class="evn" style="margin-top:0"><span class="kind ${rec.kind}">${KIND[rec.kind]}</span> <span class="conf ${row.confidence.level}">${confLabel(row.confidence.level)}</span><br>${esc(rec.reason)}</p>`;
+  if (rec && rec.ideal_price != null) h += `<p class="evn">The market target is ${eur(rec.ideal_price)}. This step stops at ${eur(rec.price)} because of your step limit.</p>`;
+  if (rec && rec.limit_price != null) h += `<p class="evn">The ladder wants ${eur(rec.price)}; the most your limits allow is ${eur(rec.limit_price)}.</p>`;
+  if (row.confidence && row.confidence.missing.length) h += `<p class="evn"><b>Missing evidence:</b> ${esc(row.confidence.missing.join("; "))}.</p>`;
+  h += costBlock(row);
+  if (row.ref_checked) h += `<p class="evn">Refurbed checked ${new Date(row.ref_checked).toLocaleString("en-IE", {day: "numeric", month: "short", hour: "2-digit", minute: "2-digit"})}.</p>`;
+  return h;
+}
+
+function openDetails(key) { openDrawer(key); }
+function openDrawer(key) {
+  const row = S.rows.find(r => r.key === key); if (!row) return;
+  const siblings = S.rows.filter(r => r.brand === row.brand && r.model === row.model)
+    .sort((a, b) => gb(a.storage) - gb(b.storage) || COND.indexOf(a.condition) - COND.indexOf(b.condition));
+  $("#drTitle").textContent = row.model;
+  $("#drBody").innerHTML = `<label class="sr" for="drSel">Variant</label><select id="drSel">${siblings.map(r => `<option value="${esc(r.key)}" ${r.key === key ? "selected" : ""}>${esc(r.storage)} · ${esc(r.condition)}</option>`).join("")}</select>
+    <div class="tabs-mini"><button class="btn sm" data-dtab="offers" aria-pressed="true">Offer evidence</button><button class="btn sm" data-dtab="hist" aria-pressed="false">Price history</button></div>
+    <div id="drWhy"></div><div id="drOffers"><dl class="kv" id="drKv"></dl><div id="drEv"></div></div><div id="drHist" hidden><div id="drChart" style="position:relative"></div></div>`;
+  $("#drSel").addEventListener("change", e => drawHistory(e.target.value));
+  $("#scrim").classList.add("open"); $("#drawer").classList.add("open"); $("#drawer").setAttribute("aria-hidden", "false");
+  $("#drClose").focus();
+  drawHistory(key);
+}
+function drTab(t) {
+  $("#drOffers").hidden = t !== "offers"; $("#drHist").hidden = t !== "hist";
+  document.querySelectorAll("[data-dtab]").forEach(b => b.setAttribute("aria-pressed", b.dataset.dtab === t));
+}
+function closeDrawer() { $("#scrim").classList.remove("open"); $("#drawer").classList.remove("open"); $("#drawer").setAttribute("aria-hidden", "true"); }
+
+function evidence(row) {
+  let h = "";
+  const o = row.ref_offers || [];
+  if (o.length) h += `<h4 class="evh">Refurbed offers used for this price</h4><table class="ev"><thead><tr><th>Colour</th><th>Price</th><th>Seller</th><th>Battery · SIM</th></tr></thead><tbody>` +
+    o.map(x => `<tr><td>${esc(x.colour || "–")}</td><td class="pr">${eur(x.price)}</td><td>${esc(x.seller || "unknown")}${x.ships_from ? " (" + esc(x.ships_from) + ")" : ""}</td><td>${x.spec_verified ? esc(x.battery) + " · verified" : `<span style="color:var(--warn)">${esc(x.battery || "battery unknown")} · ${esc(x.sim || "SIM unknown")}</span>`}</td></tr>`).join("") + `</tbody></table>
+    <p class="evn">We see the buy-box seller for each colour, so this is a sample of the market, not every seller.</p>`;
+  const L = {new_battery: "new-battery", esim_only: "eSIM-only", out_of_stock: "sold-out"};
+  const parts = Object.entries(row.ref_excluded || {}).filter(([, n]) => n).map(([k, n]) => `${n} ${L[k] || k}`);
+  if (parts.length) h += `<p class="evn">Left out as not comparable: ${parts.join(", ")}.</p>`;
+  if (row.flags.includes("lone_cheap_offer") && row.ref_typical != null)
+    h += `<p class="evn">The cheapest offer (${eur(row.ref_floor)}) stands alone; the next is ${eur(row.ref_typical)}. Suggested cuts aim at the price a second seller backs, so you don't chase one listing.</p>`;
+  if (row.ref_price == null && row.ref_excluded_from && row.ref_excluded_from.new_battery)
+    h += `<p class="evn">Refurbed only sells this with a new battery, from ${eur(row.ref_excluded_from.new_battery)}. That is not comparable with your standard-battery phone.</p>`;
+  return h;
+}
+
+function drawHistory(key) {
+  const row = S.rows.find(r => r.key === key);
+  $("#drSub").textContent = `${row.storage} · ${row.condition}`;
+  const pts = ((S.hist && S.hist.entries) || []).map(e => ({d: e.date, v: (e.prices[key] || [])[0] ?? null, r: (e.prices[key] || [])[1] ?? null})).filter(p => p.v != null || p.r != null);
+  const box = $("#drChart");
+  $("#drEv").innerHTML = evidence(row);
+  $("#drWhy").innerHTML = whyBlock(row);
+  $("#drKv").innerHTML = `<dt>Your price</dt><dd>${eur(row.vs_price)}${row.vs_in_stock ? "" : " (sold out)"}</dd>${row.ref_floor != null ? `<dt>Cheapest comparable</dt><dd>${eur(row.ref_floor)}</dd>` : ""}<dt>Supported price</dt><dd>${row.ref_supported != null ? eur(row.ref_supported) : "none yet"}</dd>${row.recommended ? `<dt>Suggested</dt><dd>${eur(row.recommended.price)}</dd>` : ""}${row.shop_variants ? `<dt>Colours</dt><dd>${esc([...new Set(row.shop_variants.map(v => v.colour))].join(", "))}</dd>` : ""}`;
+  if (pts.length < 2) {
+    box.innerHTML = `<div class="empty" style="border:1px dashed var(--line);border-radius:6px"><b>History is just starting</b>${pts.length} day recorded so far. A line appears once there are two or more.</div>`;
+    return;
   }
-  const COND_ORDER={'Good':1,'V. Good':2,'Excellent':3};
-  function doSort(rows){
-    return[...rows].sort((a,b)=>{
-      let av=a[sortCol],bv=b[sortCol];
-      const nil=sortDir==='asc'?Infinity:-Infinity;
-      if(av==null)av=nil; if(bv==null)bv=nil;
-      let cmp;
-      if(typeof av==='string')cmp=sortDir==='asc'?av.localeCompare(bv):bv.localeCompare(av);
-      else cmp=sortDir==='asc'?av-bv:bv-av;
-      if(cmp!==0)return cmp;
-      // Tie-break: model → storage size → condition
-      const mc=a.model.localeCompare(b.model);
-      if(mc!==0)return mc;
-      const sc=storageSize(a.storage)-storageSize(b.storage);
-      if(sc!==0)return sc;
-      return(COND_ORDER[a.condition]||0)-(COND_ORDER[b.condition]||0);
-    });
-  }
+  const W = 470, H = 250, L = 46, R = 12, T = 12, B = 28;
+  const all = pts.flatMap(p => [p.v, p.r]).filter(x => x != null);
+  let lo = Math.min(...all), hi = Math.max(...all); const pad = Math.max((hi - lo) * .15, 5); lo -= pad; hi += pad;
+  const x = i => L + (W - L - R) * (pts.length === 1 ? .5 : i / (pts.length - 1)), y = v => T + (H - T - B) * (1 - (v - lo) / (hi - lo));
+  const path = k => { let d = "", pen = false; pts.forEach((p, i) => { if (p[k] == null) { pen = false; return; } d += (pen ? "L" : "M") + x(i).toFixed(1) + " " + y(p[k]).toFixed(1); pen = true; }); return d; };
+  const ticks = [lo + pad, (lo + hi) / 2, hi - pad];
+  let svg = `<svg class="hist" viewBox="0 0 ${W} ${H}" role="img" aria-label="Price history for ${esc(row.model)}">`;
+  ticks.forEach(t => svg += `<line x1="${L}" x2="${W - R}" y1="${y(t)}" y2="${y(t)}" stroke="var(--line-soft)"/><text x="${L - 8}" y="${y(t) + 4}" text-anchor="end">${eur0(t)}</text>`);
+  svg += `<text x="${L}" y="${H - 6}">${pts[0].d.slice(5)}</text><text x="${W - R}" y="${H - 6}" text-anchor="end">${pts[pts.length - 1].d.slice(5)}</text>`;
+  svg += `<path d="${path("r")}" fill="none" stroke="var(--ref)" stroke-width="2" stroke-dasharray="5 4"/><path d="${path("v")}" fill="none" stroke="var(--vs)" stroke-width="2.5"/>`;
+  const last = pts[pts.length - 1];
+  if (last.v != null) svg += `<circle cx="${x(pts.length - 1)}" cy="${y(last.v)}" r="4.5" fill="var(--vs)"/>`;
+  if (last.r != null) svg += `<circle cx="${x(pts.length - 1)}" cy="${y(last.r)}" r="4.5" fill="var(--panel)" stroke="var(--ref)" stroke-width="2"/>`;
+  svg += `<rect id="hz" x="${L}" y="${T}" width="${W - L - R}" height="${H - T - B}" fill="transparent"/><line id="hl" y1="${T}" y2="${H - B}" stroke="var(--faint)" display="none"/></svg>`;
+  box.innerHTML = `<div class="legend"><span style="--c:var(--vs)">ViberStore</span><span style="--c:var(--ref)">Refurbed</span></div>${svg}<div class="tip" id="tip" hidden></div>`;
+  const hz = $("#hz"), hl = $("#hl"), tip = $("#tip"), svgEl = $("svg.hist", box);
+  hz.addEventListener("pointermove", ev => {
+    const rect = svgEl.getBoundingClientRect(), sx = (ev.clientX - rect.left) * (W / rect.width);
+    const i = Math.max(0, Math.min(pts.length - 1, Math.round((sx - L) / ((W - L - R) / (pts.length - 1)))));
+    hl.setAttribute("x1", x(i)); hl.setAttribute("x2", x(i)); hl.removeAttribute("display");
+    tip.hidden = false; tip.style.left = (x(i) / W * rect.width) + "px"; tip.style.top = "40px";
+    tip.textContent = `${pts[i].d}: You ${eur(pts[i].v)} · Refurbed ${eur(pts[i].r)}`;
+  });
+  hz.addEventListener("pointerleave", () => { hl.setAttribute("display", "none"); tip.hidden = true; });
+}
 
-  function updateHeaders(){
-    const labels={model:'Model',storage:'Storage',condition:'Condition',vs_price:'VS Price',ref_price:'Ref Price',delta:'Δ Delta'};
-    for(const col of Object.keys(labels)){
-      const th=document.getElementById('th-'+col);
-      if(!th)continue;
-      th.classList.toggle('sorted',sortCol===col);
-      th.textContent=labels[col]+(sortCol===col?(sortDir==='asc'?' ↑':' ↓'):'');
-    }
-  }
 
-  function setShowFilter(f){
-    currentShowFilter=f;
-    document.getElementById('btnAll').classList.toggle('active',f==='all');
-    document.getElementById('btnAdjust').classList.toggle('active',f==='adjust');
-    document.getElementById('btnHier').classList.toggle('active',f==='hierarchy');
-    document.getElementById('btnOK').classList.toggle('active',f==='ok');
-    applyFilters();
-  }
+/* ---------- downloads ------------------------------------------------------- */
+function csv(rows) { return rows.map(r => r.map(c => { c = String(c ?? ""); return /[",\n]/.test(c) ? '"' + c.replace(/"/g, '""') + '"' : c; }).join(",")).join("\r\n"); }
+function download(name, text) {
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["﻿" + text], {type: "text/csv;charset=utf-8"}));
+  a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+function decisionLog() {
+  const day = new Date().toISOString().slice(0, 10);
+  download(`pricing-decisions-${day}.csv`, csv([["Decision", "Brand", "Model", "Storage", "Condition", "Current price", "Approved price", "Type", "Confidence", "Reason", "Note", "Refurbed cheapest", "Decided at"]].concat(
+    Object.entries(S.dec).map(([k, d]) => { const r = S.rows.find(x => x.key === k); return r ? [d.status, r.brand, r.model, r.storage, r.condition, r.vs_price, d.status === "approved" ? d.price : "", d.kind, r.confidence.level, d.reason || "", d.note || "", r.ref_price ?? "", d.at] : null; }).filter(Boolean))));
+}
 
-  function applyFilters(){
-    if(currentBrand==='analytics')return;
-    let rows=flattenBrand(currentBrand);
-    const search=(document.getElementById('searchInput')?.value||'').toLowerCase();
-    const cond=document.getElementById('condFilter')?.value||'';
-    const stor=document.getElementById('storageFilter')?.value||'';
-    if(search)rows=rows.filter(r=>r.model.toLowerCase().includes(search));
-    if(cond)rows=rows.filter(r=>r.condition===cond);
-    if(stor)rows=rows.filter(r=>r.storage===stor);
-    if(currentShowFilter==='adjust')rows=rows.filter(r=>r.recommended?.direction==='up'||r.recommended?.direction==='down');
-    if(currentShowFilter==='hierarchy')rows=rows.filter(r=>r.status==='hierarchy_issue');
-    if(currentShowFilter==='ok')rows=rows.filter(r=>r.status!=='refurbed_cheaper'&&r.status!=='hierarchy_issue'&&r.status!=='competitive');
-    rows=doSort(rows);
-    updateHeaders();
-    const rc=document.getElementById('resultsCount');
-    if(rc)rc.textContent=rows.length+' variant'+(rows.length!==1?'s':'');
-    const tbody=document.getElementById('tableBody');
-    if(!rows.length){tbody.innerHTML='<tr class="empty-row"><td colspan="8">No variants match the current filters</td></tr>';return;}
-    tbody.innerHTML=rows.map(buildRow).join('');
-  }
-
-  function buildRow(r){
-    const condCls=r.condition==='Excellent'?'tag-excellent':r.condition==='V. Good'?'tag-vgood':'tag-good';
-    const vsH=r.vs_price!=null?'<span class="price-cell">€'+r.vs_price.toFixed(2)+'</span>':'<span class="no-price">—</span>';
-    const refH=r.ref_price!=null?'<span class="price-cell">€'+r.ref_price.toFixed(2)+'</span>':'<span class="no-price">—</span>';
-    let dH='<span class="no-price">—</span>';
-    if(r.delta!=null){
-      const sign=r.delta>0?'+':'';
-      const cls=r.delta<-0.005?'delta-win':r.delta>0.005?'delta-loss':'delta-neutral';
-      dH='<span class="'+cls+'">'+sign+'€'+r.delta.toFixed(2)+'</span>';
-    }
-    let stH='';
-    if(r.status==='vs_cheaper')stH='<span class="dot dot-green"></span>VS cheaper';
-    else if(r.status==='refurbed_cheaper')stH='<span class="dot dot-red"></span>Ref cheaper';
-    else if(r.status==='competitive')stH='<span class="dot dot-slate"></span>Competitive';else if(r.status==='hierarchy_issue')stH='<span class="dot dot-amber"></span>Hierarchy issue';
-    else stH='<span class="dot dot-slate"></span>No Ref data';
-    let acH='<span class="action-none">—</span>';
-    if(r.recommended?.direction==='up')acH=`<span class="action-badge action-raise">▲ Raise${r.recommended?.price!=null?' €'+snapPrice(r.recommended.price):''}</span>`;
-    else if(r.recommended?.direction==='down')acH=`<span class="action-badge action-lower">▼ Lower${r.recommended?.price!=null?' €'+snapPrice(r.recommended.price):''}</span>`;
-    else if(r.recommended?.direction==='same')acH=`<span class="action-badge action-hold">● Hold${r.recommended?.price!=null?' €'+snapPrice(r.recommended.price):''}</span>`;
-    return'<tr>'+
-      '<td class="model-cell">'+r.model+'</td>'+
-      '<td><span class="tag tag-storage">'+r.storage+'</span></td>'+
-      '<td><span class="tag '+condCls+'">'+r.condition+'</span></td>'+
-      '<td>'+vsH+'</td><td>'+refH+'</td><td>'+dH+'</td>'+
-      '<td><div class="status-cell">'+stH+'</div></td>'+
-      '<td>'+acH+'<button class="hist-btn" data-key="'+r.brand+'|'+r.model+'|'+r.condition+'|'+r.storage+'" onclick="openHistory(this)" title="View price history">History</button></td></tr>';
-  }
-
-  function destroyChart(id){if(chartInst[id]){chartInst[id].destroy();delete chartInst[id];}}
-
-  function renderAnalytics(){
-    const all=[...flattenBrand('apple'),...flattenBrand('samsung')];
-    const apple=flattenBrand('apple'), samsung=flattenBrand('samsung');
-
-    destroyChart('chartWinRate');
-    chartInst['chartWinRate']=new Chart(document.getElementById('chartWinRate'),{
-      type:'doughnut',
-      data:{
-        labels:['VS Cheaper','Ref Cheaper','Competitive','No Ref Data','Hierarchy Issue'],
-        datasets:[{data:[
-          all.filter(r=>r.status==='vs_cheaper').length,
-          all.filter(r=>r.status==='refurbed_cheaper').length,
-          all.filter(r=>r.status==='competitive').length,
-          all.filter(r=>r.status==='no_ref_data'||r.status==='no_data').length,
-          all.filter(r=>r.status==='hierarchy_issue').length
-        ],backgroundColor:['#16a34a','#dc2626','#3b82f6','#94a3b8','#d97706'],borderWidth:2,borderColor:'#fff'}]
-      },
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{size:11},boxWidth:12}}}}
-    });
-
-    destroyChart('chartByCondition');
-    const conds=['Excellent','V. Good','Good'];
-    chartInst['chartByCondition']=new Chart(document.getElementById('chartByCondition'),{
-      type:'bar',
-      data:{
-        labels:conds,
-        datasets:[
-          {label:'VS Cheaper',data:conds.map(c=>all.filter(r=>r.condition===c&&r.status==='vs_cheaper').length),backgroundColor:'#16a34a'},
-          {label:'Ref Cheaper',data:conds.map(c=>all.filter(r=>r.condition===c&&r.status==='refurbed_cheaper').length),backgroundColor:'#dc2626'},
-          {label:'No Ref Data',data:conds.map(c=>all.filter(r=>r.condition===c&&r.status==='no_ref_data').length),backgroundColor:'#94a3b8'}
-        ]
-      },
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{size:11},boxWidth:12}}},scales:{x:{stacked:true},y:{stacked:true,ticks:{stepSize:1}}}}
-    });
-
-    destroyChart('chartByBrand');
-    chartInst['chartByBrand']=new Chart(document.getElementById('chartByBrand'),{
-      type:'bar',
-      data:{
-        labels:['Apple','Samsung'],
-        datasets:[
-          {label:'VS Cheaper',data:[apple.filter(r=>r.status==='vs_cheaper').length,samsung.filter(r=>r.status==='vs_cheaper').length],backgroundColor:'#16a34a'},
-          {label:'Ref Cheaper',data:[apple.filter(r=>r.status==='refurbed_cheaper').length,samsung.filter(r=>r.status==='refurbed_cheaper').length],backgroundColor:'#dc2626'},
-          {label:'No Ref Data',data:[apple.filter(r=>r.status==='no_ref_data').length,samsung.filter(r=>r.status==='no_ref_data').length],backgroundColor:'#94a3b8'}
-        ]
-      },
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{size:11},boxWidth:12}}},scales:{x:{stacked:true},y:{stacked:true}}}
-    });
-
-    destroyChart('chartDeltaDist');
-    const wd=all.filter(r=>r.delta!=null);
-    const bands=[
-      {l:'< -€20',fn:r=>r.delta<-20},
-      {l:'-€20 to -€10',fn:r=>r.delta>=-20&&r.delta<-10},
-      {l:'-€10 to -€1',fn:r=>r.delta>=-10&&r.delta<-1},
-      {l:'±€1',fn:r=>r.delta>=-1&&r.delta<=1},
-      {l:'+€1 to +€10',fn:r=>r.delta>1&&r.delta<=10},
-      {l:'+€10 to +€20',fn:r=>r.delta>10&&r.delta<=20},
-      {l:'> +€20',fn:r=>r.delta>20}
-    ];
-    const bColors=['#16a34a','#4ade80','#86efac','#94a3b8','#fca5a5','#dc2626','#991b1b'];
-    chartInst['chartDeltaDist']=new Chart(document.getElementById('chartDeltaDist'),{
-      type:'bar',
-      data:{labels:bands.map(b=>b.l),datasets:[{label:'Variants',data:bands.map(b=>wd.filter(b.fn).length),backgroundColor:bColors,borderRadius:4}]},
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{stepSize:1}}}}
-    });
-
-    destroyChart('chartTopModels');
-    const mmap={};
-    for(const r of all){if(r.delta==null)continue;if(!mmap[r.model])mmap[r.model]=[];mmap[r.model].push(r.delta);}
-    const mavgs=Object.entries(mmap).map(([m,d])=>({m,avg:d.reduce((a,b)=>a+b,0)/d.length})).sort((a,b)=>a.avg-b.avg).slice(0,16);
-    chartInst['chartTopModels']=new Chart(document.getElementById('chartTopModels'),{
-      type:'bar',
-      data:{labels:mavgs.map(x=>x.m),datasets:[{label:'Avg Delta (€)',data:mavgs.map(x=>+x.avg.toFixed(2)),backgroundColor:mavgs.map(x=>x.avg<0?'#16a34a':'#dc2626'),borderRadius:3}]},
-      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{title:{display:true,text:'€ (negative = VS cheaper)'}}}}
-    });
-
-    destroyChart('chartActions');
-    const amap={};
-    for(const r of all){
-      if(r.recommended?.direction!=='up'&&r.recommended?.direction!=='down')continue;
-      if(!amap[r.model])amap[r.model]={raise:0,lower:0};
-      if(r.recommended.direction==='up')amap[r.model].raise++;else amap[r.model].lower++;
-    }
-    const amodels=Object.entries(amap).map(([m,c])=>({m,...c,t:c.raise+c.lower})).sort((a,b)=>b.t-a.t).slice(0,14);
-    chartInst['chartActions']=new Chart(document.getElementById('chartActions'),{
-      type:'bar',
-      data:{
-        labels:amodels.map(x=>x.m),
-        datasets:[
-          {label:'▲ Raise',data:amodels.map(x=>x.raise),backgroundColor:'#16a34a',borderRadius:3},
-          {label:'▼ Lower',data:amodels.map(x=>x.lower),backgroundColor:'#dc2626',borderRadius:3}
-        ]
-      },
-      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{size:11},boxWidth:12}}},scales:{x:{ticks:{stepSize:1}}}}
-    });
-  }
-
-  loadData();
-  </script>
-
-  <div class="hist-overlay" id="histOverlay" onclick="closeHistory()"></div>
-  <div class="hist-drawer" id="histDrawer">
-    <div class="hist-head">
-      <div>
-        <div class="hist-model" id="histModel">Price History</div>
-        <div class="hist-sub" id="histSub"></div>
-      </div>
-      <button class="hist-close" onclick="closeHistory()">&#x2715;</button>
-    </div>
-    <select class="hist-sel" id="histVariant" onchange="renderHistChart()"></select>
-    <div class="hist-body">
-      <div class="hist-empty" id="histEmpty" style="display:none">
-        <strong>No history yet</strong>
-        History starts building from today. Check back tomorrow to see price movement over time.
-      </div>
-      <div class="hist-chart-wrap" id="histChartWrap"><canvas id="histCanvas"></canvas></div>
-    </div>
-  </div>
-  <footer style="background:#1e293b;color:#94a3b8;text-align:center;padding:18px 24px;font-size:12px;line-height:1.7;border-top:1px solid rgba(255,255,255,0.08)">
-    <strong style="color:#e2e8f0">Pricycle</strong> &mdash; Developed by Cian Fran&ccedil;ois &nbsp;|&nbsp; &copy; 2025 Pricycle. All rights reserved.<br>
-    This application and its underlying pricing intelligence technology are the exclusive intellectual property of Cian Fran&ccedil;ois.<br>
-    Unauthorised reproduction, distribution or commercial use is strictly prohibited.
-  </footer>
+load();
+</script>
 </body>
 </html>

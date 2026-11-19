@@ -1,126 +1,128 @@
 """
-ViberStore Shopify Price Scraper
-Fetches all product prices from the public Shopify products.json endpoint.
-No API key required â this is a public endpoint on all Shopify stores.
+ViberStore (Shopify) scraper (v2).
+
+Reads the public /products.json feed and returns, per phone model, one record per
+(condition, storage) combination:
+
+    price      lowest price among IN-STOCK colours (falls back to lowest overall,
+               with in_stock=False, when every colour is sold out)
+    in_stock   whether at least one colour can actually be bought
+    colours    every colour variant {id, colour, price, available} so price changes
+               can be applied to all of them (exporter uses this)
+
+v1 problems fixed here: sold-out colours set the "lowest price"; models were picked
+by title keyword and matched to Refurbed by exact title (so "Galaxy A55 5G" or
+"S24 Plus" were silently dropped); option columns with odd names ("Condition ") were
+mis-read; the "Very Good - New Battery" grade was ignored without being reported.
 """
+import json
+import re
 
-import requests
-import time
+from http_client import Client
 
-STORE_URL = "https://viberstore.ie"
-HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; ViberStorePricingBot/1.0)"}
-
-# Conditions we care about â must match Shopify option2 values exactly
-TARGET_CONDITIONS = {"Good", "V. Good", "Very Good", "Excellent"}
-
-# Storage sizes we track
-TARGET_STORAGES = {"64GB", "128GB", "256GB", "512GB", "1TB"}
-
-# Phone brands to include
-APPLE_KEYWORDS = ["iphone"]
-SAMSUNG_KEYWORDS = ["samsung galaxy", "samsung s", "samsung a"]
+CONDITION_MAP = {"good": "Good", "very good": "V. Good", "v. good": "V. Good", "excellent": "Excellent"}
+_STORAGE_RE = re.compile(r"^\s*(\d+)\s*(GB|TB)\s*$", re.I)
 
 
-def fetch_all_products():
-    """Pages through the Shopify products.json endpoint and returns all products."""
-    all_products = []
-    page = 1
+def normalise_condition(v):
+    return CONDITION_MAP.get((v or "").strip().lower())
 
+
+def normalise_storage(v):
+    m = _STORAGE_RE.match(v or "")
+    return f"{int(m.group(1))}{m.group(2).upper()}" if m else None
+
+
+def clean_title(title):
+    return re.sub(r"^Apple\s+", "", title.strip())
+
+
+def fetch_all_products(store_url):
+    client = Client(store_url, headers={"User-Agent": "Mozilla/5.0 (compatible; ViberStorePricingBot/2.0)"}, interval=0.4)
+    products, page = [], 1
     while True:
-        url = f"{STORE_URL}/products.json?limit=250&page={page}"
-        try:
-            resp = requests.get(url, headers=HEADERS, timeout=15)
-            resp.raise_for_status()
-            products = resp.json().get("products", [])
-        except Exception as e:
-            print(f"  â  Error fetching page {page}: {e}")
-            break
-
-        if not products:
-            break
-
-        all_products.extend(products)
-        print(f"  Shopify page {page}: {len(products)} products fetched")
-
-        if len(products) < 250:
-            break
-
+        status, text, _ = client.get(f"/products.json?limit=250&page={page}")
+        if status != 200:
+            raise RuntimeError(f"Shopify products.json page {page} failed (HTTP {status})")
+        batch = json.loads(text).get("products", [])
+        products.extend(batch)
+        if len(batch) < 250:
+            return products
         page += 1
-        time.sleep(0.5)
-
-    return all_products
 
 
-def extract_phone_prices(products, keywords):
-    """
-    From the full product list, extracts phones matching keywords.
-    Returns a dict: { model_title: { condition: { storage: price } } }
-    """
-    result = {}
+def _option_positions(product):
+    """{'memory': 1, 'condition': 2, ...} - tolerant of case / spacing / wording."""
+    pos = {}
+    for i, o in enumerate(product.get("options", []), start=1):
+        name = (o.get("name") or "").strip().lower()
+        if name in ("memory", "storage", "capacity"):
+            pos["memory"] = i
+        elif "condition" in name or name == "grade":
+            pos["condition"] = i
+        elif name in ("colour", "color"):
+            pos["colour"] = i
+    return pos
 
-    for product in products:
-        title = product.get("title", "")
-        product_type = product.get("product_type", "")
 
-        # Only include mobile phones matching our keywords
-        title_lower = title.lower()
-        if product_type != "Mobile Phones":
+def extract_models(products, brands, exclude=()):
+    """Returns ({title: model_record}, skipped_counts)."""
+    brands = {b.lower() for b in brands}
+    exclude = {e.lower() for e in exclude}
+    models, skipped = {}, {"new_battery_variants": 0, "unparsed_models": []}
+
+    for p in products:
+        if p.get("product_type") != "Mobile Phones":
             continue
-        if not any(kw in title_lower for kw in keywords):
+        if (p.get("vendor") or "").lower() not in brands:
+            continue
+        title = clean_title(p.get("title", ""))
+        if title.lower() in exclude:
+            continue
+        pos = _option_positions(p)
+        if "memory" not in pos or "condition" not in pos:
+            skipped["unparsed_models"].append(title)
             continue
 
-        # Get option positions (Shopify options can be in any order)
-        options = {o["name"]: idx + 1 for idx, o in enumerate(product.get("options", []))}
-        mem_key = f"option{options.get('Memory', 1)}"
-        cond_key = f"option{options.get('Condition', 2)}"
-
-        model_prices = {}
-
-        for variant in product.get("variants", []):
-            storage = variant.get(mem_key, "")
-            condition = variant.get(cond_key, "")
-            # Normalize condition names to a single canonical form
-            if condition == "Very Good":
-                condition = "V. Good"
-            price = float(variant.get("price", 0))
-            available = variant.get("available", False)
-
-            if condition not in TARGET_CONDITIONS:
+        combos = {}
+        for v in p.get("variants", []):
+            raw_cond = v.get(f"option{pos['condition']}")
+            cond = normalise_condition(raw_cond)
+            if cond is None:
+                if raw_cond and "new battery" in raw_cond.lower():
+                    skipped["new_battery_variants"] += 1
                 continue
-            if storage not in TARGET_STORAGES:
+            storage = normalise_storage(v.get(f"option{pos['memory']}"))
+            try:
+                price = round(float(v.get("price") or 0), 2)
+            except ValueError:
+                price = 0
+            if storage is None or price <= 0:
                 continue
-            if price == 0:
-                continue
+            colour = v.get(f"option{pos['colour']}") if "colour" in pos else None
+            combos.setdefault((cond, storage), []).append(
+                {"id": v.get("id"), "sku": (v.get("sku") or "").strip(), "colour": colour, "price": price, "available": bool(v.get("available")),
+                 "raw_memory": v.get(f"option{pos['memory']}"), "raw_condition": raw_cond,
+                 "options": [v.get("option1"), v.get("option2"), v.get("option3")]}
+            )
 
-            if condition not in model_prices:
-                model_prices[condition] = {}
-
-            # If multiple colours exist for same storage+condition, keep the lowest price
-            if storage not in model_prices[condition] or price < model_prices[condition][storage]:
-                model_prices[condition][storage] = price
-
-        if model_prices:
-            result[title] = model_prices
-
-    return result
-
-
-def get_viberstore_prices():
-    """Main entry point â returns structured prices for Apple and Samsung."""
-    print("â Fetching ViberStore (Shopify) prices...")
-    products = fetch_all_products()
-    print(f"  Total products found: {len(products)}")
-
-    apple_prices = extract_phone_prices(products, APPLE_KEYWORDS)
-    samsung_prices = extract_phone_prices(products, SAMSUNG_KEYWORDS)
-
-    print(f"  Apple models: {len(apple_prices)}")
-    print(f"  Samsung models: {len(samsung_prices)}")
-
-    return {"apple": apple_prices, "samsung": samsung_prices}
-
-
-if __name__ == "__main__":
-    import json
-    prices = get_viberstore_prices()
-    print(json.dumps(prices, indent=2))
+        if not combos:
+            continue
+        out = {}
+        for key, variants in combos.items():
+            in_stock_variants = [x for x in variants if x["available"]]
+            pool = in_stock_variants or variants
+            out[key] = {
+                "price": min(x["price"] for x in pool),
+                "in_stock": bool(in_stock_variants),
+                "price_spread": round(max(x["price"] for x in pool) - min(x["price"] for x in pool), 2),
+                "colours": variants,
+            }
+        models[title] = {
+            "title": title,
+            "vendor": p.get("vendor"),
+            "handle": p.get("handle"),
+            "url": f"/products/{p.get('handle')}",
+            "combos": out,
+        }
+    return models, skipped

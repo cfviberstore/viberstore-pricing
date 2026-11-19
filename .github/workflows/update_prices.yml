@@ -1,70 +1,52 @@
-name: Update Prices
+name: Update prices
 
 on:
-  # Runs every 4 hours - so prices are never more than 4 hours stale
   schedule:
-    - cron: '0 */4 * * *'   # 00:00, 04:00, 08:00, 12:00, 16:00, 20:00 UTC
+    - cron: '17 5,17 * * *'      # twice a day (a run is ~6 min / ~1,500 requests)
+  workflow_dispatch:             # "Run workflow" button in the Actions tab
 
-  # Allows triggering instantly from the app via GitHub API (the "Run Scraper Now" button)
-  # or manually from the GitHub Actions tab
-  workflow_dispatch:
-    inputs:
-      reason:
-        description: 'Reason for manual run (optional)'
-        required: false
-        default: 'Manual price refresh'
+# The bot needs to push the refreshed data back to the repo.
+permissions:
+  contents: write
+
+# Never run two updates at once (a manual run during a scheduled one).
+concurrency:
+  group: update-prices
+  cancel-in-progress: false
 
 jobs:
-  update-prices:
-    name: Scrape & Update Prices
+  update:
     runs-on: ubuntu-latest
-
+    timeout-minutes: 30
     steps:
-      # 1. Check out the repository
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      # 2. Set up Python
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-          cache: 'pip'
+          python-version: '3.12'
+          cache: pip
           cache-dependency-path: scraper/requirements.txt
 
-      # 3. Install dependencies
-      - name: Install dependencies
-        run: pip install -r scraper/requirements.txt
+      - run: pip install -r scraper/requirements.txt
 
-      # 4. Run the price update script
-      - name: Run price scraper
-        run: |
-          cd scraper
-          python update_prices.py
-        timeout-minutes: 20
+      # Parsers and pricing rules must pass before any new data is published.
+      - name: Run tests
+        run: python -m unittest discover -s tests
 
-      # 5. Commit the updated prices.json back to the repo
-      - name: Commit updated prices
+      # Exits non-zero (and leaves prices.json untouched) if far fewer Refurbed prices
+      # than last time were found - i.e. Refurbed changed their page or blocked us.
+      - name: Update prices
+        run: python scraper/update_prices.py
+
+      - name: Commit data
         run: |
           git config user.name  "ViberStore Price Bot"
-          git config user.email "pricing-bot@viberstore.ie"
-          git add data/prices.json
-          # Only commit if there are actual changes
+          git config user.email "pricing-bot@users.noreply.github.com"
+          git add data/prices.json data/history.json data/slugs.json
           if git diff --staged --quiet; then
-            echo "No price changes detected - skipping commit"
+            echo "No changes"
           else
-            TIMESTAMP=$(date -u '+%Y-%m-%d %H:%M UTC')
-            git commit -m "chore: update prices ${TIMESTAMP}"
+            git commit -m "data: update prices $(date -u '+%Y-%m-%d %H:%M UTC')"
+            git pull --rebase --autostash
             git push
-            echo "Prices committed and pushed"
-          fi
-
-      # 6. Report status
-      - name: Report status
-        if: always()
-        run: |
-          if [ "${{ job.status }}" == "success" ]; then
-            echo "Price update completed successfully"
-          else
-            echo "Price update failed - check the logs above"
           fi

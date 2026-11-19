@@ -1,338 +1,169 @@
 """
-Master Price Update Script
-Runs both scrapers, merges the data, and writes data/prices.json.
-Called by GitHub Actions every night.
-"""
+Master update script: ViberStore (Shopify) + Refurbed -> data/prices.json (+ history).
 
+Usage:  python update_prices.py [--limit N] [--dry-run]
+"""
+import argparse
 import json
 import os
+import sys
+import time
 from datetime import datetime, timezone
 
-from shopify_scraper import get_viberstore_prices
-from refurbed_scraper import get_refurbed_prices, APPLE_MODEL_SLUGS, SAMSUNG_MODEL_SLUGS
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-STORAGES = ["64GB", "128GB", "256GB", "512GB", "1TB"]
-CONDITIONS = ["Good", "V. Good", "Excellent"]
+from engine import Policy, build_model, summarise  # noqa: E402
+from refurbed_scraper import Refurbed  # noqa: E402
+from shopify_scraper import extract_models, fetch_all_products  # noqa: E402
 
-# Hierarchy enforcement for recommended prices
-COND_ORDER    = {c: i for i, c in enumerate(CONDITIONS)}
-STORAGE_ORDER = {s: i for i, s in enumerate(STORAGES)}
-MIN_COND_GAP  = 10   # min euro gap between condition grades (Good -> V.Good -> Excellent)
-MIN_STOR_GAP  = 20   # min euro gap between storage tiers (128GB -> 256GB etc.)
-
-
-# Path to output file (relative to repo root)
-OUTPUT_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "prices.json")
-HISTORY_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "history.json")
+ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+CONFIG_PATH = os.path.join(ROOT, "config.json")
+PRICES_PATH = os.path.join(ROOT, "data", "prices.json")
+HISTORY_PATH = os.path.join(ROOT, "data", "history.json")
+SLUGS_PATH = os.path.join(ROOT, "data", "slugs.json")
+SCHEMA = 3
 
 
-def snap_to_x999(price):
-    """Snap a price to nearest X9.99 (e.g. 667.50 -> 669.99, 450.99 -> 449.99)."""
-    return round(round((price + 0.01) / 10) * 10 - 0.01, 2)
+def load_json(path, default):
+    try:
+        with open(path, encoding="utf-8") as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return default
 
 
-def enforce_rec_hierarchy(conditions_out):
-    """
-    Post-process recommended prices to ensure ViberStore's pricing hierarchy:
-      - Good < V.Good < Excellent for same storage (min gap: MIN_COND_GAP)
-      - Smaller storage < Larger storage for same condition (min gap: MIN_STOR_GAP)
-    Violating prices are bumped up to the minimum required, snapped to X9.99.
-    """
-    lookup = {}
-    for c_entry in conditions_out:
-        cond = c_entry["condition"]
-        for s_entry in c_entry.get("storages", []):
-            lookup[(cond, s_entry["storage"])] = s_entry
+def save_json(path, obj, **kw):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    tmp = path + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(obj, f, ensure_ascii=False, **kw)
+    os.replace(tmp, path)
 
-    storages = sorted({s for (_, s) in lookup}, key=lambda x: STORAGE_ORDER.get(x, 99))
-    conds    = sorted({c for (c, _) in lookup}, key=lambda x: COND_ORDER.get(x, 99))
 
-    for si, stor in enumerate(storages):
-        for ci, cond in enumerate(conds):
-            entry = lookup.get((cond, stor))
-            if not entry:
+def variant_key(brand, model, cond, storage):
+    return f"{brand}|{model}|{cond}|{storage}"
+
+
+def update_history(models, now, keep_days):
+    history = load_json(HISTORY_PATH, {"entries": []})
+    snap = {}
+    for m in models:
+        for v in m["variants"]:
+            if v["vs_price"] is None and v["ref_price"] is None:
                 continue
-            rec = entry.get("recommended")
-            if not rec or rec.get("price") is None:
-                continue
-
-            floor_p = rec["price"]
-
-            if ci > 0:
-                prev = lookup.get((conds[ci - 1], stor))
-                if prev and prev.get("recommended") and prev["recommended"].get("price") is not None:
-                    floor_p = max(floor_p, prev["recommended"]["price"] + MIN_COND_GAP)
-
-            if si > 0:
-                prev = lookup.get((cond, storages[si - 1]))
-                if prev and prev.get("recommended") and prev["recommended"].get("price") is not None:
-                    floor_p = max(floor_p, prev["recommended"]["price"] + MIN_STOR_GAP)
-
-            if floor_p > rec["price"]:
-                new_price = snap_to_x999(floor_p)
-                rec["price"] = new_price
-                vs_p = entry.get("vs_price")
-                if vs_p is not None:
-                    diff = new_price - vs_p
-                    rec["direction"] = "up" if diff > 5 else ("down" if diff < -5 else "same")
-
-    return conditions_out
-
-
-def build_model_entry(model_name, vs_prices, ref_prices):
-    """
-    Builds the combined pricing entry for one model.
-    vs_prices:  { condition: { storage: price } }  from Shopify
-    ref_prices: { condition: { storage: price } }  from Refurbed
-    """
-    conditions_out = []
-
-    # Pre-compute which conditions have cross-condition pricing violations
-    hierarchy_violations = check_condition_hierarchy(vs_prices)
-
-    for condition in CONDITIONS:
-        vs_cond = vs_prices.get(condition, {})
-        ref_cond = ref_prices.get(condition, {})
-
-        # Build per-storage comparison
-        storage_data = []
-        for storage in STORAGES:
-            vs_price = vs_cond.get(storage)
-            ref_price = ref_cond.get(storage)
-
-            if vs_price is None and ref_price is None:
-                continue  # Skip storages with no data at all
-
-            # Calculate delta and recommendation
-            delta = None
-            recommended = None
-            status = "no_data"
-            action = "no_comparison"
-            hierarchy_ok = True
-
-            if vs_price is not None and ref_price is not None:
-                delta = round(vs_price - ref_price, 2)
-
-                if delta > 10:
-                    # We're significantly more expensive â suggest bringing price down to match
-                    recommended = snap_to_x999(ref_price)  # â¬1 above Refurbed
-                    direction = "down"
-                    status = "refurbed_cheaper"
-                elif delta < -10:
-                    # We're well below Refurbed â potential to raise
-                    recommended = snap_to_x999(ref_price)  # â¬1 below Refurbed
-                    direction = "up"
-                    status = "vs_cheaper"
-                else:
-                    # Within â¬10 â price is competitive, stay
-                    recommended = vs_price
-                    direction = "same"
-                    status = "competitive"
-
-                action = "adjust" if direction != "same" else "ok"
-
-            elif vs_price is not None:
-                status = "no_ref_data"
-                action = "no_comparison"
-
-            storage_data.append({
-                "storage": storage,
-                "vs_price": vs_price,
-                "ref_price": ref_price,
-                "delta": delta,
-                "recommended": {"price": recommended, "direction": direction} if recommended else None,
-                "status": status,
-            })
-
-        if not storage_data:
-            continue
-
-        # Hierarchy check: Good < V.Good < Excellent for each storage size
-        hierarchy_ok = condition not in hierarchy_violations
-
-        conditions_out.append({
-            "condition": condition,
-            "storages": storage_data,
-            "hierarchy_ok": hierarchy_ok,
-            "action": summarise_action(storage_data),
-        })
-
-    enforce_rec_hierarchy(conditions_out)
-
-    return {
-        "model": model_name,
-        "conditions": conditions_out,
-    }
-
-
-def check_condition_hierarchy(vs_prices):
-    """
-    Check that VS prices escalate correctly across conditions for the same storage:
-    Good < V. Good < Excellent (for each storage size).
-
-    Returns a set of condition names that are involved in a hierarchy violation.
-    E.g. if Good 128GB costs more than V. Good 128GB, both 'Good' and 'V. Good'
-    are returned so either can be flagged as hierarchy_ok=False.
-    """
-    condition_order = ["Good", "V. Good", "Excellent"]
-    violations = set()
-
-    for storage in STORAGES:
-        prices = []
-        for cond in condition_order:
-            p = vs_prices.get(cond, {}).get(storage)
-            if p is not None:
-                prices.append((cond, p))
-
-        # Each step must be strictly higher
-        for i in range(1, len(prices)):
-            prev_cond, prev_price = prices[i - 1]
-            curr_cond, curr_price = prices[i]
-            if curr_price <= prev_price:
-                violations.add(prev_cond)
-                violations.add(curr_cond)
-
-    return violations
-
-
-def summarise_action(storage_data):
-    """Summarise the overall action needed for a condition."""
-    to_adjust = [s for s in storage_data if s.get("status") in ("refurbed_cheaper", "vs_cheaper")]
-    hier_issues = [s for s in storage_data if not s.get("hierarchy_ok", True)]
-
-    if hier_issues:
-        return "fix_hierarchy"
-    if to_adjust:
-        return f"adjust_{len(to_adjust)}"
-    return "ok"
-
-
-def merge_and_build(vs_data, ref_apple, ref_samsung):
-    """Merge all scraped data into one JSON structure."""
-    apple_models = []
-    samsung_models = []
-
-    # Apple
-    for model_name in APPLE_MODEL_SLUGS.keys():
-        vs_prices = vs_data["apple"].get(model_name, {})
-        ref_prices = ref_apple.get(model_name, {})
-        if vs_prices or ref_prices:
-            entry = build_model_entry(model_name, vs_prices, ref_prices)
-            apple_models.append(entry)
-
-    # Samsung
-    for model_name in SAMSUNG_MODEL_SLUGS.keys():
-        vs_prices = vs_data["samsung"].get(model_name, {})
-        ref_prices = ref_samsung.get(model_name, {})
-        if vs_prices or ref_prices:
-            entry = build_model_entry(model_name, vs_prices, ref_prices)
-            samsung_models.append(entry)
-
-    # Dashboard stats
-    all_entries = apple_models + samsung_models
-    total_variants = sum(
-        len(s["storages"])
-        for m in all_entries for c in m["conditions"] for s in [c]
-    )
-    vs_cheaper = sum(
-        1 for m in all_entries
-        for c in m["conditions"]
-        for s in c["storages"]
-        if s.get("status") == "vs_cheaper"
-    )
-    ref_cheaper = sum(
-        1 for m in all_entries
-        for c in m["conditions"]
-        for s in c["storages"]
-        if s.get("status") == "refurbed_cheaper"
-    )
-    hier_issues = sum(
-        1 for m in all_entries
-        for c in m["conditions"]
-        if not c.get("hierarchy_ok", True)
-    )
-    deltas = [
-        s["delta"] for m in all_entries
-        for c in m["conditions"]
-        for s in c["storages"]
-        if s.get("delta") is not None
-    ]
-    avg_delta = round(sum(deltas) / len(deltas), 2) if deltas else 0
-
-    return {
-        "last_updated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "dashboard": {
-            "models_priced": len(all_entries),
-            "vs_cheaper": vs_cheaper,
-            "ref_cheaper": ref_cheaper,
-            "avg_delta": avg_delta,
-            "hierarchy_issues": hier_issues,
-        },
-        "apple": apple_models,
-        "samsung": samsung_models,
-    }
-
-
-def update_history(output):
-    """Append today's prices to data/history.json, keeping last 30 days."""
-    if os.path.exists(HISTORY_PATH):
-        with open(HISTORY_PATH, "r") as f:
-            history = json.load(f)
-    else:
-        history = {"entries": []}
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    snapshot = {}
-    for brand in ("apple", "samsung"):
-        for model in output.get(brand, []):
-            for cond in model.get("conditions", []):
-                for stor in cond.get("storages", []):
-                    key = f"{brand}|{model['model']}|{cond['condition']}|{stor['storage']}"
-                    entry = {}
-                    if stor.get("vs_price") is not None:
-                        entry["vs"] = stor["vs_price"]
-                    if stor.get("ref_price") is not None:
-                        entry["ref"] = stor["ref_price"]
-                    if entry:
-                        snapshot[key] = entry
-    existing = next((e for e in history["entries"] if e["date"] == today), None)
-    if existing:
-        existing["prices"] = snapshot
-    else:
-        history["entries"].append({"date": today, "prices": snapshot})
-    history["entries"] = sorted(history["entries"], key=lambda e: e["date"])[-30:]
-    os.makedirs(os.path.dirname(HISTORY_PATH), exist_ok=True)
-    with open(HISTORY_PATH, "w") as f:
-        json.dump(history, f, separators=(",", ":"))
-    print(f"  History: {len(history['entries'])} day(s) logged")
+            snap[variant_key(m["brand"], m["model"], v["condition"], v["storage"])] = [v["vs_price"], v["ref_price"]]
+    day = now.strftime("%Y-%m-%d")
+    entries = [e for e in history["entries"] if e["date"] != day]
+    entries.append({"date": day, "prices": snap})
+    history["entries"] = sorted(entries, key=lambda e: e["date"])[-keep_days:]
+    history["format"] = "prices[key] = [viberstore_price, refurbed_price]"
+    save_json(HISTORY_PATH, history, separators=(",", ":"))
+    return len(history["entries"])
 
 
 def main():
-    print("=" * 50)
-    print("ViberStore Pricing Update")
-    print("=" * 50)
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--limit", type=int, help="only process the first N models (testing)")
+    ap.add_argument("--dry-run", action="store_true", help="don't write any files")
+    args = ap.parse_args()
 
-    # Fetch ViberStore prices (Shopify)
-    vs_data = get_viberstore_prices()
+    t0 = time.time()
+    cfg = load_json(CONFIG_PATH, {})
+    policy = Policy.from_config(cfg.get("policy"))
+    now = datetime.now(timezone.utc)
 
-    # Fetch Refurbed prices
-    ref_apple = get_refurbed_prices("apple")
-    ref_samsung = get_refurbed_prices("samsung")
+    print("ViberStore: fetching catalogue ...")
+    products = fetch_all_products(cfg.get("store_url", "https://viberstore.ie"))
+    vs_models, skipped = extract_models(products, cfg.get("brands", ["Apple", "Samsung"]), cfg.get("exclude_models", []))
+    titles = sorted(vs_models)[: args.limit] if args.limit else sorted(vs_models)
+    print(f"  {len(vs_models)} models; processing {len(titles)}. "
+          f"Ignored 'New Battery' variants: {skipped['new_battery_variants']}; unparsed: {skipped['unparsed_models']}")
 
-    # Merge everything
-    print("\nâ Merging data and computing recommendations...")
-    output = merge_and_build(vs_data, ref_apple, ref_samsung)
+    ref = Refurbed(rc=cfg.get("refurbed"))
+    slug_cache = load_json(SLUGS_PATH, {})
+    overrides = cfg.get("slug_overrides", {})
 
-    # Save to data/prices.json
-    os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
-    with open(OUTPUT_PATH, "w") as f:
-        json.dump(output, f, indent=2)
+    print("Refurbed: matching models ...")
+    slugs = {}
+    for t in titles:
+        slugs[t] = ref.resolve_slug(t, slug_cache, overrides)
+    unmatched = [t for t, s in slugs.items() if not s]
+    print(f"  matched {len(titles) - len(unmatched)}/{len(titles)}; no Refurbed page: {unmatched}")
 
-    print(f"\nâ Done! prices.json updated.")
-    print(f"   Models: {output['dashboard']['models_priced']}")
-    print(f"   VS Cheaper: {output['dashboard']['vs_cheaper']}")
-    print(f"   Refurbed Cheaper: {output['dashboard']['ref_cheaper']}")
-    print(f"   Hierarchy Issues: {output['dashboard']['hierarchy_issues']}")
-    print(f"   Avg Delta: â¬{output['dashboard']['avg_delta']}")
+    print("Refurbed: fetching exact variant prices ...")
+    jobs = {}
+    for t, slug in slugs.items():
+        if slug:
+            jobs.setdefault(slug, set()).update(vs_models[t]["combos"].keys())
+    scraped = ref.scrape_many(jobs)
+
+    previous = load_json(PRICES_PATH, {})
+    prev_ref = {}
+    for m in previous.get("models", []):
+        for v in m["variants"]:
+            if v.get("ref_price") is not None:
+                prev_ref[variant_key(m["brand"], m["model"], v["condition"], v["storage"])] = v
+
+    models_out, carried = [], 0
+    for t in titles:
+        vm = vs_models[t]
+        brand = "samsung" if vm["vendor"].lower() == "samsung" else vm["vendor"].lower()
+        slug = slugs[t]
+        ref_prices = dict(scraped.get(slug, {})) if slug else {}
+        # transient fetch failure: keep yesterday's number, clearly marked as stale
+        for key, val in list(ref_prices.items()):
+            if val == "error":
+                old = prev_ref.get(variant_key(brand, t, *key))
+                if old:
+                    ref_prices[key] = {"price": old["ref_price"], "in_stock": old.get("ref_in_stock", True),
+                                       "url": old.get("ref_url"), "flags": ["stale_data"],
+                                       "checked": old.get("ref_checked") or previous.get("last_updated")}
+                    carried += 1
+        stamp = now.strftime("%Y-%m-%dT%H:%M:%SZ")
+        for val in ref_prices.values():
+            if isinstance(val, dict):
+                val.setdefault("checked", stamp)
+        variants = build_model(vm["combos"], ref_prices, policy)
+        for v in variants:
+            if (v["condition"], v["storage"]) in vm["combos"]:
+                v["shop_variants"] = [
+                    {"id": c["id"], "sku": c.get("sku", ""), "colour": c["colour"], "price": c["price"], "in_stock": c["available"],
+                     "options": c["options"]}
+                    for c in vm["combos"][(v["condition"], v["storage"])]["colours"]
+                ]
+        models_out.append({
+            "brand": brand, "model": t, "handle": vm["handle"], "refurbed_slug": slug,
+            "variants": variants,
+        })
+
+    summary = summarise(models_out)
+    output = {
+        "schema": SCHEMA,
+        "last_updated": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "policy": cfg.get("policy", {}),
+        "summary": summary,
+        "unmatched_models": unmatched,
+        "extensions": {"cost_data": False, "stock_qty": False, "new_battery_benchmark": False},
+        "models": models_out,
+    }
+
+    # ---- guard: never publish a clearly broken scrape ------------------------------------
+    prev_n = sum(1 for m in previous.get("models", []) for v in m["variants"] if v.get("ref_price") is not None)
+    new_n = sum(1 for m in models_out for v in m["variants"] if v["ref_price"] is not None)
+    min_cov = cfg.get("min_coverage_vs_previous", 0.6)
+    if not args.limit and prev_n >= 20 and new_n < prev_n * min_cov:
+        print(f"ABORT: only {new_n} Refurbed prices vs {prev_n} last time (< {min_cov:.0%}). "
+              f"Keeping the previous prices.json.")
+        sys.exit(1)
+
+    print(f"Done in {time.time() - t0:.0f}s - {summary['variants']} variants, "
+          f"{summary['comparable']} compared, {summary['actions']} recommended changes, "
+          f"{carried} stale carried over, {ref.client.errors} request failures.")
+    if args.dry_run:
+        return
+    save_json(PRICES_PATH, output, indent=1)
+    save_json(SLUGS_PATH, slug_cache, indent=1, sort_keys=True)
+    print(f"History: {update_history(models_out, now, cfg.get('history_days', 120))} day(s) stored")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,35 @@
+{
+  "store_url": "https://viberstore.ie",
+  "brands": [
+    "Apple",
+    "Samsung"
+  ],
+  "conditions": [
+    "Good",
+    "V. Good",
+    "Excellent"
+  ],
+  "policy": {
+    "tolerance_eur": 10,
+    "undercut_eur": 0,
+    "max_raise_pct": 10,
+    "max_lower_pct": 30,
+    "min_condition_gap_eur": 10,
+    "min_storage_gap_eur": 20,
+    "review_gap_pct": 35
+  },
+  "slug_overrides": {},
+  "exclude_models": [],
+  "history_days": 120,
+  "min_coverage_vs_previous": 0.6,
+  "refurbed": {
+    "verify_colours": 3,
+    "max_page_fetches": 6,
+    "exclude_battery": [
+      "new"
+    ],
+    "exclude_sim_pattern": "(2\\s*e-?sims?|e-?sim\\s*only|only\\s*e-?sim|dual[- ]e-?sim)",
+    "lone_gap_eur": 15,
+    "lone_gap_pct": 6
+  }
+}
